@@ -1,0 +1,16 @@
+<resources>
+	<string name="app_name">Sherlock</string>
+	
+	<string name="error">Something went wrong!</string>
+	<string name="error_no_cause">Something went wrong!\n%1$s</string>
+	<string name="error_cause">Something went wrong!\n%1$s\n%2$s</string>
+	
+	<string name="network_error">Connection Failed!\nCheck your network connection.</string>
+	<string name="network_error_no_cause">Connection Failed!\n%1$s</string>
+	<string name="network_error_cause">Connection Failed!\n%1$s\n%2$s</string>
+	
+	<string name="publishing">Publishing…</string>
+	<string name="something_went_wrong">Something went wrong!</string>
+	<string name="published_successfully">Published successfully!</string>
+
+</resources>

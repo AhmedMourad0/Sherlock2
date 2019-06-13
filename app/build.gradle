@@ -1,0 +1,140 @@
+apply plugin: "com.android.application"
+apply plugin: "kotlin-android"
+apply plugin: "kotlin-android-extensions"
+apply plugin: "kotlin-kapt"
+apply plugin: "de.mannodermaus.android-junit5"
+
+android {
+    signingConfigs {
+        config {
+            keyAlias "Ahmed Mourad"
+            keyPassword "password"
+            storeFile file("$rootDir/keystore.jks")
+            storePassword "password"
+        }
+    }
+    compileSdkVersion 28
+    defaultConfig {
+        applicationId "inc.ahmedmourad.sherlock"
+        minSdkVersion 17
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
+        buildConfigField 'String', "GooglePlacesApiKey", googlePlacesApiKey
+        resValue "string", "google_places_api_key", googlePlacesApiKey
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            signingConfig signingConfigs.config
+        }
+    }
+    flavorDimensions "default"
+    productFlavors {
+        development {
+            applicationIdSuffix ".development"
+            dimension "default"
+        }
+        qa {
+            applicationIdSuffix ".test"
+            dimension "default"
+        }
+        production {
+            dimension "default"
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    sourceSets.each {
+        it.java.srcDirs += "src/$it.name/kotlin"
+    }
+    testOptions {
+        junitPlatform {
+            filters {
+                engines {
+                    include 'spek2'
+                }
+            }
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven { url "https://jitpack.io" }
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+    implementation "androidx.appcompat:appcompat:1.0.2"
+    implementation "androidx.recyclerview:recyclerview:1.0.0"
+    implementation "androidx.cardview:cardview:1.0.0"
+    implementation "androidx.media:media:1.0.1"
+    implementation "androidx.legacy:legacy-support-v4:1.0.0"
+    implementation "androidx.lifecycle:lifecycle-extensions:2.0.0"
+    implementation "androidx.constraintlayout:constraintlayout:2.0.0-beta1"
+    implementation "androidx.exifinterface:exifinterface:1.0.0"
+
+    implementation "com.google.android.material:material:1.1.0-alpha07"
+
+    implementation "com.google.android.gms:play-services-places:16.1.0"
+
+    implementation "com.bluelinelabs:conductor:2.1.5"
+    implementation "com.bluelinelabs:conductor-archlifecycle:2.1.5"
+
+    implementation "com.jakewharton:butterknife:$butterKnifeVersion"
+    kapt "com.jakewharton:butterknife-compiler:$butterKnifeVersion"
+
+    implementation "org.parceler:parceler-api:$parcelerVersion"
+    kapt "org.parceler:parceler:$parcelerVersion"
+
+    implementation "com.jakewharton.rxrelay2:rxrelay:2.1.0"
+    implementation "io.reactivex.rxjava2:rxandroid:2.1.0"
+
+    kapt "com.google.dagger:dagger-compiler:$daggerVersion"
+
+    implementation "com.squareup.picasso:picasso:2.71828"
+
+    implementation "com.github.Jay-Goo:RangeSeekBar:v2.0.4"
+
+    implementation "de.hdodenhof:circleimageview:2.2.0"
+
+    implementation "com.github.esafirm.android-image-picker:imagepicker:2.0.0"
+
+    implementation "com.android.support:multidex:1.0.3"
+
+    implementation "com.louiscad.splitties:splitties-appctx:$splittiesVersion"
+
+    implementation "com.jakewharton.timber:timber:$timberVersion"
+
+    testImplementation "junit:junit:4.12"
+    testImplementation "org.mockito:mockito-core:2.26.0"
+    testImplementation "org.mockito:mockito-inline:2.26.0"
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0"
+    testImplementation "org.spekframework.spek2:spek-dsl-jvm:$spek_version"
+    testImplementation "org.spekframework.spek2:spek-runner-junit5:$spek_version"
+    testImplementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    androidTestImplementation "androidx.test:runner:1.2.0"
+    androidTestImplementation "androidx.test:core:1.2.0"
+    androidTestImplementation "androidx.test.ext:junit:1.1.1"
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.2.0"
+    androidTestImplementation "androidx.test.espresso:espresso-contrib:3.2.0"
+    androidTestImplementation "org.mockito:mockito-android:2.26.0"
+    androidTestImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0"
+    androidTestImplementation "androidx.arch.core:core-testing:2.0.1"
+
+    implementation project(":domain")
+    implementation project(":data")
+    implementation project(":device")
+}
+
+apply plugin: "com.google.gms.google-services"
