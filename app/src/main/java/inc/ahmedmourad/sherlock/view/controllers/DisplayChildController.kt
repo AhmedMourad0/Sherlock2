@@ -20,7 +20,7 @@ import inc.ahmedmourad.sherlock.utils.setSupportActionBar
 import org.parceler.Parcels
 import javax.inject.Inject
 
-class DisplayChildController(args: Bundle?) : Controller(args) {
+class DisplayChildController(args: Bundle) : Controller(args) {
 
     @BindView(R.id.display_found_toolbar)
     internal lateinit var toolbar: Toolbar
@@ -57,7 +57,7 @@ class DisplayChildController(args: Bundle?) : Controller(args) {
 
     private lateinit var context: Context
 
-    private lateinit var child: AppChild
+    private lateinit var result: Pair<AppChild, Int>
 
     private lateinit var unbinder: Unbinder
 
@@ -73,38 +73,45 @@ class DisplayChildController(args: Bundle?) : Controller(args) {
 
         setSupportActionBar(toolbar)
 
-        child = Parcels.unwrap(args.getParcelable(ARG_CHILD))
+        val child = Parcels.unwrap<AppChild>(args.getParcelable(ARG_CHILD)
+                ?: throw IllegalArgumentException("Child cannot be null!")
+        )
+
+        val score = args.getInt(ARG_SCORE, INVALID_SCORE).takeUnless { it == INVALID_SCORE }
+                ?: throw IllegalArgumentException("Score cannot be null!")
+
+        result = child to score
 
         populateUi()
 
         return view
     }
 
+    //TODO: should always fetch the latest child data
     private fun populateUi() {
 
-        //TODO: maybe always fetch the latest picture (it doesn't actually change, but who knows)
         //TODO: should we inject picasso?
-        child.loadImage(pictureImageView)
+        result.first.loadImage(pictureImageView)
 
-        val name = formatter.formatName(child.name)
+        val name = formatter.formatName(result.first.name)
         toolbar.title = name
         nameTextView.text = name
 
-        ageTextView.text = formatter.formatAge(child.appearance.age)
+        ageTextView.text = formatter.formatAge(result.first.appearance.age)
 
-        genderTextView.text = formatter.formatGender(child.appearance.gender)
+        genderTextView.text = formatter.formatGender(result.first.appearance.gender)
 
-        heightTextView.text = formatter.formatHeight(child.appearance.height)
+        heightTextView.text = formatter.formatHeight(result.first.appearance.height)
 
-        skinTextView.text = formatter.formatSkin(child.appearance.skin)
+        skinTextView.text = formatter.formatSkin(result.first.appearance.skin)
 
-        hairTextView.text = formatter.formatHair(child.appearance.hair)
+        hairTextView.text = formatter.formatHair(result.first.appearance.hair)
 
-        if (child.location.isValid())
-            locationTextView.text = formatter.formatLocation(child.location)
+        if (result.first.location.isValid())
+            locationTextView.text = formatter.formatLocation(result.first.location)
 
-        if (child.notes.isNotBlank())
-            notesTextView.text = child.notes
+        if (result.first.notes.isNotBlank())
+            notesTextView.text = result.first.notes
     }
 
     override fun onDestroy() {
@@ -115,10 +122,17 @@ class DisplayChildController(args: Bundle?) : Controller(args) {
 
     companion object {
 
-        private const val ARG_CHILD = "dc_c"
+        private const val ARG_CHILD = "inc.ahmedmourad.sherlock.view.controllers.arg.CHILD"
+        private const val ARG_SCORE = "inc.ahmedmourad.sherlock.view.controllers.arg.SCORE"
 
-        fun newInstance(child: AppChild) = DisplayChildController(Bundle(1).apply {
-            putParcelable(ARG_CHILD, Parcels.wrap(child))
+        private const val NO_SCORE = -1
+        private const val INVALID_SCORE = -2
+
+        fun newInstance(result: Pair<AppChild, Int>) = DisplayChildController(Bundle(2).apply {
+            putParcelable(ARG_CHILD, Parcels.wrap(result.first))
+            putInt(ARG_SCORE, result.second)
         })
+
+        fun newInstance(child: AppChild) = newInstance(child to NO_SCORE)
     }
 }

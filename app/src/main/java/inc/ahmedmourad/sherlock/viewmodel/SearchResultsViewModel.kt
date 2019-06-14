@@ -27,11 +27,10 @@ class SearchResultsViewModel(rules: AppChildCriteriaRules, interactor: FindChild
         }
     }
 
-    //TODO: might need to pass the whole pair one day
     val searchResults = refreshableResults.results
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .map { it.map { (first) -> first }.map(AppModelsMapper::toAppChild) }
+            .map { it.map { (child, score) -> AppModelsMapper.toAppChild(child) to score } }
             .toLiveData()
 
     private fun refresh(): Completable {

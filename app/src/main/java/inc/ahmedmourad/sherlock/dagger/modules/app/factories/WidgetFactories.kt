@@ -14,17 +14,18 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 interface RemoteViewsServiceFactory {
-    fun create(context: Context, appWidgetId: Int, results: List<AppUrlChild>): Intent
+    fun create(context: Context, appWidgetId: Int, results: List<Pair<AppUrlChild, Int>>): Intent
 }
 
 class ResultsRemoteViewsServiceFactory : RemoteViewsServiceFactory {
 
-    override fun create(context: Context, appWidgetId: Int, results: List<AppUrlChild>): Intent {
+    override fun create(context: Context, appWidgetId: Int, results: List<Pair<AppUrlChild, Int>>): Intent {
         return Intent(context, ResultsRemoteViewsService::class.java).apply {
             putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
             data = getUniqueDataUri(appWidgetId)
-            putExtra(ResultsRemoteViewsService.EXTRA_HACK_BUNDLE, Bundle().apply {
-                this.putParcelable(ResultsRemoteViewsService.EXTRA_RESULTS, Parcels.wrap(ArrayList(results)))
+            putExtra(ResultsRemoteViewsService.EXTRA_HACK_BUNDLE, Bundle(2).apply {
+                this.putParcelable(ResultsRemoteViewsService.EXTRA_CHILDREN, Parcels.wrap(ArrayList(results.map { it.first })))
+                this.putIntegerArrayList(ResultsRemoteViewsService.EXTRA_SCORES, ArrayList(results.map { it.second }))
             })
         }
     }
@@ -35,11 +36,11 @@ class ResultsRemoteViewsServiceFactory : RemoteViewsServiceFactory {
 }
 
 interface RemoteViewsFactoryFactory {
-    fun create(context: Context, results: List<AppUrlChild>): RemoteViewsService.RemoteViewsFactory
+    fun create(context: Context, results: List<Pair<AppUrlChild, Int>>): RemoteViewsService.RemoteViewsFactory
 }
 
 class ResultsRemoteViewsFactoryFactory : RemoteViewsFactoryFactory {
-    override fun create(context: Context, results: List<AppUrlChild>): RemoteViewsService.RemoteViewsFactory {
+    override fun create(context: Context, results: List<Pair<AppUrlChild, Int>>): RemoteViewsService.RemoteViewsFactory {
         return ResultsRemoteViewsFactory(context, results)
     }
 }

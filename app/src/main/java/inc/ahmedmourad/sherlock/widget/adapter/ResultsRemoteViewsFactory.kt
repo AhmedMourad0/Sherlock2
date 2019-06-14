@@ -14,7 +14,7 @@ import inc.ahmedmourad.sherlock.utils.Formatter
 import java.io.IOException
 import javax.inject.Inject
 
-class ResultsRemoteViewsFactory constructor(private val context: Context, private val results: List<AppUrlChild>) : RemoteViewsService.RemoteViewsFactory {
+class ResultsRemoteViewsFactory constructor(private val context: Context, private val results: List<Pair<AppUrlChild, Int>>) : RemoteViewsService.RemoteViewsFactory {
 
     @Inject
     lateinit var formatter: Lazy<Formatter>
@@ -42,11 +42,11 @@ class ResultsRemoteViewsFactory constructor(private val context: Context, privat
         val views = RemoteViews(context.packageName, R.layout.item_widget_result)
 
         //TODO: needs to change over time
-        views.setTextViewText(R.id.widget_result_date, dateManager.get().getRelativeDateTimeString(result.timeMillis))
-        views.setTextViewText(R.id.widget_result_notes, result.notes)
-        views.setTextViewText(R.id.widget_result_location, formatter.get().formatLocation(result.location))
+        views.setTextViewText(R.id.widget_result_date, dateManager.get().getRelativeDateTimeString(result.first.timeMillis))
+        views.setTextViewText(R.id.widget_result_notes, result.first.notes)
+        views.setTextViewText(R.id.widget_result_location, formatter.get().formatLocation(result.first.location))
 
-        setPicture(views, result.pictureUrl)
+        setPicture(views, result.first.pictureUrl)
 
         return views
     }

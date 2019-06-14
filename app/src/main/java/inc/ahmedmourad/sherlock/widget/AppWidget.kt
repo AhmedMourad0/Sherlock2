@@ -60,9 +60,13 @@ class AppWidget : AppWidgetProvider() {
 
                     views.setEmptyView(R.id.widget_list_view, R.id.widget_empty)
 
-                    //TODO: might need to pass the whole pair one day
                     views.setRemoteAdapter(R.id.widget_list_view,
-                            resultsRemoteViewsServiceFactory.get().create(context, appWidgetId, it.map { (first) -> first }.map(AppModelsMapper::toAppChild))
+                            resultsRemoteViewsServiceFactory.get().create(context,
+                                    appWidgetId,
+                                    it.map { (child, score) ->
+                                        AppModelsMapper.toAppChild(child) to score
+                                    }
+                            )
                     )
 
                     appWidgetManager.updateAppWidget(appWidgetId, views)

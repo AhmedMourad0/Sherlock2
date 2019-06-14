@@ -10,7 +10,7 @@ import inc.ahmedmourad.sherlock.model.AppUrlChild
 import inc.ahmedmourad.sherlock.utils.Formatter
 
 class ResultsRecyclerAdapterFactory {
-    fun create(dateManager: Lazy<DateManager>, formatter: Lazy<Formatter>, onResultSelectedListener: (AppUrlChild) -> Unit) = ResultsRecyclerAdapter(dateManager, formatter, onResultSelectedListener)
+    fun create(dateManager: Lazy<DateManager>, formatter: Lazy<Formatter>, onResultSelectedListener: (Pair<AppUrlChild, Int>) -> Unit) = ResultsRecyclerAdapter(dateManager, formatter, onResultSelectedListener)
 }
 
 class SectionsRecyclerAdapterFactory {

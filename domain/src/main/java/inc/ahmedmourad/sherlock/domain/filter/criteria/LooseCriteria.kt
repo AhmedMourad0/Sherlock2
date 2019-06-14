@@ -8,7 +8,7 @@ import me.xdrop.fuzzywuzzy.FuzzySearch
 //TODO: publication date matters
 class LooseCriteria(val rules: DomainChildCriteriaRules, private val locationManager: Lazy<LocationManager>) : Criteria<DomainChild> {
 
-    //TODO: replace the pair with DomainScoreChild which implements DomainChild via a delegate parameter
+    //TODO: replace the pair with DomainScoreChild wrapper which implements DomainChild via a delegate parameter
     override fun apply(result: DomainChild): Pair<DomainChild, Criteria.Score> {
         return result to Score(getFirstNameRatio(result),
                 getLastNameRatio(result),

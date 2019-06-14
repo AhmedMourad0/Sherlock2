@@ -7,6 +7,7 @@ import inc.ahmedmourad.sherlock.view.controllers.SearchResultsController
 
 //TODO: all factories should be abstract
 class DisplayChildControllerFactory {
+    fun create(child: Pair<AppChild, Int>) = DisplayChildController.newInstance(child)
     fun create(child: AppChild) = DisplayChildController.newInstance(child)
 }
 

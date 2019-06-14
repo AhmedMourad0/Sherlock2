@@ -16,9 +16,12 @@ import inc.ahmedmourad.sherlock.model.AppUrlChild
 import inc.ahmedmourad.sherlock.utils.Formatter
 import java.util.*
 
-class ResultsRecyclerAdapter(private val dateManager: Lazy<DateManager>, private val formatter: Lazy<Formatter>, private val onResultSelectedListener: (AppUrlChild) -> Unit) : RecyclerView.Adapter<ResultsRecyclerAdapter.ViewHolder>() {
+class ResultsRecyclerAdapter(
+        private val dateManager: Lazy<DateManager>, private val formatter: Lazy<Formatter>,
+        private val onResultSelectedListener: (Pair<AppUrlChild, Int>) -> Unit
+) : RecyclerView.Adapter<ResultsRecyclerAdapter.ViewHolder>() {
 
-    private val resultsList = ArrayList<AppUrlChild>()
+    private val resultsList = ArrayList<Pair<AppUrlChild, Int>>()
 
     override fun onCreateViewHolder(container: ViewGroup, viewType: Int) = ViewHolder(LayoutInflater.from(container.context).inflate(R.layout.item_result, container, false))
 
@@ -26,7 +29,7 @@ class ResultsRecyclerAdapter(private val dateManager: Lazy<DateManager>, private
 
     override fun getItemCount() = resultsList.size
 
-    fun updateList(list: List<AppUrlChild>) {
+    fun updateList(list: List<Pair<AppUrlChild, Int>>) {
         resultsList.clear()
         resultsList.addAll(list)
         notifyDataSetChanged()
@@ -53,19 +56,19 @@ class ResultsRecyclerAdapter(private val dateManager: Lazy<DateManager>, private
             picasso = Picasso.get()
         }
 
-        internal fun bind(child: AppUrlChild) {
+        internal fun bind(result: Pair<AppUrlChild, Int>) {
 
-            picasso.load(child.pictureUrl)
+            picasso.load(result.first.pictureUrl)
                     .placeholder(R.drawable.placeholder)
                     .error(R.drawable.placeholder)
                     .into(pictureImageView)
 
             //TODO: this needs to change with time
-            dateTextView.text = dateManager.get().getRelativeDateTimeString(child.timeMillis)
-            notesTextView.text = formatter.get().formatNotes(child.notes)
-            locationTextView.text = formatter.get().formatLocation(child.location)
+            dateTextView.text = dateManager.get().getRelativeDateTimeString(result.first.timeMillis)
+            notesTextView.text = formatter.get().formatNotes(result.first.notes)
+            locationTextView.text = formatter.get().formatLocation(result.first.location)
 
-            itemView.setOnClickListener { onResultSelectedListener(child) }
+            itemView.setOnClickListener { onResultSelectedListener(result) }
         }
     }
 }
