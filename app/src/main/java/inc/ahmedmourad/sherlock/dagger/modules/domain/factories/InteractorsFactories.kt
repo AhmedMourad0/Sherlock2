@@ -8,7 +8,6 @@ import inc.ahmedmourad.sherlock.domain.interactors.FindChildrenInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.GetLastSearchResultsInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.Interactor
 import inc.ahmedmourad.sherlock.domain.model.DomainPictureChild
-import inc.ahmedmourad.sherlock.domain.model.DomainRefreshableResults
 import inc.ahmedmourad.sherlock.domain.model.DomainUrlChild
 import inc.ahmedmourad.sherlock.domain.repository.Repository
 import io.reactivex.Flowable
@@ -25,11 +24,11 @@ class AddChildInteractorFactory(private val repository: Lazy<Repository>) : AddC
 }
 
 interface FindChildrenInteractorAbstractFactory {
-    fun create(rules: DomainChildCriteriaRules, filter: Filter<DomainUrlChild>): Interactor<DomainRefreshableResults>
+    fun create(rules: DomainChildCriteriaRules, filter: Filter<DomainUrlChild>): Interactor<Flowable<List<Pair<DomainUrlChild, Int>>>>
 }
 
 class FindChildrenInteractorFactory(private val repository: Lazy<Repository>) : FindChildrenInteractorAbstractFactory {
-    override fun create(rules: DomainChildCriteriaRules, filter: Filter<DomainUrlChild>): Interactor<DomainRefreshableResults> {
+    override fun create(rules: DomainChildCriteriaRules, filter: Filter<DomainUrlChild>): Interactor<Flowable<List<Pair<DomainUrlChild, Int>>>> {
         return FindChildrenInteractor(repository, rules, filter)
     }
 }

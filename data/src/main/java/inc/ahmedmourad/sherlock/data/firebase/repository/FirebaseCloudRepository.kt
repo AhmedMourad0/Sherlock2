@@ -21,6 +21,8 @@ import inc.ahmedmourad.sherlock.domain.filter.Filter
 import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
 import inc.ahmedmourad.sherlock.domain.model.DomainPictureChild
 import inc.ahmedmourad.sherlock.domain.model.DomainUrlChild
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
 import io.reactivex.Single
 import splitties.init.appCtx
 
@@ -94,26 +96,28 @@ class FirebaseCloudRepository(private val bus: Lazy<Bus>, private val provider: 
         }
     }
 
-    //TODO: should be flowable and listen to change but only call onNext when dataSnapshot exists
-    // otherwise find a way to inform of deletion
-    override fun find(rules: DomainChildCriteriaRules, filter: Filter<DomainUrlChild>): Single<List<Pair<DomainUrlChild, Int>>> {
-        return Single.create<List<Pair<DomainUrlChild, Int>>> {
+    override fun find(rules: DomainChildCriteriaRules, filter: Filter<DomainUrlChild>): Flowable<List<Pair<DomainUrlChild, Int>>> {
+        return Flowable.create<List<Pair<DomainUrlChild, Int>>>({
             db.getReference(FirebaseContract.Database.PATH_CHILDREN)
                     .orderByChild(FirebaseContract.Database.CHILDREN_SKIN)
                     .equalTo(rules.skin.value.toDouble())
-                    .addListenerForSingleValueEvent(object : ValueEventListener {
+                    .addValueEventListener(object : ValueEventListener {
                         override fun onDataChange(dataSnapshot: DataSnapshot) {
-                            it.onSuccess(filter.filter(dataSnapshot.children
-                                    .map(DataSnapshot::extractFirebaseUrlChild)
-                                    .map(DataModelsMapper::toDomainUrlChild)
-                            ))
+                            it.onNext(
+                                    if (dataSnapshot.exists())
+                                        filter.filter(dataSnapshot.children
+                                                .map(DataSnapshot::extractFirebaseUrlChild)
+                                                .map(DataModelsMapper::toDomainUrlChild))
+                                    else
+                                        emptyList()
+                            )
                         }
 
                         override fun onCancelled(databaseError: DatabaseError) {
                             it.onError(databaseError.toException())
                         }
                     })
-        }
+        }, BackpressureStrategy.BUFFER)
     }
 }
 
