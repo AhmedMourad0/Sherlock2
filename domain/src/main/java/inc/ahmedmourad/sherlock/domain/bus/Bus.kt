@@ -34,16 +34,18 @@ interface Bus {
         val isIndefinite: Boolean
     }
 
-    sealed class PublishingState(override val message: String, override val isIndefinite: Boolean) : BackgroundState {
+    class PublishingState(override val message: String, override val isIndefinite: Boolean) : BackgroundState {
 
-        class Failure(textManager: TextManager) : PublishingState(textManager.somethingWentWrong(), false)
-        class Ongoing(textManager: TextManager) : PublishingState(textManager.publishing(), true)
-        class Success(textManager: TextManager) : PublishingState(textManager.publishedSuccessfully(), false)
+        interface Provider {
+            fun failure(): PublishingState
+            fun ongoing(): PublishingState
+            fun success(): PublishingState
+        }
 
-        class Provider(private val textManager: Lazy<TextManager>) {
-            fun failure(): PublishingState = Failure(textManager.get())
-            fun ongoing(): PublishingState = Ongoing(textManager.get())
-            fun success(): PublishingState = Success(textManager.get())
+        class TextManagerProvider(private val textManager: Lazy<TextManager>) : Provider {
+            override fun failure(): PublishingState = PublishingState(textManager.get().somethingWentWrong(), false)
+            override fun ongoing(): PublishingState = PublishingState(textManager.get().publishing(), true)
+            override fun success(): PublishingState = PublishingState(textManager.get().publishedSuccessfully(), false)
         }
     }
 

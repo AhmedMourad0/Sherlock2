@@ -16,10 +16,9 @@ class RxBusModule {
     fun provideRxBus(): Bus = RxBus()
 }
 
-//TODO: why is this not used?
 @Module
 class PublishingStateProviderModule {
     @Provides
     @Reusable
-    fun providePublishingStateProvider(textManager: Lazy<TextManager>) = Bus.PublishingState.Provider(textManager)
+    fun providePublishingStateProvider(textManager: Lazy<TextManager>): Bus.PublishingState.Provider = Bus.PublishingState.TextManagerProvider(textManager)
 }
