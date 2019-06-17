@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
@@ -22,8 +23,8 @@ import com.google.android.material.textfield.TextInputEditText
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
-import inc.ahmedmourad.sherlock.dagger.modules.app.factories.FindChildrenViewModelFactory
-import inc.ahmedmourad.sherlock.dagger.modules.app.factories.SearchResultsControllerFactory
+import inc.ahmedmourad.sherlock.dagger.modules.app.factories.SearchResultsControllerAbstractFactory
+import inc.ahmedmourad.sherlock.dagger.modules.app.qualifiers.FindChildrenViewModelQualifier
 import inc.ahmedmourad.sherlock.defaults.DefaultTextWatcher
 import inc.ahmedmourad.sherlock.domain.bus.Bus
 import inc.ahmedmourad.sherlock.domain.constants.Gender
@@ -86,10 +87,11 @@ class FindChildrenController : LifecycleController(), View.OnClickListener {
     internal lateinit var searchButton: Button
 
     @Inject
-    lateinit var viewModelFactory: FindChildrenViewModelFactory
+    @FindChildrenViewModelQualifier
+    lateinit var viewModelFactory: ViewModelProvider.NewInstanceFactory
 
     @Inject
-    lateinit var searchResultsControllerFactory: Lazy<SearchResultsControllerFactory>
+    lateinit var searchResultsControllerFactory: Lazy<SearchResultsControllerAbstractFactory>
 
     @Inject
     lateinit var bus: Lazy<Bus>

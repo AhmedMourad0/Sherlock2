@@ -9,7 +9,7 @@ import inc.ahmedmourad.sherlock.model.AppName
 import inc.ahmedmourad.sherlock.model.AppRange
 import splitties.init.appCtx
 
-class TextFormatter : Formatter {
+class TextFormatter : Formatter<String> {
 
     override fun formatSkin(skin: Skin): String = when (skin) {
 

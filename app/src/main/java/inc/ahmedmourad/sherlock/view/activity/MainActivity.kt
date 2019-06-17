@@ -5,16 +5,13 @@ import androidx.appcompat.app.AppCompatActivity
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
-import com.bluelinelabs.conductor.ChangeHandlerFrameLayout
-import com.bluelinelabs.conductor.Conductor
-import com.bluelinelabs.conductor.Router
-import com.bluelinelabs.conductor.RouterTransaction
+import com.bluelinelabs.conductor.*
 import com.google.android.material.snackbar.Snackbar
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
+import inc.ahmedmourad.sherlock.dagger.modules.app.qualifiers.HomeControllerQualifier
 import inc.ahmedmourad.sherlock.domain.bus.Bus
-import inc.ahmedmourad.sherlock.view.controllers.HomeController
 import io.reactivex.disposables.Disposable
 import javax.inject.Inject
 
@@ -24,7 +21,8 @@ class MainActivity : AppCompatActivity() {
     internal lateinit var container: ChangeHandlerFrameLayout
 
     @Inject
-    lateinit var homeController: Lazy<HomeController>
+    @HomeControllerQualifier
+    lateinit var homeController: Lazy<Controller>
 
     @Inject
     lateinit var bus: Bus

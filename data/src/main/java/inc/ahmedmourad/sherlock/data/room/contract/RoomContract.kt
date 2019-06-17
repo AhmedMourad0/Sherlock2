@@ -4,9 +4,9 @@ object RoomContract {
 
     const val DATABASE_NAME = "SherlockDatabase"
 
-    object SearchResultsEntry {
+    object ChildrenEntry {
 
-        const val TABLE_NAME = "results"
+        const val TABLE_NAME = "children"
 
         const val COLUMN_ID = "id"
         const val COLUMN_TIME_MILLIS = "timeMillis"

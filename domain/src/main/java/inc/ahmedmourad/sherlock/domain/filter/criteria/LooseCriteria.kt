@@ -6,10 +6,9 @@ import inc.ahmedmourad.sherlock.domain.model.DomainChild
 import me.xdrop.fuzzywuzzy.FuzzySearch
 
 //TODO: publication date matters
-class LooseCriteria(val rules: DomainChildCriteriaRules, private val locationManager: Lazy<LocationManager>) : Criteria<DomainChild> {
+class LooseCriteria<C : DomainChild>(val rules: DomainChildCriteriaRules, private val locationManager: Lazy<LocationManager>) : Criteria<C> {
 
-    //TODO: replace the pair with DomainScoreChild wrapper which implements DomainChild via a delegate parameter
-    override fun apply(result: DomainChild): Pair<DomainChild, Criteria.Score> {
+    override fun apply(result: C): Pair<C, Criteria.Score> {
         return result to Score(getFirstNameRatio(result),
                 getLastNameRatio(result),
                 getDistance(result),
@@ -21,18 +20,18 @@ class LooseCriteria(val rules: DomainChildCriteriaRules, private val locationMan
         )
     }
 
-    private fun getFirstNameRatio(child: DomainChild) = if (rules.firstName.isBlank() || child.name.first.isBlank())
+    private fun getFirstNameRatio(child: C) = if (rules.firstName.isBlank() || child.name.first.isBlank())
         50
     else
         FuzzySearch.ratio(rules.firstName, child.name.first)
 
 
-    private fun getLastNameRatio(child: DomainChild) = if (rules.lastName.isBlank() || child.name.last.isBlank())
+    private fun getLastNameRatio(child: C) = if (rules.lastName.isBlank() || child.name.last.isBlank())
         50
     else
         FuzzySearch.ratio(rules.lastName, child.name.last)
 
-    private fun getDistance(child: DomainChild): Long {
+    private fun getDistance(child: C): Long {
 
         if (!rules.location.coordinates.isValid())
             return MAX_DISTANCE.value / 2
@@ -47,14 +46,14 @@ class LooseCriteria(val rules: DomainChildCriteriaRules, private val locationMan
         )
     }
 
-    private fun isSameGender(child: DomainChild) = rules.gender == child.appearance.gender
+    private fun isSameGender(child: C) = rules.gender == child.appearance.gender
 
-    private fun isSameSkin(child: DomainChild) = rules.skin == child.appearance.skin
+    private fun isSameSkin(child: C) = rules.skin == child.appearance.skin
 
-    private fun isSameHair(child: DomainChild) = rules.hair == child.appearance.hair
+    private fun isSameHair(child: C) = rules.hair == child.appearance.hair
 
     // the two-years padding is applied to account for user error when estimating age
-    private fun getAgeError(child: DomainChild): Int {
+    private fun getAgeError(child: C): Int {
 
         val min = child.appearance.age.from - 2
         val max = child.appearance.age.to + 2
@@ -67,7 +66,7 @@ class LooseCriteria(val rules: DomainChildCriteriaRules, private val locationMan
     }
 
     // the 15 cm padding is applied to account for user error when estimating height
-    private fun getHeightError(child: DomainChild): Int {
+    private fun getHeightError(child: C): Int {
 
         val min = child.appearance.height.from - 15
         val max = child.appearance.height.to + 15

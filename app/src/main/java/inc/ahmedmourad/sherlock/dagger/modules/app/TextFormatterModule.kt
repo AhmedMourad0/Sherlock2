@@ -10,5 +10,5 @@ import inc.ahmedmourad.sherlock.utils.TextFormatter
 class TextFormatterModule {
     @Provides
     @Reusable
-    fun provideTextFormatter(): Formatter = TextFormatter()
+    fun provideTextFormatter(): Formatter<String> = TextFormatter()
 }

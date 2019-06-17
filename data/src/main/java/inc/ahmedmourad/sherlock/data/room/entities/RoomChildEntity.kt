@@ -3,53 +3,53 @@ package inc.ahmedmourad.sherlock.data.room.entities
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import inc.ahmedmourad.sherlock.data.room.contract.RoomContract.SearchResultsEntry
+import inc.ahmedmourad.sherlock.data.room.contract.RoomContract.ChildrenEntry
 
-@Entity(tableName = SearchResultsEntry.TABLE_NAME)
+@Entity(tableName = ChildrenEntry.TABLE_NAME)
 data class RoomChildEntity(
         @PrimaryKey
-        @ColumnInfo(name = SearchResultsEntry.COLUMN_ID)
+        @ColumnInfo(name = ChildrenEntry.COLUMN_ID)
         val id: String = "",
 
-        @ColumnInfo(name = SearchResultsEntry.COLUMN_TIME_MILLIS)
+        @ColumnInfo(name = ChildrenEntry.COLUMN_TIME_MILLIS)
         val timeMillis: Long = 0,
 
-        @ColumnInfo(name = SearchResultsEntry.COLUMN_FIRST_NAME)
+        @ColumnInfo(name = ChildrenEntry.COLUMN_FIRST_NAME)
         val firstName: String = "",
 
-        @ColumnInfo(name = SearchResultsEntry.COLUMN_LAST_NAME)
+        @ColumnInfo(name = ChildrenEntry.COLUMN_LAST_NAME)
         val lastName: String = "",
 
-        @ColumnInfo(name = SearchResultsEntry.COLUMN_LOCATION)
+        @ColumnInfo(name = ChildrenEntry.COLUMN_LOCATION)
         val location: String = "",
 
-        @ColumnInfo(name = SearchResultsEntry.COLUMN_NOTES)
+        @ColumnInfo(name = ChildrenEntry.COLUMN_NOTES)
         val notes: String = "",
 
-        @ColumnInfo(name = SearchResultsEntry.COLUMN_GENDER)
+        @ColumnInfo(name = ChildrenEntry.COLUMN_GENDER)
         val gender: Int = 0,
 
-        @ColumnInfo(name = SearchResultsEntry.COLUMN_SKIN)
+        @ColumnInfo(name = ChildrenEntry.COLUMN_SKIN)
         val skin: Int = 0,
 
-        @ColumnInfo(name = SearchResultsEntry.COLUMN_HAIR)
+        @ColumnInfo(name = ChildrenEntry.COLUMN_HAIR)
         val hair: Int = 0,
 
-        @ColumnInfo(name = SearchResultsEntry.COLUMN_START_AGE)
+        @ColumnInfo(name = ChildrenEntry.COLUMN_START_AGE)
         val startAge: Int = 0,
 
-        @ColumnInfo(name = SearchResultsEntry.COLUMN_END_AGE)
+        @ColumnInfo(name = ChildrenEntry.COLUMN_END_AGE)
         val endAge: Int = 0,
 
-        @ColumnInfo(name = SearchResultsEntry.COLUMN_START_HEIGHT)
+        @ColumnInfo(name = ChildrenEntry.COLUMN_START_HEIGHT)
         val startHeight: Int = 0,
 
-        @ColumnInfo(name = SearchResultsEntry.COLUMN_END_HEIGHT)
+        @ColumnInfo(name = ChildrenEntry.COLUMN_END_HEIGHT)
         val endHeight: Int = 0,
 
-        @ColumnInfo(name = SearchResultsEntry.COLUMN_PICTURE_URL)
+        @ColumnInfo(name = ChildrenEntry.COLUMN_PICTURE_URL)
         val pictureUrl: String = "",
 
-        @ColumnInfo(name = SearchResultsEntry.COLUMN_SCORE)
+        @ColumnInfo(name = ChildrenEntry.COLUMN_SCORE)
         val score: Int = 0
 )

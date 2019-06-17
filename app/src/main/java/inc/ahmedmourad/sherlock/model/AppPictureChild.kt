@@ -5,11 +5,11 @@ import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.utils.getImageBitmap
 import org.parceler.Parcel
 import org.parceler.ParcelConstructor
+import java.util.*
 
-//TODO: id should be determined at domain level, maybe?
 @Parcel(Parcel.Serialization.BEAN)
 data class AppPictureChild @ParcelConstructor constructor(
-        override val id: String,
+        override val id: String = UUID.randomUUID().toString(),
         override val timeMillis: Long,
         override val name: AppName,
         override val notes: String,

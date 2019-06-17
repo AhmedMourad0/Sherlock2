@@ -17,7 +17,8 @@ import inc.ahmedmourad.sherlock.utils.Formatter
 import java.util.*
 
 class ResultsRecyclerAdapter(
-        private val dateManager: Lazy<DateManager>, private val formatter: Lazy<Formatter>,
+        private val dateManager: Lazy<DateManager>,
+        private val formatter: Lazy<Formatter<String>>,
         private val onResultSelectedListener: (Pair<AppUrlChild, Int>) -> Unit
 ) : RecyclerView.Adapter<ResultsRecyclerAdapter.ViewHolder>() {
 

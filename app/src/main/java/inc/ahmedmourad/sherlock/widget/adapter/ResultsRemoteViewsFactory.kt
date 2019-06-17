@@ -17,7 +17,7 @@ import javax.inject.Inject
 class ResultsRemoteViewsFactory constructor(private val context: Context, private val results: List<Pair<AppUrlChild, Int>>) : RemoteViewsService.RemoteViewsFactory {
 
     @Inject
-    lateinit var formatter: Lazy<Formatter>
+    lateinit var formatter: Lazy<Formatter<String>>
 
     @Inject
     lateinit var dateManager: Lazy<DateManager>

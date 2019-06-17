@@ -13,6 +13,7 @@ import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
@@ -22,6 +23,7 @@ import com.esafirm.imagepicker.features.ImagePicker
 import com.esafirm.imagepicker.features.ReturnMode
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException
 import com.google.android.gms.common.GooglePlayServicesRepairableException
+//TODO: Thanks, Google!
 import com.google.android.gms.location.places.ui.PlacePicker
 import com.google.android.material.textfield.TextInputEditText
 import com.jaygoo.widget.RangeSeekBar
@@ -29,8 +31,8 @@ import dagger.Lazy
 import de.hdodenhof.circleimageview.CircleImageView
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
-import inc.ahmedmourad.sherlock.dagger.modules.app.factories.AddChildViewModelFactory
-import inc.ahmedmourad.sherlock.dagger.modules.app.factories.DisplayChildControllerFactory
+import inc.ahmedmourad.sherlock.dagger.modules.app.factories.DisplayChildControllerAbstractFactory
+import inc.ahmedmourad.sherlock.dagger.modules.app.qualifiers.AddChildViewModelQualifier
 import inc.ahmedmourad.sherlock.defaults.DefaultOnRangeChangedListener
 import inc.ahmedmourad.sherlock.defaults.DefaultTextWatcher
 import inc.ahmedmourad.sherlock.domain.bus.Bus
@@ -104,10 +106,11 @@ class AddChildController : LifecycleController(), View.OnClickListener {
     internal lateinit var publishButton: Button
 
     @Inject
-    lateinit var viewModelFactory: AddChildViewModelFactory
+    @AddChildViewModelQualifier
+    lateinit var viewModelFactory: ViewModelProvider.NewInstanceFactory
 
     @Inject
-    lateinit var displayChildControllerFactory: Lazy<DisplayChildControllerFactory>
+    lateinit var displayChildControllerFactory: Lazy<DisplayChildControllerAbstractFactory>
 
     @Inject
     lateinit var bus: Lazy<Bus>

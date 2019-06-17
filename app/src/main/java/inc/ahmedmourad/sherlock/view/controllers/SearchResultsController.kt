@@ -18,9 +18,9 @@ import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.adapters.ResultsRecyclerAdapter
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
-import inc.ahmedmourad.sherlock.dagger.modules.app.factories.DisplayChildControllerFactory
-import inc.ahmedmourad.sherlock.dagger.modules.app.factories.ResultsRecyclerAdapterFactory
-import inc.ahmedmourad.sherlock.dagger.modules.app.factories.SearchResultsViewModelFactoryFactory
+import inc.ahmedmourad.sherlock.dagger.modules.app.factories.DisplayChildControllerAbstractFactory
+import inc.ahmedmourad.sherlock.dagger.modules.app.factories.ResultsRecyclerAdapterAbstractFactory
+import inc.ahmedmourad.sherlock.dagger.modules.app.factories.SearchResultsViewModelFactoryAbstractFactory
 import inc.ahmedmourad.sherlock.domain.device.DateManager
 import inc.ahmedmourad.sherlock.model.AppChildCriteriaRules
 import inc.ahmedmourad.sherlock.utils.Formatter
@@ -43,16 +43,16 @@ class SearchResultsController(args: Bundle) : LifecycleController(args) {
     lateinit var dateManager: Lazy<DateManager>
 
     @Inject
-    lateinit var formatter: Lazy<Formatter>
+    lateinit var formatter: Lazy<Formatter<String>>
 
     @Inject
-    lateinit var adapterFactory: ResultsRecyclerAdapterFactory
+    lateinit var adapterFactory: ResultsRecyclerAdapterAbstractFactory
 
     @Inject
-    lateinit var displayChildControllerFactory: Lazy<DisplayChildControllerFactory>
+    lateinit var displayChildControllerFactory: Lazy<DisplayChildControllerAbstractFactory>
 
     @Inject
-    lateinit var viewModelFactoryFactory: SearchResultsViewModelFactoryFactory
+    lateinit var viewModelFactoryFactory: SearchResultsViewModelFactoryAbstractFactory
 
     private lateinit var context: Context
 

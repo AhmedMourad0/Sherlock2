@@ -19,6 +19,10 @@ class FindChildrenViewModelFactory : ViewModelProvider.NewInstanceFactory() {
     override fun <T : ViewModel> create(modelClass: Class<T>) = FindChildrenViewModel() as T
 }
 
-class SearchResultsViewModelFactoryFactory(private val interactor: FindChildrenInteractorAbstractFactory) {
-    fun create(criteria: AppChildCriteriaRules) = SearchResultsViewModelFactory(criteria, interactor)
+interface SearchResultsViewModelFactoryAbstractFactory {
+    fun create(criteria: AppChildCriteriaRules): ViewModelProvider.NewInstanceFactory
+}
+
+class SearchResultsViewModelFactoryFactory(private val interactor: FindChildrenInteractorAbstractFactory) : SearchResultsViewModelFactoryAbstractFactory {
+    override fun create(criteria: AppChildCriteriaRules) = SearchResultsViewModelFactory(criteria, interactor)
 }

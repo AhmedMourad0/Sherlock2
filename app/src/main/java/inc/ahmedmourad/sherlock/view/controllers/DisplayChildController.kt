@@ -53,7 +53,7 @@ class DisplayChildController(args: Bundle) : Controller(args) {
     internal lateinit var notesTextView: TextView
 
     @Inject
-    lateinit var formatter: Formatter
+    lateinit var formatter: Formatter<String>
 
     private lateinit var context: Context
 

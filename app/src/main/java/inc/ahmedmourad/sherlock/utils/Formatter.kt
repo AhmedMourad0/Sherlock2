@@ -7,21 +7,21 @@ import inc.ahmedmourad.sherlock.model.AppLocation
 import inc.ahmedmourad.sherlock.model.AppName
 import inc.ahmedmourad.sherlock.model.AppRange
 
-interface Formatter {
+interface Formatter<T> {
 
-    fun formatSkin(skin: Skin): String
+    fun formatSkin(skin: Skin): T
 
-    fun formatHair(hair: Hair): String
+    fun formatHair(hair: Hair): T
 
-    fun formatGender(gender: Gender): String
+    fun formatGender(gender: Gender): T
 
-    fun formatName(name: AppName): String
+    fun formatName(name: AppName): T
 
-    fun formatNotes(notes: String): String
+    fun formatNotes(notes: String): T
 
-    fun formatAge(age: AppRange): String
+    fun formatAge(age: AppRange): T
 
-    fun formatLocation(location: AppLocation): String
+    fun formatLocation(location: AppLocation): T
 
-    fun formatHeight(height: AppRange): String
+    fun formatHeight(height: AppRange): T
 }

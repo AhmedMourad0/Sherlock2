@@ -1,5 +1,6 @@
 package inc.ahmedmourad.sherlock.dagger.modules.app.factories
 
+import androidx.recyclerview.widget.RecyclerView
 import com.bluelinelabs.conductor.Controller
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.adapters.ResultsRecyclerAdapter
@@ -9,10 +10,34 @@ import inc.ahmedmourad.sherlock.model.AppSection
 import inc.ahmedmourad.sherlock.model.AppUrlChild
 import inc.ahmedmourad.sherlock.utils.Formatter
 
-class ResultsRecyclerAdapterFactory {
-    fun create(dateManager: Lazy<DateManager>, formatter: Lazy<Formatter>, onResultSelectedListener: (Pair<AppUrlChild, Int>) -> Unit) = ResultsRecyclerAdapter(dateManager, formatter, onResultSelectedListener)
+interface ResultsRecyclerAdapterAbstractFactory {
+    fun <T : RecyclerView.Adapter<*>> create(
+            dateManager: Lazy<DateManager>,
+            formatter: Lazy<Formatter<String>>,
+            onResultSelectedListener: (Pair<AppUrlChild, Int>) -> Unit
+    ): T
 }
 
-class SectionsRecyclerAdapterFactory {
-    fun create(sectionsList: List<AppSection>, onSectionSelectedListener: (Lazy<out Controller>?) -> Unit) = SectionsRecyclerAdapter(sectionsList, onSectionSelectedListener)
+class ResultsRecyclerAdapterFactory : ResultsRecyclerAdapterAbstractFactory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : RecyclerView.Adapter<*>> create(
+            dateManager: Lazy<DateManager>,
+            formatter: Lazy<Formatter<String>>,
+            onResultSelectedListener: (Pair<AppUrlChild, Int>) -> Unit
+    ): T = ResultsRecyclerAdapter(dateManager, formatter, onResultSelectedListener) as T
+}
+
+interface SectionsRecyclerAdapterAbstractFactory {
+    fun <T : RecyclerView.Adapter<*>> create(
+            sectionsList: List<AppSection>,
+            onSectionSelectedListener: (Lazy<out Controller>?) -> Unit
+    ): T
+}
+
+class SectionsRecyclerAdapterFactory : SectionsRecyclerAdapterAbstractFactory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : RecyclerView.Adapter<*>> create(
+            sectionsList: List<AppSection>,
+            onSectionSelectedListener: (Lazy<out Controller>?) -> Unit
+    ) = SectionsRecyclerAdapter(sectionsList, onSectionSelectedListener) as T
 }

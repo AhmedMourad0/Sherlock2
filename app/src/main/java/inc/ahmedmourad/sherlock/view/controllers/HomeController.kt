@@ -16,7 +16,9 @@ import com.bluelinelabs.conductor.RouterTransaction
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
-import inc.ahmedmourad.sherlock.dagger.modules.app.factories.SectionsRecyclerAdapterFactory
+import inc.ahmedmourad.sherlock.dagger.modules.app.factories.SectionsRecyclerAdapterAbstractFactory
+import inc.ahmedmourad.sherlock.dagger.modules.app.qualifiers.AddChildControllerQualifier
+import inc.ahmedmourad.sherlock.dagger.modules.app.qualifiers.FindChildrenControllerQualifier
 import inc.ahmedmourad.sherlock.model.AppSection
 import inc.ahmedmourad.sherlock.utils.setSupportActionBar
 import java.util.*
@@ -31,13 +33,15 @@ class HomeController : Controller() {
     internal lateinit var recyclerView: RecyclerView
 
     @Inject
-    lateinit var adapterFactory: SectionsRecyclerAdapterFactory
+    lateinit var adapterFactory: SectionsRecyclerAdapterAbstractFactory
 
     @Inject
-    lateinit var addChildController: Lazy<AddChildController>
+    @AddChildControllerQualifier
+    lateinit var addChildController: Lazy<Controller>
 
     @Inject
-    lateinit var findChildrenController: Lazy<FindChildrenController>
+    @FindChildrenControllerQualifier
+    lateinit var findChildrenController: Lazy<Controller>
 
     private lateinit var context: Context
     private lateinit var unbinder: Unbinder

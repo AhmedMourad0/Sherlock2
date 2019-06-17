@@ -10,6 +10,7 @@ import inc.ahmedmourad.sherlock.mapper.AppModelsMapper
 import inc.ahmedmourad.sherlock.model.AppPictureChild
 import io.reactivex.disposables.Disposable
 import org.parceler.Parcels
+import splitties.init.appCtx
 import javax.inject.Inject
 
 class SherlockIntentService : IntentService("SherlockIntentService") {
@@ -58,7 +59,11 @@ class SherlockIntentService : IntentService("SherlockIntentService") {
     companion object {
 
         const val ACTION_PUBLISH_FOUND = "inc.ahmedmourad.sherlock.services.action.PUBLISH_FOUND"
-
         const val EXTRA_FOUND = "inc.ahmedmourad.sherlock.services.extra.FOUND"
+
+        fun create(child: AppPictureChild) = Intent(appCtx, SherlockIntentService::class.java).apply {
+            action = ACTION_PUBLISH_FOUND
+            putExtra(EXTRA_FOUND, Parcels.wrap(child))
+        }
     }
 }

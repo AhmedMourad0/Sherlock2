@@ -3,7 +3,7 @@ package inc.ahmedmourad.sherlock.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
-import inc.ahmedmourad.sherlock.dagger.modules.domain.factories.FilterFactory
+import inc.ahmedmourad.sherlock.dagger.modules.domain.factories.FilterAbstractFactory
 import inc.ahmedmourad.sherlock.dagger.modules.domain.factories.FindChildrenInteractorAbstractFactory
 import inc.ahmedmourad.sherlock.data.utils.toLiveData
 import inc.ahmedmourad.sherlock.mapper.AppModelsMapper
@@ -16,7 +16,7 @@ import javax.inject.Inject
 class SearchResultsViewModel(rules: AppChildCriteriaRules, interactor: FindChildrenInteractorAbstractFactory) : ViewModel() {
 
     @Inject
-    lateinit var filterFactory: FilterFactory
+    lateinit var filterFactory: FilterAbstractFactory
 
     val searchResults: LiveData<List<Pair<AppUrlChild, Int>>>
 

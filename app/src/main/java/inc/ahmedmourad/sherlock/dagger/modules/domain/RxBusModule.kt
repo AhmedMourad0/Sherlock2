@@ -16,6 +16,7 @@ class RxBusModule {
     fun provideRxBus(): Bus = RxBus()
 }
 
+//TODO: why is this not used?
 @Module
 class PublishingStateProviderModule {
     @Provides

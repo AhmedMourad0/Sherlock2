@@ -8,11 +8,13 @@ import dagger.Lazy
 
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
-import inc.ahmedmourad.sherlock.dagger.modules.app.factories.RemoteViewsServiceFactory
-import inc.ahmedmourad.sherlock.dagger.modules.domain.factories.GetLastSearchResultsInteractorAbstractFactory
+import inc.ahmedmourad.sherlock.dagger.modules.app.factories.ResultsRemoteViewsServiceAbstractFactory
 import inc.ahmedmourad.sherlock.domain.bus.Bus
+import inc.ahmedmourad.sherlock.domain.interactors.Interactor
+import inc.ahmedmourad.sherlock.domain.model.DomainUrlChild
 import inc.ahmedmourad.sherlock.mapper.AppModelsMapper
 import inc.ahmedmourad.sherlock.utils.DisposablesSparseArray
+import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import javax.inject.Inject
@@ -20,13 +22,13 @@ import javax.inject.Inject
 class AppWidget : AppWidgetProvider() {
 
     @Inject
-    lateinit var interactor: Lazy<GetLastSearchResultsInteractorAbstractFactory>
+    lateinit var interactor: Lazy<Interactor<Flowable<List<Pair<DomainUrlChild, Int>>>>>
 
     @Inject
     lateinit var bus: Lazy<Bus>
 
     @Inject
-    lateinit var resultsRemoteViewsServiceFactory: Lazy<RemoteViewsServiceFactory>
+    lateinit var resultsRemoteViewsServiceFactory: Lazy<ResultsRemoteViewsServiceAbstractFactory>
 
     private val disposables = DisposablesSparseArray()
 
@@ -49,7 +51,6 @@ class AppWidget : AppWidgetProvider() {
      */
     private fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int): Disposable {
         return interactor.get()
-                .create()
                 .execute()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
@@ -61,8 +62,7 @@ class AppWidget : AppWidgetProvider() {
                     views.setEmptyView(R.id.widget_list_view, R.id.widget_empty)
 
                     views.setRemoteAdapter(R.id.widget_list_view,
-                            resultsRemoteViewsServiceFactory.get().create(context,
-                                    appWidgetId,
+                            resultsRemoteViewsServiceFactory.get().create(appWidgetId,
                                     it.map { (child, score) ->
                                         AppModelsMapper.toAppChild(child) to score
                                     }
