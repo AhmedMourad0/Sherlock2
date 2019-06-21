@@ -11,4 +11,4 @@ data class AppChildCriteriaRules(
 ) : Parcelable
 
 @Parcelize
-class PInt(val value: Int) : Parcelable
+data class PInt(val value: Int) : Parcelable

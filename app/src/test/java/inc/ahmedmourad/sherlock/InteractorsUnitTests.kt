@@ -14,7 +14,6 @@ import inc.ahmedmourad.sherlock.domain.interactors.FindChildrenInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.GetLastSearchResultsInteractor
 import inc.ahmedmourad.sherlock.domain.model.*
 import inc.ahmedmourad.sherlock.domain.repository.Repository
-import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
 import junit.framework.TestCase.assertSame
@@ -60,7 +59,8 @@ object InteractorsUnitTests : Spek({
 
                 whenever(repository.publish(child)).thenReturn(Single.just(returnedChild))
 
-                AddChildInteractor(Lazy { repository }).execute { it.child(child) }
+                AddChildInteractor(Lazy { repository }, child)
+                        .execute()
                         .test()
                         .await()
                         .assertComplete()
@@ -76,22 +76,23 @@ object InteractorsUnitTests : Spek({
             it("should call find on repository when execute is called") {
 
                 val filter = mock<Filter<DomainUrlChild>>()
-                val result = DomainRefreshableResults(Flowable.empty()) { Completable.complete() }
+                val result = Flowable.empty<List<Pair<DomainUrlChild, Int>>>()
                 val rules = DomainChildCriteriaRules(
-                        "",
-                        "",
+                        DomainName("", ""),
                         DomainLocation("", "", "", DomainCoordinates(50.0, 40.0)),
-                        Gender.MALE,
-                        Skin.WHEAT,
-                        Hair.DARK,
-                        20,
-                        180
+                        DomainAppearance(
+                                Gender.MALE,
+                                Skin.WHEAT,
+                                Hair.DARK,
+                                20,
+                                180
+                        )
                 )
 
                 whenever(repository.find(rules, filter)).thenReturn(result)
 
                 assertSame(
-                        FindChildrenInteractor(Lazy { repository }).execute { it.rules(rules).filter(filter) },
+                        FindChildrenInteractor(Lazy { repository }, rules, filter).execute(),
                         result
                 )
 
@@ -108,7 +109,7 @@ object InteractorsUnitTests : Spek({
 
                 whenever(repository.getLastSearchResults()).thenReturn(Flowable.just(list1, list2))
 
-                GetLastSearchResultsInteractor(Lazy { repository }).execute { it }.test().await().assertValues(list1, list2)
+                GetLastSearchResultsInteractor(Lazy { repository }).execute().test().await().assertValues(list1, list2)
 
                 verify(repository).getLastSearchResults()
             }

@@ -57,7 +57,7 @@ class FirebaseCloudRepository(private val bus: Lazy<Bus>, private val provider: 
         val filePath = storage.getReference(FirebaseContract.Storage.PATH_CHILDREN)
                 .child("${child.id}.${FirebaseContract.Storage.FILE_FORMAT}")
 
-        return Single.create<StorageReference> {
+        return Single.create {
             filePath.putBytes(child.picture)
                     .addOnCompleteListener { task ->
                         //TODO: this must be retriable
@@ -70,7 +70,7 @@ class FirebaseCloudRepository(private val bus: Lazy<Bus>, private val provider: 
     }
 
     private fun fetchChildPictureUrl(filePath: StorageReference): Single<String> {
-        return Single.create<String> {
+        return Single.create {
             filePath.downloadUrl.addOnCompleteListener { task ->
                 //TODO: this must be retriable
                 if (task.isSuccessful)
@@ -82,7 +82,7 @@ class FirebaseCloudRepository(private val bus: Lazy<Bus>, private val provider: 
     }
 
     private fun storeChild(child: FirebaseUrlChild): Single<FirebaseUrlChild> {
-        return Single.create<FirebaseUrlChild> {
+        return Single.create {
             db.getReference(FirebaseContract.Database.PATH_CHILDREN)
                     .child(child.id)
                     .updateChildren(child.toMap())
@@ -97,19 +97,18 @@ class FirebaseCloudRepository(private val bus: Lazy<Bus>, private val provider: 
     }
 
     override fun find(rules: DomainChildCriteriaRules, filter: Filter<DomainUrlChild>): Flowable<List<Pair<DomainUrlChild, Int>>> {
-        return Flowable.create<List<Pair<DomainUrlChild, Int>>>({
+        return Flowable.create({
             db.getReference(FirebaseContract.Database.PATH_CHILDREN)
                     .orderByChild(FirebaseContract.Database.CHILDREN_SKIN)
                     .equalTo(rules.appearance.skin.value.toDouble())
                     .addValueEventListener(object : ValueEventListener {
                         override fun onDataChange(dataSnapshot: DataSnapshot) {
-                            it.onNext(
-                                    if (dataSnapshot.exists())
-                                        filter.filter(dataSnapshot.children
-                                                .map(DataSnapshot::extractFirebaseUrlChild)
-                                                .map(DataModelsMapper::toDomainUrlChild))
-                                    else
-                                        emptyList()
+                            it.onNext(if (dataSnapshot.exists())
+                                filter.filter(dataSnapshot.children
+                                        .map(DataSnapshot::extractFirebaseUrlChild)
+                                        .map(DataModelsMapper::toDomainUrlChild))
+                            else
+                                emptyList()
                             )
                         }
 

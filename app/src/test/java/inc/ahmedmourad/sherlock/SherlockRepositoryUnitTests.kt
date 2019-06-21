@@ -80,17 +80,18 @@ object SherlockRepositoryUnitTests : Spek({
                 val filter = mock<Filter<DomainUrlChild>>()
                 val list = listOf<Pair<DomainUrlChild, Int>>()
                 val rules = DomainChildCriteriaRules(
-                        "",
-                        "",
+                        DomainName("", ""),
                         DomainLocation("", "", "", DomainCoordinates(50.0, 40.0)),
-                        Gender.MALE,
+                        DomainAppearance(
+                                Gender.MALE,
                         Skin.WHEAT,
                         Hair.DARK,
                         20,
                         180
+                        )
                 )
 
-                whenever(cloudRepository.find(rules, filter)).thenReturn(Single.just(list))
+                whenever(cloudRepository.find(rules, filter)).thenReturn(Flowable.just(list))
                 whenever(localRepository.getResults()).thenReturn(Flowable.empty())
                 whenever(localRepository.replaceResults(list)).thenReturn(Completable.complete())
 
@@ -104,17 +105,18 @@ object SherlockRepositoryUnitTests : Spek({
                 val filter = mock<Filter<DomainUrlChild>>()
                 val list = listOf<Pair<DomainUrlChild, Int>>()
                 val rules = DomainChildCriteriaRules(
-                        "",
-                        "",
+                        DomainName("", ""),
                         DomainLocation("", "", "", DomainCoordinates(50.0, 40.0)),
-                        Gender.MALE,
+                        DomainAppearance(
+                                Gender.MALE,
                         Skin.WHEAT,
                         Hair.DARK,
                         20,
                         180
+                        )
                 )
 
-                whenever(cloudRepository.find(rules, filter)).thenReturn(Single.just(list))
+                whenever(cloudRepository.find(rules, filter)).thenReturn(Flowable.just(list))
                 whenever(localRepository.getResults()).thenReturn(Flowable.empty())
                 whenever(localRepository.replaceResults(list)).thenReturn(Completable.complete())
 
@@ -128,14 +130,15 @@ object SherlockRepositoryUnitTests : Spek({
                 val filter = mock<Filter<DomainUrlChild>>()
                 val list = listOf<Pair<DomainUrlChild, Int>>()
                 val rules = DomainChildCriteriaRules(
-                        "",
-                        "",
+                        DomainName("", ""),
                         DomainLocation("", "", "", DomainCoordinates(50.0, 40.0)),
-                        Gender.MALE,
+                        DomainAppearance(
+                                Gender.MALE,
                         Skin.WHEAT,
                         Hair.DARK,
                         20,
                         180
+                        )
                 )
                 val testObserver = TestObserver.create<Unit>()
                 val completable = Completable.complete()
@@ -143,11 +146,10 @@ object SherlockRepositoryUnitTests : Spek({
                         .doOnError { testObserver.onError(it) }
                         .doOnComplete { testObserver.onComplete() }
 
-                whenever(cloudRepository.find(rules, filter)).thenReturn(Single.just(list))
+                whenever(cloudRepository.find(rules, filter)).thenReturn(Flowable.just(list))
                 whenever(localRepository.getResults()).thenReturn(Flowable.empty())
                 whenever(localRepository.replaceResults(any())).thenReturn(completable)
 
-                //TODO: the error is here, the mapper returns null
                 sherlockRepository.find(rules, filter)
 
                 testObserver.await().assertSubscribed().assertNoErrors().assertComplete()
@@ -162,40 +164,32 @@ object SherlockRepositoryUnitTests : Spek({
                 val filter = mock<Filter<DomainUrlChild>>()
                 val list = listOf<Pair<DomainUrlChild, Int>>()
                 val rules = DomainChildCriteriaRules(
-                        "",
-                        "",
+                        DomainName("", ""),
                         DomainLocation("", "", "", DomainCoordinates(50.0, 40.0)),
-                        Gender.MALE,
+                        DomainAppearance(
+                                Gender.MALE,
                         Skin.WHEAT,
                         Hair.DARK,
                         20,
                         180
+                        )
                 )
 
                 val initialList = listOf<Pair<DomainUrlChild, Int>>()
 
-                whenever(cloudRepository.find(rules, filter)).thenReturn(Single.just(list))
+                whenever(cloudRepository.find(rules, filter)).thenReturn(Flowable.just(list))
                 whenever(localRepository.getResults()).thenReturn(Flowable.fromArray(initialList))
                 whenever(localRepository.replaceResults(list)).thenReturn(Completable.complete())
 
                 val result = sherlockRepository.find(rules, filter)
 
-                result.results.test().awaitCount(1).assertValues(initialList)
+                result.test().awaitCount(1).assertValues(initialList)
 
                 verify(cloudRepository) {
                     1 * { find(rules, filter) }
                 }
                 verify(localRepository) {
                     1 * { replaceResults(list) }
-                }
-
-                result.refresh().test().await()
-
-                verify(cloudRepository) {
-                    2 * { find(rules, filter) }
-                }
-                verify(localRepository) {
-                    2 * { replaceResults(list) }
                 }
             }
         }

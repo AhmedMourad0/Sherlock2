@@ -35,18 +35,19 @@ object CriteriaUnitTests : Spek({
 
             val rules by memoized {
                 DomainChildCriteriaRules(
-                        "Ahmed",
-                        "Mourad",
+                        DomainName("Ahmed", "Mourad"),
                         DomainLocation("1", "a", "a", DomainCoordinates(50.0, 40.0)),
-                        Gender.MALE,
-                        Skin.WHEAT,
-                        Hair.DARK,
-                        20,
-                        180
+                        DomainAppearance(
+                                Gender.MALE,
+                                Skin.WHEAT,
+                                Hair.DARK,
+                                20,
+                                180
+                        )
                 )
             }
 
-            val criteria by memoized { LooseCriteria(rules, Lazy { locationManager }) }
+            val criteria by memoized { LooseCriteria<DomainUrlChild>(rules, Lazy { locationManager }) }
 
             it("should calculate the result supplied with apply") {
 

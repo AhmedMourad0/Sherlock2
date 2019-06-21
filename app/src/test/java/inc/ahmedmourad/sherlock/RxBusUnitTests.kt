@@ -46,7 +46,7 @@ object RxBusUnitTests : Spek({
                     on { somethingWentWrong() } doReturn "somethingWentWrong"
                 }
 
-                val provider = Bus.PublishingState.Provider(Lazy { textManager })
+                val provider = Bus.PublishingState.TextManagerProvider(Lazy { textManager })
 
                 val failure = provider.failure()
                 val success = provider.success()

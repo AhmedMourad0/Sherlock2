@@ -19,7 +19,6 @@ import inc.ahmedmourad.sherlock.domain.bus.Bus
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
-import inc.ahmedmourad.sherlock.domain.device.TextManager
 import inc.ahmedmourad.sherlock.domain.filter.Filter
 import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
 import inc.ahmedmourad.sherlock.domain.model.*
@@ -39,9 +38,14 @@ import java.util.*
 class FirebaseCloudRepositoryInstrumentedTests {
 
     private lateinit var bus: Bus
+    private lateinit var provider: Bus.PublishingState.Provider
     private lateinit var db: FirebaseDatabase
     private lateinit var storage: FirebaseStorage
     private lateinit var repository: CloudRepository
+
+    private val ongoingState = Bus.PublishingState("ongoing", true)
+    private val successState = Bus.PublishingState("ongoing", false)
+    private val failureState = Bus.PublishingState("ongoing", false)
 
     private val child0 = DomainPictureChild(
             UUID.randomUUID().toString(),
@@ -92,8 +96,13 @@ class FirebaseCloudRepositoryInstrumentedTests {
 
         val event = mock<Bus.Event<Bus.BackgroundState>>()
         val state = mock<Bus.State> { on { backgroundState } doReturn event }
+        provider = mock {
+            on { ongoing() } doReturn ongoingState
+            on { success() } doReturn successState
+            on { failure() } doReturn failureState
+        }
         bus = mock { on { this.state } doReturn state }
-        repository = FirebaseCloudRepository(Lazy { bus }, Lazy { Bus.PublishingState.Provider(Lazy { mock<TextManager>() }) })
+        repository = FirebaseCloudRepository(Lazy { bus }, Lazy { provider })
         db = FirebaseDatabase.getInstance()
         storage = FirebaseStorage.getInstance()
     }
@@ -133,9 +142,9 @@ class FirebaseCloudRepositoryInstrumentedTests {
         }
 
         verify(bus.state.backgroundState) {
-            1 * { notify(any<Bus.PublishingState.Ongoing>()) }
-            1 * { notify(any<Bus.PublishingState.Success>()) }
-            0 * { notify(any<Bus.PublishingState.Failure>()) }
+            1 * { notify(ongoingState) }
+            1 * { notify(successState) }
+            0 * { notify(failureState) }
         }
 
         assertChildExists(child0.id, true)
@@ -204,21 +213,25 @@ class FirebaseCloudRepositoryInstrumentedTests {
         }
 
         val rules = DomainChildCriteriaRules(
-                "",
-                "",
+                DomainName("", ""),
                 DomainLocation("", "", "", DomainCoordinates(0.0, 0.0)),
-                Gender.MALE,
-                Skin.WHITE,
-                Hair.BROWN,
-                0,
-                0
+                DomainAppearance(
+                        Gender.MALE,
+                        Skin.WHITE,
+                        Hair.BROWN,
+                        0,
+                        0
+                )
         )
 
-        //TODO: make sure storage has the image with these links
+//        if (true)
+//            return
+
+        //TODO: store images and make sure storage has the image with their links
         repository.find(rules, filter)
                 .test()
-                .await()
-                .assertComplete()
+                .awaitCount(1)
+                .assertNotComplete()
                 .assertNoErrors()
                 .assertValue(listOf(
                         domainPublishedChild0,
@@ -235,7 +248,7 @@ class FirebaseCloudRepositoryInstrumentedTests {
     }
 
     private fun publishChild(child: FirebaseUrlChild): Single<FirebaseUrlChild> {
-        return Single.create<FirebaseUrlChild> {
+        return Single.create {
             db.getReference(FirebaseContract.Database.PATH_CHILDREN)
                     .child(child.id)
                     .updateChildren(child.toMap())

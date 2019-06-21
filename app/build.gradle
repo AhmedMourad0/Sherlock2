@@ -65,14 +65,9 @@ android {
     }
 }
 
+// I realize Parcelize is no longer experimental, but it gives me an error whenever i remove this
 androidExtensions {
     experimental = true
-}
-
-tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
-    kotlinOptions {
-        freeCompilerArgs = ["-XXLanguage:+InlineClasses"]
-    }
 }
 
 repositories {
