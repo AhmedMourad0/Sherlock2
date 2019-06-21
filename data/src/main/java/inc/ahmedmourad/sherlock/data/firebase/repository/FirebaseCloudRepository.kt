@@ -100,7 +100,7 @@ class FirebaseCloudRepository(private val bus: Lazy<Bus>, private val provider: 
         return Flowable.create<List<Pair<DomainUrlChild, Int>>>({
             db.getReference(FirebaseContract.Database.PATH_CHILDREN)
                     .orderByChild(FirebaseContract.Database.CHILDREN_SKIN)
-                    .equalTo(rules.skin.value.toDouble())
+                    .equalTo(rules.appearance.skin.value.toDouble())
                     .addValueEventListener(object : ValueEventListener {
                         override fun onDataChange(dataSnapshot: DataSnapshot) {
                             it.onNext(
@@ -124,8 +124,8 @@ class FirebaseCloudRepository(private val bus: Lazy<Bus>, private val provider: 
 fun DataSnapshot.extractFirebaseUrlChild() = FirebaseUrlChild(
         this.key
                 ?: throw IllegalArgumentException("id is null!"),
-        this.child(FirebaseContract.Database.CHILDREN_TIME_MILLIS).value?.toString()?.toLong()
-                ?: throw IllegalArgumentException("timeMillis is null!"),
+        this.child(FirebaseContract.Database.CHILDREN_PUBLICATION_DATE).value?.toString()?.toLong()
+                ?: throw IllegalArgumentException("publicationDate is null!"),
         extractFirebaseName(this),
         this.child(FirebaseContract.Database.CHILDREN_NOTES).value?.toString()
                 ?: throw IllegalArgumentException("notes is null!"),

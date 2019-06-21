@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "0b48055aa27b77ee4beca0881e03d8ab",
+    "identityHash": "6c8c01055ae198460602ef29d48e0caf",
     "entities": [
       {
         "tableName": "children",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `timeMillis` INTEGER NOT NULL, `first_name` TEXT NOT NULL, `last_name` TEXT NOT NULL, `location` TEXT NOT NULL, `notes` TEXT NOT NULL, `isSameGender` INTEGER NOT NULL, `isSameSkin` INTEGER NOT NULL, `isSameHair` INTEGER NOT NULL, `start_age` INTEGER NOT NULL, `end_age` INTEGER NOT NULL, `start_height` INTEGER NOT NULL, `end_height` INTEGER NOT NULL, `picture_url` TEXT NOT NULL, `score` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `publicationDate` INTEGER NOT NULL, `first_name` TEXT NOT NULL, `last_name` TEXT NOT NULL, `location` TEXT NOT NULL, `notes` TEXT NOT NULL, `isSameGender` INTEGER NOT NULL, `isSameSkin` INTEGER NOT NULL, `isSameHair` INTEGER NOT NULL, `start_age` INTEGER NOT NULL, `end_age` INTEGER NOT NULL, `start_height` INTEGER NOT NULL, `end_height` INTEGER NOT NULL, `picture_url` TEXT NOT NULL, `score` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -15,8 +15,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "timeMillis",
-            "columnName": "timeMillis",
+            "fieldPath": "publicationDate",
+            "columnName": "publicationDate",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -112,7 +112,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0b48055aa27b77ee4beca0881e03d8ab')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6c8c01055ae198460602ef29d48e0caf')"
     ]
   }
 }

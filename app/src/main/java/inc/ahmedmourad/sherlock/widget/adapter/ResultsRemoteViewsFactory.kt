@@ -42,7 +42,7 @@ class ResultsRemoteViewsFactory constructor(private val context: Context, privat
         val views = RemoteViews(context.packageName, R.layout.item_widget_result)
 
         //TODO: needs to change over time
-        views.setTextViewText(R.id.widget_result_date, dateManager.get().getRelativeDateTimeString(result.first.timeMillis))
+        views.setTextViewText(R.id.widget_result_date, dateManager.get().getRelativeDateTimeString(result.first.publicationDate))
         views.setTextViewText(R.id.widget_result_notes, result.first.notes)
         views.setTextViewText(R.id.widget_result_location, formatter.get().formatLocation(result.first.location))
 

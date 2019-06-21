@@ -46,7 +46,7 @@ class AddChildViewModel : ViewModel() {
     }
 
     fun toAppPictureChild() = AppPictureChild(
-            timeMillis = System.currentTimeMillis(),
+            publicationDate = System.currentTimeMillis(),
             name = AppName(firstName.value.trim(), lastName.value.trim()),
             notes = notes.value.trim(),
             location = location.value,

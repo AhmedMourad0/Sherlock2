@@ -27,7 +27,6 @@ import inc.ahmedmourad.sherlock.utils.Formatter
 import inc.ahmedmourad.sherlock.utils.setSupportActionBar
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
 import inc.ahmedmourad.sherlock.viewmodel.SearchResultsViewModel
-import org.parceler.Parcels
 import javax.inject.Inject
 
 //TODO: needs a better name, maybe?
@@ -78,10 +77,8 @@ class SearchResultsController(args: Bundle) : LifecycleController(args) {
 
         toolbar.setTitle(R.string.results)
 
-        rules = Parcels.unwrap(
-                args.getParcelable(ARG_RULES)
-                        ?: throw IllegalArgumentException("Rules cannot be null!")
-        )
+        rules = args.getParcelable(ARG_RULES)
+                ?: throw IllegalArgumentException("Rules cannot be null!")
 
         initializeRecyclerView()
 
@@ -114,7 +111,7 @@ class SearchResultsController(args: Bundle) : LifecycleController(args) {
         private const val ARG_RULES = "inc.ahmedmourad.sherlock.view.controllers.arg.RULES"
 
         fun newInstance(rules: AppChildCriteriaRules) = SearchResultsController(Bundle(1).apply {
-            putParcelable(ARG_RULES, Parcels.wrap(rules))
+            putParcelable(ARG_RULES, rules)
         })
     }
 }

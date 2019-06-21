@@ -1,16 +1,16 @@
 package inc.ahmedmourad.sherlock.model
 
+import android.os.Parcelable
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
-import org.parceler.Parcel
-import org.parceler.ParcelConstructor
+import kotlinx.android.parcel.Parcelize
 
-@Parcel(Parcel.Serialization.BEAN)
-data class AppAppearance @ParcelConstructor constructor(
+@Parcelize
+data class AppAppearance<T : Parcelable>(
         val gender: Gender,
         val skin: Skin,
         val hair: Hair,
-        val age: AppRange,
-        val height: AppRange
-)
+        val age: T,
+        val height: T
+) : Parcelable

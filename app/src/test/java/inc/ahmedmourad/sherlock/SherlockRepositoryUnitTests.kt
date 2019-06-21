@@ -52,7 +52,7 @@ object SherlockRepositoryUnitTests : Spek({
 
                 val returnedChild = DomainUrlChild(
                         child.id,
-                        child.timeMillis,
+                        child.publicationDate,
                         child.name,
                         child.notes,
                         child.location,

@@ -2,7 +2,7 @@ package inc.ahmedmourad.sherlock.domain.device
 
 interface DateManager {
 
-    fun getRelativeDateTimeString(dateMillis: Long, minResolution: Long = MINUTE_IN_MILLIS, transitionResolution: Long = YEAR_IN_MILLIS): String
+    fun getRelativeDateTimeString(timeMillis: Long, minResolution: Long = MINUTE_IN_MILLIS, transitionResolution: Long = YEAR_IN_MILLIS): String
 
     companion object {
         const val SECOND_IN_MILLIS = 1000L

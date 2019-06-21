@@ -15,6 +15,7 @@ import inc.ahmedmourad.sherlock.domain.bus.Bus
 import io.reactivex.disposables.Disposable
 import javax.inject.Inject
 
+//TODO: use Anko's Dsl for all of our layouts
 class MainActivity : AppCompatActivity() {
 
     @BindView(R.id.controller_container)

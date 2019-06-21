@@ -9,7 +9,6 @@ import inc.ahmedmourad.sherlock.domain.bus.Bus
 import inc.ahmedmourad.sherlock.mapper.AppModelsMapper
 import inc.ahmedmourad.sherlock.model.AppPictureChild
 import io.reactivex.disposables.Disposable
-import org.parceler.Parcels
 import splitties.init.appCtx
 import javax.inject.Inject
 
@@ -39,7 +38,7 @@ class SherlockIntentService : IntentService("SherlockIntentService") {
         }
 
         when (intent.action) {
-            ACTION_PUBLISH_FOUND -> handleActionPublishFound(Parcels.unwrap(intent.getParcelableExtra(EXTRA_FOUND)))
+            ACTION_PUBLISH_FOUND -> handleActionPublishFound(intent.getParcelableExtra(EXTRA_FOUND))
         }
     }
 
@@ -63,7 +62,7 @@ class SherlockIntentService : IntentService("SherlockIntentService") {
 
         fun create(child: AppPictureChild) = Intent(appCtx, SherlockIntentService::class.java).apply {
             action = ACTION_PUBLISH_FOUND
-            putExtra(EXTRA_FOUND, Parcels.wrap(child))
+            putExtra(EXTRA_FOUND, child)
         }
     }
 }

@@ -1,9 +1,8 @@
 package inc.ahmedmourad.sherlock.domain.filter.criteria
 
-import inc.ahmedmourad.sherlock.domain.constants.Gender
-import inc.ahmedmourad.sherlock.domain.constants.Hair
-import inc.ahmedmourad.sherlock.domain.constants.Skin
+import inc.ahmedmourad.sherlock.domain.model.DomainAppearance
 import inc.ahmedmourad.sherlock.domain.model.DomainLocation
+import inc.ahmedmourad.sherlock.domain.model.DomainName
 
 interface Criteria<T> {
 
@@ -16,12 +15,7 @@ interface Criteria<T> {
 }
 
 data class DomainChildCriteriaRules(
-        val firstName: String,
-        val lastName: String,
+        val name: DomainName,
         val location: DomainLocation,
-        val gender: Gender,
-        val skin: Skin,
-        val hair: Hair,
-        val age: Int,
-        val height: Int
+        val appearance: DomainAppearance<Int>
 )

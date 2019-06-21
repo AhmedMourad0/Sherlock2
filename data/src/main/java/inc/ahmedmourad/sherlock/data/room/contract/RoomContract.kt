@@ -9,7 +9,7 @@ object RoomContract {
         const val TABLE_NAME = "children"
 
         const val COLUMN_ID = "id"
-        const val COLUMN_TIME_MILLIS = "timeMillis"
+        const val COLUMN_PUBLICATION_DATE = "publicationDate"
         const val COLUMN_FIRST_NAME = "first_name"
         const val COLUMN_LAST_NAME = "last_name"
         const val COLUMN_PICTURE_URL = "picture_url"

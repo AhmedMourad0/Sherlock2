@@ -17,7 +17,6 @@ import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.model.AppChild
 import inc.ahmedmourad.sherlock.utils.Formatter
 import inc.ahmedmourad.sherlock.utils.setSupportActionBar
-import org.parceler.Parcels
 import javax.inject.Inject
 
 class DisplayChildController(args: Bundle) : Controller(args) {
@@ -73,9 +72,9 @@ class DisplayChildController(args: Bundle) : Controller(args) {
 
         setSupportActionBar(toolbar)
 
-        val child = Parcels.unwrap<AppChild>(args.getParcelable(ARG_CHILD)
+        val child = args.getParcelable<AppChild>(ARG_CHILD)
                 ?: throw IllegalArgumentException("Child cannot be null!")
-        )
+
 
         val score = args.getInt(ARG_SCORE, INVALID_SCORE).takeUnless { it == INVALID_SCORE }
                 ?: throw IllegalArgumentException("Score cannot be null!")
@@ -129,7 +128,7 @@ class DisplayChildController(args: Bundle) : Controller(args) {
         private const val INVALID_SCORE = -2
 
         fun newInstance(result: Pair<AppChild, Int>) = DisplayChildController(Bundle(2).apply {
-            putParcelable(ARG_CHILD, Parcels.wrap(result.first))
+            putParcelable(ARG_CHILD, result.first)
             putInt(ARG_SCORE, result.second)
         })
 

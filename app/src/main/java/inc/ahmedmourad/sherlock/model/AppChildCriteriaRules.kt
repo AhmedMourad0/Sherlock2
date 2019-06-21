@@ -1,19 +1,14 @@
 package inc.ahmedmourad.sherlock.model
 
-import inc.ahmedmourad.sherlock.domain.constants.Gender
-import inc.ahmedmourad.sherlock.domain.constants.Hair
-import inc.ahmedmourad.sherlock.domain.constants.Skin
-import org.parceler.Parcel
-import org.parceler.ParcelConstructor
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 
-@Parcel(Parcel.Serialization.BEAN)
-data class AppChildCriteriaRules @ParcelConstructor constructor(
-        val firstName: String,
-        val lastName: String,
+@Parcelize
+data class AppChildCriteriaRules(
+        val name: AppName,
         val location: AppLocation,
-        val gender: Gender,
-        val skin: Skin,
-        val hair: Hair,
-        val age: Int,
-        val height: Int
-)
+        val appearance: AppAppearance<PInt>
+) : Parcelable
+
+@Parcelize
+class PInt(val value: Int) : Parcelable

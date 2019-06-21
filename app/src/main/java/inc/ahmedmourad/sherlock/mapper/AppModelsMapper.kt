@@ -9,19 +9,22 @@ import inc.ahmedmourad.sherlock.utils.getImageBytes
 object AppModelsMapper {
 
     fun toDomainChildCriteriaRules(rules: AppChildCriteriaRules) = DomainChildCriteriaRules(
-            rules.firstName,
-            rules.lastName,
+            toDomainName(rules.name),
             toDomainLocation(rules.location),
-            rules.gender,
-            rules.skin,
-            rules.hair,
-            rules.age,
-            rules.height
+            toDomainIntAppearance(rules.appearance)
+    )
+
+    private fun toDomainIntAppearance(appearance: AppAppearance<PInt>) = DomainAppearance(
+            appearance.gender,
+            appearance.skin,
+            appearance.hair,
+            appearance.age.value,
+            appearance.height.value
     )
 
     fun toAppChild(child: DomainUrlChild) = AppUrlChild(
             child.id,
-            child.timeMillis,
+            child.publicationDate,
             toAppName(child.name),
             child.notes,
             toAppLocation(child.location),
@@ -46,7 +49,7 @@ object AppModelsMapper {
             name.last
     )
 
-    private fun toAppAppearance(appearance: DomainAppearance) = AppAppearance(
+    private fun toAppAppearance(appearance: DomainAppearance<DomainRange>) = AppAppearance(
             appearance.gender,
             appearance.skin,
             appearance.hair,
@@ -61,11 +64,11 @@ object AppModelsMapper {
 
     fun toDomainPictureChild(child: AppPictureChild) = DomainPictureChild(
             child.id,
-            child.timeMillis,
+            child.publicationDate,
             toDomainName(child.name),
             child.notes,
             toDomainLocation(child.location),
-            toDomainAppearance(child.appearance),
+            toDomainRangeAppearance(child.appearance),
             child.picturePath.run { if (isNotBlank()) getImageBytes(this) else getImageBytes(R.drawable.placeholder) }
     )
 
@@ -84,7 +87,7 @@ object AppModelsMapper {
             name.last
     )
 
-    private fun toDomainAppearance(appearance: AppAppearance) = DomainAppearance(
+    private fun toDomainRangeAppearance(appearance: AppAppearance<AppRange>) = DomainAppearance(
             appearance.gender,
             appearance.skin,
             appearance.hair,

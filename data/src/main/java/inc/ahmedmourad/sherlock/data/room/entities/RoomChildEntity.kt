@@ -11,8 +11,8 @@ data class RoomChildEntity(
         @ColumnInfo(name = ChildrenEntry.COLUMN_ID)
         val id: String = "",
 
-        @ColumnInfo(name = ChildrenEntry.COLUMN_TIME_MILLIS)
-        val timeMillis: Long = 0,
+        @ColumnInfo(name = ChildrenEntry.COLUMN_PUBLICATION_DATE)
+        val publicationDate: Long = 0,
 
         @ColumnInfo(name = ChildrenEntry.COLUMN_FIRST_NAME)
         val firstName: String = "",

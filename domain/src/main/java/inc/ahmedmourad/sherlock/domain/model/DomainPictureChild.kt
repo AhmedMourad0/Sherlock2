@@ -2,11 +2,11 @@ package inc.ahmedmourad.sherlock.domain.model
 
 data class DomainPictureChild(
         override val id: String,
-        override val timeMillis: Long,
+        override val publicationDate: Long,
         override val name: DomainName,
         override val notes: String,
         override val location: DomainLocation,
-        override val appearance: DomainAppearance,
+        override val appearance: DomainAppearance<DomainRange>,
         val picture: ByteArray
 ) : DomainChild {
 
@@ -23,7 +23,7 @@ data class DomainPictureChild(
         if (id != other.id)
             return false
 
-        if (timeMillis != other.timeMillis)
+        if (publicationDate != other.publicationDate)
             return false
 
         if (name != other.name)
@@ -46,7 +46,7 @@ data class DomainPictureChild(
 
     override fun hashCode(): Int {
         var result = id.hashCode()
-        result = 31 * result + timeMillis.hashCode()
+        result = 31 * result + publicationDate.hashCode()
         result = 31 * result + name.hashCode()
         result = 31 * result + notes.hashCode()
         result = 31 * result + location.hashCode()

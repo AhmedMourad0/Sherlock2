@@ -65,7 +65,7 @@ class ResultsRecyclerAdapter(
                     .into(pictureImageView)
 
             //TODO: this needs to change with time
-            dateTextView.text = dateManager.get().getRelativeDateTimeString(result.first.timeMillis)
+            dateTextView.text = dateManager.get().getRelativeDateTimeString(result.first.publicationDate)
             notesTextView.text = formatter.get().formatNotes(result.first.notes)
             locationTextView.text = formatter.get().formatLocation(result.first.location)
 

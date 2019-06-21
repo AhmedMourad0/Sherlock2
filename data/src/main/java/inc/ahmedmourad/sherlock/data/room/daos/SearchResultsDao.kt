@@ -11,7 +11,7 @@ abstract class SearchResultsDao {
 
     @Query("""SELECT
             ${ChildrenEntry.COLUMN_ID},
-            ${ChildrenEntry.COLUMN_TIME_MILLIS},
+            ${ChildrenEntry.COLUMN_PUBLICATION_DATE},
             ${ChildrenEntry.COLUMN_FIRST_NAME},
             ${ChildrenEntry.COLUMN_LAST_NAME},
             ${ChildrenEntry.COLUMN_PICTURE_URL},

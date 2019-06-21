@@ -6,7 +6,7 @@ object FirebaseContract {
 
         const val PATH_CHILDREN = "c"
 
-        const val CHILDREN_TIME_MILLIS = "t"
+        const val CHILDREN_PUBLICATION_DATE = "d"
         const val CHILDREN_FIRST_NAME = "f"
         const val CHILDREN_LAST_NAME = "l"
         const val CHILDREN_LOCATION = "c"

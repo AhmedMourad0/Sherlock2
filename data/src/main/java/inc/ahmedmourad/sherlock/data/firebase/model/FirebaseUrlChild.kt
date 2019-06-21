@@ -3,7 +3,7 @@ package inc.ahmedmourad.sherlock.data.firebase.model
 import inc.ahmedmourad.sherlock.data.firebase.contract.FirebaseContract
 
 data class FirebaseUrlChild(override val id: String,
-                            override val timeMillis: Long,
+                            override val publicationDate: Long,
                             override val name: FirebaseName,
                             override val notes: String,
                             override val location: FirebaseLocation,
@@ -11,7 +11,7 @@ data class FirebaseUrlChild(override val id: String,
                             val pictureUrl: String) : FirebaseChild {
 
     constructor(child: FirebasePictureChild, pictureUrl: String) : this(child.id,
-            child.timeMillis,
+            child.publicationDate,
             child.name,
             child.notes,
             child.location,
@@ -20,7 +20,7 @@ data class FirebaseUrlChild(override val id: String,
     )
 
     fun toMap(): Map<String, Any> = hashMapOf(
-            FirebaseContract.Database.CHILDREN_TIME_MILLIS to timeMillis,
+            FirebaseContract.Database.CHILDREN_PUBLICATION_DATE to publicationDate,
             FirebaseContract.Database.CHILDREN_FIRST_NAME to name.first,
             FirebaseContract.Database.CHILDREN_LAST_NAME to name.last,
             FirebaseContract.Database.CHILDREN_LOCATION to location.store(), //TODO: maybe not just store it as a string

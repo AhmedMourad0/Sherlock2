@@ -14,7 +14,7 @@ object DataModelsMapper {
 
     fun toRoomChildEntity(child: Pair<DomainUrlChild, Int>) = RoomChildEntity(
             child.first.id,
-            child.first.timeMillis,
+            child.first.publicationDate,
             child.first.name.first,
             child.first.name.last,
             toRoomLocation(child.first.location).store(),
@@ -44,7 +44,7 @@ object DataModelsMapper {
 
     fun toDomainUrlChild(entity: RoomChildEntity) = DomainUrlChild(
             entity.id,
-            entity.timeMillis,
+            entity.publicationDate,
             DomainName(entity.firstName, entity.lastName),
             entity.notes,
             toDomainLocation(RoomLocation.parse(entity.location)),
@@ -71,7 +71,7 @@ object DataModelsMapper {
 
     fun toDomainUrlChild(child: FirebaseUrlChild) = DomainUrlChild(
             child.id,
-            child.timeMillis,
+            child.publicationDate,
             toDomainName(child.name),
             child.notes,
             toDomainLocation(child.location),
@@ -111,7 +111,7 @@ object DataModelsMapper {
 
     fun toFirebasePictureChild(child: DomainPictureChild) = FirebasePictureChild(
             child.id,
-            child.timeMillis,
+            child.publicationDate,
             toFirebaseName(child.name),
             child.notes,
             toFirebaseLocation(child.location),
@@ -136,7 +136,7 @@ object DataModelsMapper {
             name.last
     )
 
-    private fun toFirebaseAppearance(appearance: DomainAppearance) = FirebaseAppearance(
+    private fun toFirebaseAppearance(appearance: DomainAppearance<DomainRange>) = FirebaseAppearance(
             appearance.gender,
             appearance.skin,
             appearance.hair,

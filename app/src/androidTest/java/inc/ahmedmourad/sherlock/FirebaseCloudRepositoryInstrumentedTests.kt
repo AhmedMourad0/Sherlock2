@@ -30,11 +30,9 @@ import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-
 import org.junit.runner.RunWith
 import splitties.init.appCtx
 import timber.log.Timber
-import java.lang.RuntimeException
 import java.util.*
 
 @RunWith(AndroidJUnit4::class)
@@ -120,7 +118,7 @@ class FirebaseCloudRepositoryInstrumentedTests {
 
         assertEquals(publishedChild0, DomainUrlChild(
                 child0.id,
-                child0.timeMillis,
+                child0.publicationDate,
                 child0.name,
                 child0.notes,
                 child0.location,

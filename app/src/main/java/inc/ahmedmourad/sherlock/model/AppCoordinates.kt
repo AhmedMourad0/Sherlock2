@@ -1,10 +1,10 @@
 package inc.ahmedmourad.sherlock.model
 
-import org.parceler.Parcel
-import org.parceler.ParcelConstructor
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 
-@Parcel(Parcel.Serialization.BEAN)
-data class AppCoordinates @ParcelConstructor constructor(val latitude: Double, val longitude: Double) {
+@Parcelize
+data class AppCoordinates(val latitude: Double, val longitude: Double) : Parcelable {
     fun isValid() = latitude between (-90.0 to 90.0) && longitude between (-180.0 to 180.0)
 }
 

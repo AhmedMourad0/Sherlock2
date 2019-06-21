@@ -1,7 +1,7 @@
 package inc.ahmedmourad.sherlock.data.firebase.model
 
 data class FirebasePictureChild(override val id: String,
-                                override val timeMillis: Long,
+                                override val publicationDate: Long,
                                 override val name: FirebaseName,
                                 override val notes: String,
                                 override val location: FirebaseLocation,
@@ -21,7 +21,7 @@ data class FirebasePictureChild(override val id: String,
         if (id != other.id)
             return false
 
-        if (timeMillis != other.timeMillis)
+        if (publicationDate != other.publicationDate)
             return false
 
         if (name != other.name)
@@ -44,7 +44,7 @@ data class FirebasePictureChild(override val id: String,
 
     override fun hashCode(): Int {
         var result = id.hashCode()
-        result = 31 * result + timeMillis.hashCode()
+        result = 31 * result + publicationDate.hashCode()
         result = 31 * result + name.hashCode()
         result = 31 * result + notes.hashCode()
         result = 31 * result + location.hashCode()

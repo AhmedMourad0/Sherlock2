@@ -9,7 +9,6 @@ import dagger.Lazy
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.app.factories.ResultsRemoteViewsFactoryAbstractFactory
 import inc.ahmedmourad.sherlock.model.AppUrlChild
-import org.parceler.Parcels
 import splitties.init.appCtx
 import java.util.*
 import javax.inject.Inject
@@ -30,8 +29,8 @@ class ResultsRemoteViewsService : RemoteViewsService() {
         val hackBundle = intent.getBundleExtra(EXTRA_HACK_BUNDLE)
                 ?: throw IllegalArgumentException("Hack Bundle cannot be null!")
 
-        val children = Parcels.unwrap<ArrayList<AppUrlChild>>(hackBundle.getParcelable(EXTRA_CHILDREN)
-                ?: throw IllegalArgumentException("Children list cannot be null!"))
+        val children = hackBundle.getParcelableArrayList<AppUrlChild>(EXTRA_CHILDREN)
+                ?: throw IllegalArgumentException("Children list cannot be null!")
 
         val scores = intent.getIntegerArrayListExtra(EXTRA_SCORES)
                 ?: throw IllegalArgumentException("Scores list cannot be null!")
@@ -59,7 +58,7 @@ class ResultsRemoteViewsService : RemoteViewsService() {
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                 data = getUniqueDataUri(appWidgetId)
                 putExtra(EXTRA_HACK_BUNDLE, Bundle(2).apply {
-                    this.putParcelable(EXTRA_CHILDREN, Parcels.wrap(ArrayList(results.map { it.first })))
+                    this.putParcelableArrayList(EXTRA_CHILDREN, ArrayList(results.map { it.first }))
                     this.putIntegerArrayList(EXTRA_SCORES, ArrayList(results.map { it.second }))
                 })
             }

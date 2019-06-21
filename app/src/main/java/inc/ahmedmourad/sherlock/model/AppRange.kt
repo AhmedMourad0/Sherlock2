@@ -1,7 +1,7 @@
 package inc.ahmedmourad.sherlock.model
 
-import org.parceler.Parcel
-import org.parceler.ParcelConstructor
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 
-@Parcel(Parcel.Serialization.BEAN)
-data class AppRange @ParcelConstructor constructor(val from: Int, val to: Int)
+@Parcelize
+data class AppRange(val from: Int, val to: Int) : Parcelable

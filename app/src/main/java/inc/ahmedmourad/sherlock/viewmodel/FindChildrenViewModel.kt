@@ -4,8 +4,7 @@ import androidx.lifecycle.ViewModel
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
-import inc.ahmedmourad.sherlock.model.AppChildCriteriaRules
-import inc.ahmedmourad.sherlock.model.AppLocation
+import inc.ahmedmourad.sherlock.model.*
 import inc.ahmedmourad.sherlock.viewmodel.model.DefaultLiveData
 
 class FindChildrenViewModel : ViewModel() {
@@ -24,13 +23,14 @@ class FindChildrenViewModel : ViewModel() {
     val height by lazy { DefaultLiveData(120) }
 
     fun toAppChildCriteriaRules() = AppChildCriteriaRules(
-            firstName.value.trim(),
-            lastName.value.trim(),
+            AppName(firstName.value.trim(), lastName.value.trim()),
             location.value,
-            gender.value,
-            skin.value,
-            hair.value,
-            age.value,
-            height.value
+            AppAppearance(
+                    gender.value,
+                    skin.value,
+                    hair.value,
+                    PInt(age.value),
+                    PInt(height.value)
+            )
     )
 }

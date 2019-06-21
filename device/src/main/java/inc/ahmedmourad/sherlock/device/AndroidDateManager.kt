@@ -5,9 +5,9 @@ import inc.ahmedmourad.sherlock.domain.device.DateManager
 import splitties.init.appCtx
 
 class AndroidDateManager : DateManager {
-    override fun getRelativeDateTimeString(dateMillis: Long, minResolution: Long, transitionResolution: Long): String {
+    override fun getRelativeDateTimeString(timeMillis: Long, minResolution: Long, transitionResolution: Long): String {
         return DateUtils.getRelativeDateTimeString(appCtx,
-                dateMillis,
+                timeMillis,
                 minResolution,
                 transitionResolution,
                 DateUtils.FORMAT_ABBREV_MONTH or DateUtils.FORMAT_ABBREV_WEEKDAY
