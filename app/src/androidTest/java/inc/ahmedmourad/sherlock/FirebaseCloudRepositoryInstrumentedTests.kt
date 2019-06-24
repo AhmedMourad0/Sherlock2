@@ -90,22 +90,34 @@ class FirebaseCloudRepositoryInstrumentedTests {
             ), getImageBytes(R.drawable.coming_soon))
 
     @Before
-    fun setup() {
-
+    fun setupTimber() {
         Timber.plant(Timber.DebugTree())
+    }
+
+    @Before
+    fun setupRepository() {
 
         val event = mock<Bus.Event<Bus.BackgroundState>>()
         val state = mock<Bus.State> { on { backgroundState } doReturn event }
+
+        bus = mock { on { this.state } doReturn state }
 
         provider = mock {
             on { ongoing() } doReturn ongoingState
             on { success() } doReturn successState
             on { failure() } doReturn failureState
         }
-        bus = mock { on { this.state } doReturn state }
-        repository = FirebaseCloudRepository(Lazy { bus }, Lazy { provider })
 
+        repository = FirebaseCloudRepository(Lazy { bus }, Lazy { provider })
+    }
+
+    @Before
+    fun setupDatabase() {
         db = FirebaseDatabase.getInstance()
+    }
+
+    @Before
+    fun setupStorage() {
         storage = FirebaseStorage.getInstance()
     }
 
@@ -117,98 +129,96 @@ class FirebaseCloudRepositoryInstrumentedTests {
     @Test
     fun publish_shouldStoreChildPictureInStorage_shouldStoreChildInDatabase() {
 
-        assertChildExists(child0, false)
-        assertPictureExists(child0, false)
+        sequenceOf(
+                child0,
+                child1,
+                child2
+        ).onEach {
+            assertChildExists(it, false)
+            assertPictureExists(it, false)
+        }.map {
+            it to repository.publish(it)
+                    .test()
+                    .await()
+                    .assertComplete()
+                    .assertNoErrors()
+                    .values()[0]
+        }.onEach { (child, publishedChild) ->
+            assertEquals(publishedChild, DomainUrlChild(
+                    child.id,
+                    child.publicationDate,
+                    child.name,
+                    child.notes,
+                    child.location,
+                    child.appearance,
+                    publishedChild.pictureUrl
+            ))
+        }.onEach { (_, publishedChild) ->
+            assertPictureUrlCorrect(publishedChild, publishedChild.pictureUrl)
+        }.mapIndexed { index, (_, publishedChild) ->
+            (index + 1) to publishedChild
+        }.onEach { (index, _) ->
 
-        val publishedChild0 = repository.publish(child0)
-                .test()
-                .await()
-                .assertComplete()
-                .assertNoErrors()
-                .values()[0]
+            verify(bus.state) {
+                ((index * 2) + (index - 1)) * { backgroundState }
+            }
 
-        assertEquals(publishedChild0, DomainUrlChild(
-                child0.id,
-                child0.publicationDate,
-                child0.name,
-                child0.notes,
-                child0.location,
-                child0.appearance,
-                publishedChild0.pictureUrl
-        ))
+            verify(bus.state.backgroundState) {
+                (index * 1) * { notify(ongoingState) }
+                (index * 1) * { notify(successState) }
+                (index * 0) * { notify(failureState) }
+            }
 
-        assertPictureUrlCorrect(publishedChild0, publishedChild0.pictureUrl)
+        }.map { (_, publishedChild) ->
+            publishedChild
+        }.onEach {
+            assertChildExists(it, true)
+            assertPictureExists(it, true)
+        }.onEach { publishedChild ->
 
-        verify(bus.state) {
-            2 * { backgroundState }
+            Single.create<DomainUrlChild> {
+                db.getReference(FirebaseContract.Database.PATH_CHILDREN)
+                        .child(publishedChild.id)
+                        .addListenerForSingleValueEvent(object : ValueEventListener {
+                            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                                it.onSuccess(DataModelsMapper.toDomainUrlChild(dataSnapshot.extractFirebaseUrlChild()))
+                            }
+
+                            override fun onCancelled(databaseError: DatabaseError) {
+                                it.onError(databaseError.toException())
+                            }
+                        })
+            }.test().await().assertComplete().assertNoErrors().assertValue(publishedChild)
+
+        }.forEach {
+            deleteChild(it)
+            deletePicture(it)
         }
-
-        verify(bus.state.backgroundState) {
-            1 * { notify(ongoingState) }
-            1 * { notify(successState) }
-            0 * { notify(failureState) }
-        }
-
-        assertChildExists(child0, true)
-        assertPictureExists(child0, true)
-
-        Single.create<DomainUrlChild> {
-            db.getReference(FirebaseContract.Database.PATH_CHILDREN)
-                    .child(child0.id)
-                    .addListenerForSingleValueEvent(object : ValueEventListener {
-                        override fun onDataChange(dataSnapshot: DataSnapshot) {
-                            it.onSuccess(DataModelsMapper.toDomainUrlChild(dataSnapshot.extractFirebaseUrlChild()))
-                        }
-
-                        override fun onCancelled(databaseError: DatabaseError) {
-                            it.onError(databaseError.toException())
-                        }
-                    })
-        }.test().await().assertComplete().assertNoErrors().assertValue(publishedChild0)
-
-        deleteChild(publishedChild0)
-        deletePicture(publishedChild0)
     }
 
     @Test
     fun find_shouldReturnTheChildrenMatchingTheSpecifiedCriteria() {
 
-        assertChildExists(child0, false)
-        assertChildExists(child1, false)
-        assertChildExists(child2, false)
-
-        val child0 = child0.copy(appearance = child0.appearance.copy(skin = Skin.WHITE))
-        val child1 = child1.copy(appearance = child1.appearance.copy(skin = Skin.WHITE))
-        val child2 = child2.copy(appearance = child2.appearance.copy(skin = Skin.WHITE))
-
-        val publishedChild0 = publishChild(FirebaseUrlChild(DataModelsMapper.toFirebasePictureChild(child0), "url - 0"))
-                .test()
-                .await()
-                .assertComplete()
-                .assertNoErrors()
-                .values()[0]
-
-        val publishedChild1 = publishChild(FirebaseUrlChild(DataModelsMapper.toFirebasePictureChild(child1), "url - 1"))
-                .test()
-                .await()
-                .assertComplete()
-                .assertNoErrors()
-                .values()[0]
-
-        val publishedChild2 = publishChild(FirebaseUrlChild(DataModelsMapper.toFirebasePictureChild(child2), "url - 2"))
-                .test()
-                .await()
-                .assertComplete()
-                .assertNoErrors()
-                .values()[0]
-
-        val domainPublishedChild0 = DataModelsMapper.toDomainUrlChild(publishedChild0)
-        val domainPublishedChild1 = DataModelsMapper.toDomainUrlChild(publishedChild1)
-        val domainPublishedChild2 = DataModelsMapper.toDomainUrlChild(publishedChild2)
-
-        assertChildExists(domainPublishedChild0, true)
-        assertChildExists(domainPublishedChild1, true)
-        assertChildExists(domainPublishedChild2, true)
+        val domainPublishedChildren = sequenceOf(
+                child0,
+                child1,
+                child2
+        ).onEach {
+            assertChildExists(it, false)
+        }.map {
+            it.copy(appearance = it.appearance.copy(skin = Skin.WHITE))
+        }.map {
+            publishChild(FirebaseUrlChild(DataModelsMapper.toFirebasePictureChild(it), UUID.randomUUID().toString()))
+                    .test()
+                    .await()
+                    .assertComplete()
+                    .assertNoErrors()
+                    .values()[0]
+        }.map {
+            DataModelsMapper.toDomainUrlChild(it)
+        }.onEach {
+            assertChildExists(it, true)
+        }.toList()
 
         val filter = mock<Filter<DomainUrlChild>> {
             on {
@@ -235,15 +245,9 @@ class FirebaseCloudRepositoryInstrumentedTests {
                 .awaitCount(1)
                 .assertNotComplete()
                 .assertNoErrors()
-                .assertValue(listOf(
-                        domainPublishedChild0,
-                        domainPublishedChild1,
-                        domainPublishedChild2
-                ).sortedBy { it.id }.mapIndexed { i, child -> child to i * 100 })
+                .assertValue(domainPublishedChildren.sortedBy { it.id }.mapIndexed { i, child -> child to i * 100 })
 
-        listOf(domainPublishedChild0,
-                domainPublishedChild1,
-                domainPublishedChild2).forEach(this::deleteChild)
+        domainPublishedChildren.forEach(this::deleteChild)
     }
 
     private fun publishChild(child: FirebaseUrlChild): Single<FirebaseUrlChild> {

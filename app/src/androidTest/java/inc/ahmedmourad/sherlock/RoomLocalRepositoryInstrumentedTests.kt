@@ -76,8 +76,12 @@ class RoomLocalRepositoryInstrumentedTests {
     ) to 300
 
     @Before
-    fun setup() {
+    fun setupTimber() {
         Timber.plant(Timber.DebugTree())
+    }
+
+    @Before
+    fun setupRepositoryAndDatabase() {
         db = Room.inMemoryDatabaseBuilder(appCtx, SherlockDatabase::class.java).allowMainThreadQueries().build()
         repository = RoomLocalRepository(Lazy { db })
     }

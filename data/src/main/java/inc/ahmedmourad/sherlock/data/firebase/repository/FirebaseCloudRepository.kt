@@ -26,6 +26,7 @@ import io.reactivex.Flowable
 import io.reactivex.Single
 import splitties.init.appCtx
 
+//TODO: maybe inject db and storage too
 class FirebaseCloudRepository(private val bus: Lazy<Bus>, private val provider: Lazy<Bus.PublishingState.Provider>) : CloudRepository {
 
     private val db = FirebaseDatabase.getInstance()

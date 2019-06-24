@@ -17,8 +17,12 @@ class AndroidTextManagerInstrumentedTests {
     private lateinit var manager: AndroidTextManager
 
     @Before
-    fun setup() {
+    fun setupTimber() {
         Timber.plant(Timber.DebugTree())
+    }
+
+    @Before
+    fun setupManager() {
         manager = AndroidTextManager()
     }
 

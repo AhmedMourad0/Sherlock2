@@ -17,8 +17,12 @@ class AndroidDateManagerInstrumentedTests {
     private lateinit var manager: AndroidDateManager
 
     @Before
-    fun setup() {
+    fun setupTimber() {
         Timber.plant(Timber.DebugTree())
+    }
+
+    @Before
+    fun setupManager() {
         manager = AndroidDateManager()
     }
 

@@ -15,8 +15,12 @@ class AndroidLocationManagerInstrumentedTests {
     private lateinit var manager: AndroidLocationManager
 
     @Before
-    fun setup() {
+    fun setupTimber() {
         Timber.plant(Timber.DebugTree())
+    }
+
+    @Before
+    fun setupManager() {
         manager = AndroidLocationManager()
     }
 
