@@ -25,8 +25,8 @@ import inc.ahmedmourad.sherlock.domain.model.*
 import inc.ahmedmourad.sherlock.utils.getImageBytes
 import io.reactivex.Completable
 import io.reactivex.Single
-import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -96,6 +96,7 @@ class FirebaseCloudRepositoryInstrumentedTests {
 
         val event = mock<Bus.Event<Bus.BackgroundState>>()
         val state = mock<Bus.State> { on { backgroundState } doReturn event }
+
         provider = mock {
             on { ongoing() } doReturn ongoingState
             on { success() } doReturn successState
@@ -103,6 +104,7 @@ class FirebaseCloudRepositoryInstrumentedTests {
         }
         bus = mock { on { this.state } doReturn state }
         repository = FirebaseCloudRepository(Lazy { bus }, Lazy { provider })
+
         db = FirebaseDatabase.getInstance()
         storage = FirebaseStorage.getInstance()
     }
@@ -115,9 +117,9 @@ class FirebaseCloudRepositoryInstrumentedTests {
     @Test
     fun publish_shouldStoreChildPictureInStorage_shouldStoreChildInDatabase() {
 
-        assertChildExists(child0.id, false)
+        assertChildExists(child0, false)
+        assertPictureExists(child0, false)
 
-        //TODO: make sure storage has the image with this link
         val publishedChild0 = repository.publish(child0)
                 .test()
                 .await()
@@ -135,7 +137,7 @@ class FirebaseCloudRepositoryInstrumentedTests {
                 publishedChild0.pictureUrl
         ))
 
-        assertTrue(publishedChild0.pictureUrl.isNotBlank())
+        assertPictureUrlCorrect(publishedChild0, publishedChild0.pictureUrl)
 
         verify(bus.state) {
             2 * { backgroundState }
@@ -147,7 +149,8 @@ class FirebaseCloudRepositoryInstrumentedTests {
             0 * { notify(failureState) }
         }
 
-        assertChildExists(child0.id, true)
+        assertChildExists(child0, true)
+        assertPictureExists(child0, true)
 
         Single.create<DomainUrlChild> {
             db.getReference(FirebaseContract.Database.PATH_CHILDREN)
@@ -162,14 +165,17 @@ class FirebaseCloudRepositoryInstrumentedTests {
                         }
                     })
         }.test().await().assertComplete().assertNoErrors().assertValue(publishedChild0)
+
+        deleteChild(publishedChild0)
+        deletePicture(publishedChild0)
     }
 
     @Test
     fun find_shouldReturnTheChildrenMatchingTheSpecifiedCriteria() {
 
-        assertChildExists(child0.id, false)
-        assertChildExists(child1.id, false)
-        assertChildExists(child2.id, false)
+        assertChildExists(child0, false)
+        assertChildExists(child1, false)
+        assertChildExists(child2, false)
 
         val child0 = child0.copy(appearance = child0.appearance.copy(skin = Skin.WHITE))
         val child1 = child1.copy(appearance = child1.appearance.copy(skin = Skin.WHITE))
@@ -196,13 +202,13 @@ class FirebaseCloudRepositoryInstrumentedTests {
                 .assertNoErrors()
                 .values()[0]
 
-        assertChildExists(child0.id, true)
-        assertChildExists(child1.id, true)
-        assertChildExists(child2.id, true)
-
         val domainPublishedChild0 = DataModelsMapper.toDomainUrlChild(publishedChild0)
         val domainPublishedChild1 = DataModelsMapper.toDomainUrlChild(publishedChild1)
         val domainPublishedChild2 = DataModelsMapper.toDomainUrlChild(publishedChild2)
+
+        assertChildExists(domainPublishedChild0, true)
+        assertChildExists(domainPublishedChild1, true)
+        assertChildExists(domainPublishedChild2, true)
 
         val filter = mock<Filter<DomainUrlChild>> {
             on {
@@ -224,10 +230,6 @@ class FirebaseCloudRepositoryInstrumentedTests {
                 )
         )
 
-//        if (true)
-//            return
-
-        //TODO: store images and make sure storage has the image with their links
         repository.find(rules, filter)
                 .test()
                 .awaitCount(1)
@@ -238,13 +240,10 @@ class FirebaseCloudRepositoryInstrumentedTests {
                         domainPublishedChild1,
                         domainPublishedChild2
                 ).sortedBy { it.id }.mapIndexed { i, child -> child to i * 100 })
-    }
 
-    @After
-    fun clear() {
-        deleteChild(child0.id)
-        deleteChild(child1.id)
-        deleteChild(child2.id)
+        listOf(domainPublishedChild0,
+                domainPublishedChild1,
+                domainPublishedChild2).forEach(this::deleteChild)
     }
 
     private fun publishChild(child: FirebaseUrlChild): Single<FirebaseUrlChild> {
@@ -261,24 +260,43 @@ class FirebaseCloudRepositoryInstrumentedTests {
         }
     }
 
-    private fun deleteChild(id: String) {
+    private fun deleteChild(child: DomainChild) {
 
         Completable.create {
-            db.getReference(FirebaseContract.Database.PATH_CHILDREN).child(id).removeValue { error, _ ->
-                if (error == null)
-                    it.onComplete()
-                else
-                    it.onError(error.toException())
-            }
+            db.getReference(FirebaseContract.Database.PATH_CHILDREN)
+                    .child(child.id)
+                    .removeValue { error, _ ->
+                        if (error == null)
+                            it.onComplete()
+                        else
+                            it.onError(error.toException())
+                    }
         }.test().await().assertNoErrors().assertComplete()
 
-        assertChildExists(id, false)
+        assertChildExists(child, false)
     }
 
-    private fun assertChildExists(id: String, exists: Boolean) {
+    private fun deletePicture(child: DomainChild) {
+
+        Completable.create {
+            storage.getReference(FirebaseContract.Storage.PATH_CHILDREN)
+                    .child("${child.id}.${FirebaseContract.Storage.FILE_FORMAT}")
+                    .delete()
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful)
+                            it.onComplete()
+                        else
+                            it.onError(task.exception ?: RuntimeException())
+                    }
+        }.test().await().assertNoErrors().assertComplete()
+
+        assertPictureExists(child, false)
+    }
+
+    private fun assertChildExists(child: DomainChild, exists: Boolean) {
         Single.create<Boolean> {
             db.getReference(FirebaseContract.Database.PATH_CHILDREN)
-                    .child(id)
+                    .child(child.id)
                     .addValueEventListener(object : ValueEventListener {
                         override fun onDataChange(dataSnapshot: DataSnapshot) {
                             it.onSuccess(dataSnapshot.exists())
@@ -289,5 +307,30 @@ class FirebaseCloudRepositoryInstrumentedTests {
                         }
                     })
         }.test().await().assertComplete().assertNoErrors().assertValue(exists)
+    }
+
+    private fun assertPictureExists(child: DomainChild, exists: Boolean) {
+        Single.create<Boolean> {
+            storage.getReference(FirebaseContract.Storage.PATH_CHILDREN)
+                    .child("${child.id}.${FirebaseContract.Storage.FILE_FORMAT}")
+                    .downloadUrl
+                    .addOnCompleteListener { task ->
+                        it.onSuccess(task.isSuccessful)
+                    }
+        }.test().await().assertComplete().assertNoErrors().assertValue(exists)
+    }
+
+    private fun assertPictureUrlCorrect(child: DomainChild, url: String) {
+        Single.create<Boolean> {
+            storage.getReference(FirebaseContract.Storage.PATH_CHILDREN)
+                    .child("${child.id}.${FirebaseContract.Storage.FILE_FORMAT}")
+                    .downloadUrl
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful)
+                            it.onSuccess(task.result.toString() == url)
+                        else
+                            it.onError(task.exception ?: RuntimeException())
+                    }
+        }.test().await().assertComplete().assertNoErrors().assertValue(true)
     }
 }
