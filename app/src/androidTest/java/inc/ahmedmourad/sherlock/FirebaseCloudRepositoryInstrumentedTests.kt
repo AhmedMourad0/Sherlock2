@@ -172,24 +172,9 @@ class FirebaseCloudRepositoryInstrumentedTests {
         }.map { (_, publishedChild) ->
             publishedChild
         }.onEach {
-            assertChildExists(it, true)
+            assertChildCorrect(it)
+        }.onEach {
             assertPictureExists(it, true)
-        }.onEach { publishedChild ->
-
-            Single.create<DomainUrlChild> {
-                db.getReference(FirebaseContract.Database.PATH_CHILDREN)
-                        .child(publishedChild.id)
-                        .addListenerForSingleValueEvent(object : ValueEventListener {
-                            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                                it.onSuccess(DataModelsMapper.toDomainUrlChild(dataSnapshot.extractFirebaseUrlChild()))
-                            }
-
-                            override fun onCancelled(databaseError: DatabaseError) {
-                                it.onError(databaseError.toException())
-                            }
-                        })
-            }.test().await().assertComplete().assertNoErrors().assertValue(publishedChild)
-
         }.forEach {
             deleteChild(it)
             deletePicture(it)
@@ -217,7 +202,7 @@ class FirebaseCloudRepositoryInstrumentedTests {
         }.map {
             DataModelsMapper.toDomainUrlChild(it)
         }.onEach {
-            assertChildExists(it, true)
+            assertChildCorrect(it)
         }.toList()
 
         val filter = mock<Filter<DomainUrlChild>> {
@@ -322,6 +307,22 @@ class FirebaseCloudRepositoryInstrumentedTests {
                         it.onSuccess(task.isSuccessful)
                     }
         }.test().await().assertComplete().assertNoErrors().assertValue(exists)
+    }
+
+    private fun assertChildCorrect(child: DomainUrlChild) {
+        Single.create<DomainUrlChild> {
+            db.getReference(FirebaseContract.Database.PATH_CHILDREN)
+                    .child(child.id)
+                    .addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(dataSnapshot: DataSnapshot) {
+                            it.onSuccess(DataModelsMapper.toDomainUrlChild(dataSnapshot.extractFirebaseUrlChild()))
+                        }
+
+                        override fun onCancelled(databaseError: DatabaseError) {
+                            it.onError(databaseError.toException())
+                        }
+                    })
+        }.test().await().assertComplete().assertNoErrors().assertValue(child)
     }
 
     private fun assertPictureUrlCorrect(child: DomainChild, url: String) {
