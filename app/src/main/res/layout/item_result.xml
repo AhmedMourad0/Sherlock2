@@ -12,8 +12,8 @@
 	android:layout_marginTop="@dimen/resultMarginTop"
 	android:layout_marginBottom="@dimen/resultMarginBottom"
 	app:backgroundTint="@android:color/white"
-	app:cardCornerRadius="@dimen/cardCornerRadius"
-	app:cardElevation="@dimen/cardElevation">
+	app:cardCornerRadius="@dimen/resultCardCornerRadius"
+	app:cardElevation="@dimen/resultCardElevation">
 	
 	<LinearLayout
 		android:layout_width="match_parent"
@@ -77,12 +77,16 @@
 			
 			<ImageView
 				android:id="@+id/result_picture"
-				android:layout_width="match_parent"
+				android:layout_width="0dp"
 				android:layout_height="0dp"
 				android:contentDescription="@string/child"
 				android:scaleType="centerCrop"
-				tools:src="@drawable/placeholder"
-				app:layout_constraintDimensionRatio="1:1" />
+				app:layout_constraintBottom_toBottomOf="parent"
+				app:layout_constraintDimensionRatio="1:1"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="parent"
+				tools:src="@drawable/placeholder" />
 		
 		</androidx.constraintlayout.widget.ConstraintLayout>
 		

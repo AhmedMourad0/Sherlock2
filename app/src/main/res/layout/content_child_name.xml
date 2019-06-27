@@ -11,11 +11,11 @@
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_weight="1"
-		android:paddingEnd="@dimen/nameSpacing"
-		android:paddingStart="@dimen/firstNamePaddingStart">
+		android:paddingStart="@dimen/nameFirstNamePaddingStart"
+		android:paddingEnd="@dimen/nameTextSpacing">
 		
 		<com.google.android.material.textfield.TextInputEditText
-			android:id="@+id/found_first_name_edit_text"
+			android:id="@+id/first_name_edit_text"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:hint="@string/first_name"
@@ -27,11 +27,11 @@
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_weight="1"
-		android:paddingEnd="@dimen/lastNamePaddingEnd"
-		android:paddingStart="@dimen/nameSpacing">
+		android:paddingEnd="@dimen/nameLastNamePaddingEnd"
+		android:paddingStart="@dimen/nameTextSpacing">
 		
 		<com.google.android.material.textfield.TextInputEditText
-			android:id="@+id/found_last_name_edit_text"
+			android:id="@+id/last_name_edit_text"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:hint="@string/last_name"

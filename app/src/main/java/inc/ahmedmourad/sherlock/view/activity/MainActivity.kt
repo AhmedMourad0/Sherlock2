@@ -18,7 +18,7 @@ import javax.inject.Inject
 //TODO: use Anko's Dsl for all of our layouts
 class MainActivity : AppCompatActivity() {
 
-    @BindView(R.id.controller_container)
+    @BindView(R.id.main_controllers_container)
     internal lateinit var container: ChangeHandlerFrameLayout
 
     @Inject

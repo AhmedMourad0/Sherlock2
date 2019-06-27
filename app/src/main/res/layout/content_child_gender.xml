@@ -9,22 +9,22 @@
 	<TextView
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:paddingEnd="@dimen/labelPaddingEnd"
-		android:paddingStart="@dimen/labelPaddingStart"
-		android:textSize="@dimen/labelTextSize"
+		android:paddingEnd="@dimen/genderLabelPaddingEnd"
+		android:paddingStart="@dimen/genderLabelPaddingStart"
+		android:textSize="@dimen/genderLabelTextSize"
 		android:text="@string/gender"
 		android:textColor="@android:color/black" />
 	
 	<RadioGroup
-		android:id="@+id/found_gender_radio_group"
+		android:id="@+id/gender_radio_group"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_weight="1"
-		android:checkedButton="@id/found_male_radio_button"
+		android:checkedButton="@id/male_radio_button"
 		android:orientation="horizontal">
 		
 		<RadioButton
-			android:id="@+id/found_male_radio_button"
+			android:id="@+id/male_radio_button"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_marginEnd="@dimen/genderMarginEnd"
@@ -33,7 +33,7 @@
 			android:textSize="@dimen/genderTextSize" />
 		
 		<RadioButton
-			android:id="@+id/found_female_radio_button"
+			android:id="@+id/female_radio_button"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/female"

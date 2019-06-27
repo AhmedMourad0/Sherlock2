@@ -16,8 +16,8 @@
 		android:layout_height="match_parent"
 		android:clipToPadding="false"
 		app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
-		android:paddingBottom="@dimen/recyclerPaddingBottom"
-		android:paddingTop="@dimen/recyclerPaddingTop"
+		android:paddingBottom="@dimen/homeRecyclerPaddingBottom"
+		android:paddingTop="@dimen/homeRecyclerPaddingTop"
 		android:background="@color/colorRecyclerBackground" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

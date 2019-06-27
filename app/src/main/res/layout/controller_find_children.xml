@@ -20,13 +20,13 @@
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_horizontal"
 			android:orientation="vertical"
-			android:paddingBottom="@dimen/foundPaddingBottom"
-			android:paddingEnd="@dimen/foundPaddingEnd"
-			android:paddingStart="@dimen/foundPaddingStart"
-			android:paddingTop="@dimen/foundPaddingTop">
+			android:paddingBottom="@dimen/findChildrenPaddingBottom"
+			android:paddingEnd="@dimen/findChildrenPaddingEnd"
+			android:paddingStart="@dimen/findChildrenPaddingStart"
+			android:paddingTop="@dimen/findChildrenPaddingTop">
 			
 			<include
-				layout="@layout/content_found_name"
+				layout="@layout/content_child_name"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content" />
 			
@@ -35,26 +35,26 @@
 				android:layout_height="wrap_content"
 				android:gravity="center_vertical"
 				android:orientation="horizontal"
-				android:paddingBottom="@dimen/displayFoundLocationPaddingBottom"
-				android:paddingTop="@dimen/foundLocationPaddingTop"
+				android:paddingBottom="@dimen/displayChildLocationPaddingBottom"
+				android:paddingTop="@dimen/findChildrenLocationPaddingTop"
 				tools:ignore="UseCompoundDrawables">
 				
 				<TextView
-					android:id="@+id/search_found_location_text_view"
+					android:id="@+id/find_children_location_text_view"
 					android:layout_width="0dp"
 					android:layout_height="match_parent"
 					android:layout_weight="1"
 					android:gravity="center_vertical"
-					android:paddingEnd="@dimen/foundLocationTextPaddingEnd"
-					android:paddingStart="@dimen/foundLocationTextPaddingStart"
+					android:paddingEnd="@dimen/findChildrenLocationTextPaddingEnd"
+					android:paddingStart="@dimen/findChildrenLocationTextPaddingStart"
 					android:text="@string/no_last_known_location_specified" />
 				
 				<ImageView
-					android:id="@+id/search_found_location_image_view"
-					android:layout_width="@dimen/foundLocationIconWidth"
-					android:layout_height="@dimen/foundLocationIconHeight"
-					android:layout_marginEnd="@dimen/foundLocationIconMarginEnd"
-					android:layout_marginStart="@dimen/foundLocationIconMarginStart"
+					android:id="@+id/find_children_location_image_view"
+					android:layout_width="@dimen/findChildrenLocationIconWidth"
+					android:layout_height="@dimen/findChildrenLocationIconHeight"
+					android:layout_marginEnd="@dimen/findChildrenLocationIconMarginEnd"
+					android:layout_marginStart="@dimen/findChildrenLocationIconMarginStart"
 					android:contentDescription="@string/point_location_on_map"
 					app:srcCompat="@drawable/ic_google_maps" />
 			
@@ -65,75 +65,76 @@
 				android:layout_height="wrap_content"
 				android:gravity="center_vertical"
 				android:orientation="horizontal"
-				android:paddingBottom="@dimen/displayFoundPickersPaddingBottom">
+				android:paddingBottom="@dimen/displayChildPickersPaddingBottom">
 				
 				<TextView
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:paddingEnd="@dimen/labelPaddingEnd"
-					android:paddingStart="@dimen/labelPaddingStart"
-					android:textSize="@dimen/labelTextSize"
+					android:paddingEnd="@dimen/findChildrenLabelPaddingEnd"
+					android:paddingStart="@dimen/findChildrenLabelPaddingStart"
+					android:textSize="@dimen/findChildrenLabelTextSize"
 					android:text="@string/age"
 					android:textColor="@android:color/black" />
 				
 				<inc.ahmedmourad.sherlock.custom.ProperNumberPicker
-					android:id="@+id/search_found_age_number_picker"
+					android:id="@+id/find_children_age_number_picker"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:layout_marginEnd="@dimen/displayFoundAgePickerMarginEnd"
+					android:layout_marginEnd="@dimen/displayChildAgePickerMarginEnd"
 					app:maxValue="30"
 					app:minValue="0"
-					app:value="15" />
+					app:value="@integer/find_children_age_number_picker_default_value" />
 				
 				<TextView
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:paddingEnd="@dimen/labelPaddingEnd"
-					android:paddingStart="@dimen/labelPaddingStart"
-					android:textSize="@dimen/labelTextSize"
+					android:paddingEnd="@dimen/findChildrenLabelPaddingEnd"
+					android:paddingStart="@dimen/findChildrenLabelPaddingStart"
+					android:textSize="@dimen/findChildrenLabelTextSize"
 					android:text="@string/height"
 					android:textColor="@android:color/black" />
 				
 				<inc.ahmedmourad.sherlock.custom.ProperNumberPicker
-					android:id="@+id/search_found_height_number_picker"
+					android:id="@+id/find_children_height_number_picker"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					app:maxValue="200"
 					app:minValue="40"
-					app:value="120" />
+					app:value="@integer/find_children_height_number_picker_default_value" />
 			
 			</LinearLayout>
 			
 			<include
-				layout="@layout/content_found_gender"
+				layout="@layout/content_child_gender"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content" />
 			
 			<include
-				layout="@layout/content_found_skin"
+				layout="@layout/content_child_skin"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content" />
 			
 			<include
-				layout="@layout/content_found_hair"
+				layout="@layout/content_child_hair"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginBottom="8dp" />
 			
 			<Button
-				android:id="@+id/search_found_search_button"
+				android:id="@+id/find_children_search_button"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:layout_marginEnd="@dimen/foundButtonMarginEnd"
-				android:layout_marginStart="@dimen/foundButtonMarginStart"
-				android:layout_marginTop="@dimen/foundButtonMarginTop"
-				android:padding="@dimen/foundButtonPadding"
+				android:layout_marginEnd="@dimen/findChildrenButtonMarginEnd"
+				android:layout_marginStart="@dimen/findChildrenButtonMarginStart"
+				android:layout_marginTop="@dimen/findChildrenButtonMarginTop"
+				android:padding="@dimen/findChildrenButtonPadding"
 				android:background="@color/colorAccent"
 				android:clickable="true"
 				android:focusable="true"
 				android:foreground="?selectableItemBackground"
 				android:text="@string/search"
-				android:textColor="@android:color/white" />
+				android:textColor="@android:color/white"
+				tools:ignore="UnusedAttribute" />
 		
 		</LinearLayout>
 	

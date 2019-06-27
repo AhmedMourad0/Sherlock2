@@ -37,7 +37,7 @@
 	<string name="choose_a_picture">Choose a picture</string>
 	<string name="notes">Notes</string>
 	<string name="publish">Publish</string>
-	<string name="no_location_specified">No coordinates specified…</string>
+	<string name="no_location_specified">No location specified…</string>
 	<string name="no_last_known_location_specified">No last known coordinates specified…</string>
 	
 	<string name="pick_a_folder">Pick a folder</string>

@@ -59,7 +59,7 @@ class AppWidget : AppWidgetProvider() {
 
                     views.setImageViewResource(R.id.widget_icon, R.drawable.ic_sherlock)
 
-                    views.setEmptyView(R.id.widget_list_view, R.id.widget_empty)
+                    views.setEmptyView(R.id.widget_list_view, R.id.widget_empty_view)
 
                     views.setRemoteAdapter(R.id.widget_list_view,
                             resultsRemoteViewsServiceFactory.get().create(appWidgetId,

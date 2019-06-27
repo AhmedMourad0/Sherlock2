@@ -9,11 +9,11 @@
 	
 	<LinearLayout
 		android:layout_width="match_parent"
-		android:layout_height="@dimen/widgetBarHeight"
+		android:layout_height="@dimen/widgetToolbarHeight"
 		android:gravity="center_vertical"
 		android:orientation="horizontal"
-		android:paddingEnd="@dimen/widgetBarPaddingEnd"
-		android:paddingStart="@dimen/widgetBarPaddingStart">
+		android:paddingEnd="@dimen/widgetToolbarPaddingEnd"
+		android:paddingStart="@dimen/widgetToolbarPaddingStart">
 		
 		<ImageView
 			android:id="@+id/widget_icon"
@@ -58,7 +58,7 @@
 			android:layout_height="match_parent" />
 		
 		<TextView
-			android:id="@+id/widget_empty"
+			android:id="@+id/widget_empty_view"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center"

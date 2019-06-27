@@ -35,7 +35,7 @@ class SearchResultsController(args: Bundle) : LifecycleController(args) {
     @BindView(R.id.toolbar)
     internal lateinit var toolbar: Toolbar
 
-    @BindView(R.id.search_found_results_recycler)
+    @BindView(R.id.search_results_recycler)
     internal lateinit var recyclerView: RecyclerView
 
     @Inject

@@ -75,7 +75,7 @@ class HomeController : Controller() {
     }
 
     private fun createSectionsList() = ArrayList<AppSection>(4).apply {
-        add(AppSection(context.getString(R.string.found_a_child), R.drawable.found_child, addChildController))
+        add(AppSection(context.getString(R.string.found_a_child), R.drawable.found_a_child, addChildController))
         add(AppSection(context.getString(R.string.search), R.drawable.search_child, findChildrenController))
         add(AppSection(context.getString(R.string.coming_soon), R.drawable.coming_soon, null))
         add(AppSection(context.getString(R.string.coming_soon), R.drawable.coming_soon, null))

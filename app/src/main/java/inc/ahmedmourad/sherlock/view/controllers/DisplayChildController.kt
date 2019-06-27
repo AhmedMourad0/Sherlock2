@@ -21,34 +21,34 @@ import javax.inject.Inject
 
 class DisplayChildController(args: Bundle) : Controller(args) {
 
-    @BindView(R.id.display_found_toolbar)
+    @BindView(R.id.display_child_toolbar)
     internal lateinit var toolbar: Toolbar
 
-    @BindView(R.id.display_found_picture)
+    @BindView(R.id.display_child_picture)
     internal lateinit var pictureImageView: ImageView
 
-    @BindView(R.id.display_name)
+    @BindView(R.id.display_child_name)
     internal lateinit var nameTextView: TextView
 
-    @BindView(R.id.display_age)
+    @BindView(R.id.display_child_age)
     internal lateinit var ageTextView: TextView
 
-    @BindView(R.id.display_gender)
+    @BindView(R.id.display_child_gender)
     internal lateinit var genderTextView: TextView
 
-    @BindView(R.id.display_height)
+    @BindView(R.id.display_child_height)
     internal lateinit var heightTextView: TextView
 
-    @BindView(R.id.display_skin)
+    @BindView(R.id.display_child_skin)
     internal lateinit var skinTextView: TextView
 
-    @BindView(R.id.display_hair)
+    @BindView(R.id.display_child_hair)
     internal lateinit var hairTextView: TextView
 
-    @BindView(R.id.display_location)
+    @BindView(R.id.display_child_location)
     internal lateinit var locationTextView: TextView
 
-    @BindView(R.id.display_notes)
+    @BindView(R.id.display_child_notes)
     internal lateinit var notesTextView: TextView
 
     @Inject

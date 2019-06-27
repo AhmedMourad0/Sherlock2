@@ -44,46 +44,46 @@ class FindChildrenController : LifecycleController(), View.OnClickListener {
     @BindView(R.id.toolbar)
     internal lateinit var toolbar: Toolbar
 
-    @BindView(R.id.found_skin_white)
+    @BindView(R.id.skin_white)
     internal lateinit var skinWhiteView: View
 
-    @BindView(R.id.found_skin_wheat)
+    @BindView(R.id.skin_wheat)
     internal lateinit var skinWheatView: View
 
-    @BindView(R.id.found_skin_dark)
+    @BindView(R.id.skin_dark)
     internal lateinit var skinDarkView: View
 
-    @BindView(R.id.found_hair_blonde)
+    @BindView(R.id.hair_blonde)
     internal lateinit var hairBlondView: View
 
-    @BindView(R.id.found_hair_brown)
+    @BindView(R.id.hair_brown)
     internal lateinit var hairBrownView: View
 
-    @BindView(R.id.found_hair_dark)
+    @BindView(R.id.hair_dark)
     internal lateinit var hairDarkView: View
 
-    @BindView(R.id.found_first_name_edit_text)
+    @BindView(R.id.first_name_edit_text)
     internal lateinit var firstNameEditText: TextInputEditText
 
-    @BindView(R.id.found_last_name_edit_text)
+    @BindView(R.id.last_name_edit_text)
     internal lateinit var lastNameEditText: TextInputEditText
 
-    @BindView(R.id.found_gender_radio_group)
+    @BindView(R.id.gender_radio_group)
     internal lateinit var genderRadioGroup: RadioGroup
 
-    @BindView(R.id.search_found_age_number_picker)
+    @BindView(R.id.find_children_age_number_picker)
     internal lateinit var ageNumberPicker: NumberPicker
 
-    @BindView(R.id.search_found_height_number_picker)
+    @BindView(R.id.find_children_height_number_picker)
     internal lateinit var heightNumberPicker: NumberPicker
 
-    @BindView(R.id.search_found_location_text_view)
+    @BindView(R.id.find_children_location_text_view)
     internal lateinit var locationTextView: TextView
 
-    @BindView(R.id.search_found_location_image_view)
+    @BindView(R.id.find_children_location_image_view)
     internal lateinit var locationImageView: ImageView
 
-    @BindView(R.id.search_found_search_button)
+    @BindView(R.id.find_children_search_button)
     internal lateinit var searchButton: Button
 
     @Inject
@@ -181,13 +181,13 @@ class FindChildrenController : LifecycleController(), View.OnClickListener {
     private fun initializeGenderRadioGroup() {
 
         genderRadioGroup.check(if (viewModel.gender.value == Gender.MALE)
-            R.id.found_male_radio_button
+            R.id.male_radio_button
         else
-            R.id.found_female_radio_button
+            R.id.female_radio_button
         )
 
         genderRadioGroup.setOnCheckedChangeListener { _, checkedId ->
-            viewModel.gender.value = if (checkedId == R.id.found_male_radio_button)
+            viewModel.gender.value = if (checkedId == R.id.male_radio_button)
                 Gender.MALE
             else
                 Gender.FEMALE
@@ -277,21 +277,21 @@ class FindChildrenController : LifecycleController(), View.OnClickListener {
 
         when (v.id) {
 
-            R.id.found_skin_white -> skinColorSelector.select(Skin.WHITE)
+            R.id.skin_white -> skinColorSelector.select(Skin.WHITE)
 
-            R.id.found_skin_wheat -> skinColorSelector.select(Skin.WHEAT)
+            R.id.skin_wheat -> skinColorSelector.select(Skin.WHEAT)
 
-            R.id.found_skin_dark -> skinColorSelector.select(Skin.DARK)
+            R.id.skin_dark -> skinColorSelector.select(Skin.DARK)
 
-            R.id.found_hair_blonde -> hairColorSelector.select(Hair.BLONDE)
+            R.id.hair_blonde -> hairColorSelector.select(Hair.BLONDE)
 
-            R.id.found_hair_brown -> hairColorSelector.select(Hair.BROWN)
+            R.id.hair_brown -> hairColorSelector.select(Hair.BROWN)
 
-            R.id.found_hair_dark -> hairColorSelector.select(Hair.DARK)
+            R.id.hair_dark -> hairColorSelector.select(Hair.DARK)
 
-            R.id.search_found_location_image_view, R.id.search_found_location_text_view -> startPlacePicker()
+            R.id.find_children_location_image_view, R.id.find_children_location_text_view -> startPlacePicker()
 
-            R.id.search_found_search_button -> search()
+            R.id.find_children_search_button -> search()
         }
     }
 
