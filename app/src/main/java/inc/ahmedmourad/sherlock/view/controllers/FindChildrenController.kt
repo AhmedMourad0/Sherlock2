@@ -225,7 +225,7 @@ class FindChildrenController : LifecycleController(), View.OnClickListener {
 
         try {
             setLocationEnabled(false)
-            startActivityForResult(PlacePicker.IntentBuilder().build(activity!!), PLACE_PICKER_REQUEST)
+            startActivityForResult(PlacePicker.IntentBuilder().build(activity), PLACE_PICKER_REQUEST)
         } catch (e: GooglePlayServicesRepairableException) {
             setLocationEnabled(true)
             e.printStackTrace()

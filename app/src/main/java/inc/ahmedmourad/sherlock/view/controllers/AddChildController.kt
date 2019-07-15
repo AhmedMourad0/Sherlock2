@@ -48,6 +48,7 @@ import inc.ahmedmourad.sherlock.utils.setSupportActionBar
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
 import inc.ahmedmourad.sherlock.viewmodel.AddChildViewModel
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 class AddChildController : LifecycleController(), View.OnClickListener {
 
@@ -231,8 +232,8 @@ class AddChildController : LifecycleController(), View.OnClickListener {
         ageSeekBar.setValue(viewModel.startAge.value.toFloat(), viewModel.endAge.value.toFloat())
         ageSeekBar.setOnRangeChangedListener(object : DefaultOnRangeChangedListener {
             override fun onRangeChanged(view: RangeSeekBar, min: Float, max: Float, isFromUser: Boolean) {
-                viewModel.startAge.value = Math.round(min)
-                viewModel.endAge.value = Math.round(max)
+                viewModel.startAge.value = min.roundToInt()
+                viewModel.endAge.value = max.roundToInt()
             }
         })
 
@@ -240,8 +241,8 @@ class AddChildController : LifecycleController(), View.OnClickListener {
         heightSeekBar.setValue(viewModel.startHeight.value.toFloat(), viewModel.endHeight.value.toFloat())
         heightSeekBar.setOnRangeChangedListener(object : DefaultOnRangeChangedListener {
             override fun onRangeChanged(view: RangeSeekBar?, min: Float, max: Float, isFromUser: Boolean) {
-                viewModel.startHeight.value = Math.round(min)
-                viewModel.endHeight.value = Math.round(max)
+                viewModel.startHeight.value = min.roundToInt()
+                viewModel.endHeight.value = max.roundToInt()
             }
         })
     }
@@ -312,7 +313,7 @@ class AddChildController : LifecycleController(), View.OnClickListener {
 
         try {
             setLocationEnabled(false)
-            startActivityForResult(PlacePicker.IntentBuilder().build(activity!!), PLACE_PICKER_REQUEST)
+            startActivityForResult(PlacePicker.IntentBuilder().build(activity), PLACE_PICKER_REQUEST)
         } catch (e: GooglePlayServicesRepairableException) {
             setLocationEnabled(true)
             e.printStackTrace()

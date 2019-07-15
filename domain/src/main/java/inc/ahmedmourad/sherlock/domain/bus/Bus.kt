@@ -34,7 +34,7 @@ interface Bus {
         val isIndefinite: Boolean
     }
 
-    class PublishingState(override val message: String, override val isIndefinite: Boolean) : BackgroundState {
+    data class PublishingState(override val message: String, override val isIndefinite: Boolean) : BackgroundState {
 
         interface Provider {
             fun failure(): PublishingState

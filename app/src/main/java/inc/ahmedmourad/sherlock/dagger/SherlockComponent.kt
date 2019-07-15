@@ -1,6 +1,7 @@
 package inc.ahmedmourad.sherlock.dagger
 
-import inc.ahmedmourad.sherlock.dagger.components.*
+import inc.ahmedmourad.sherlock.dagger.components.AppComponent
+import inc.ahmedmourad.sherlock.dagger.components.DaggerAppComponent
 
 object SherlockComponent {
 
@@ -43,8 +44,7 @@ class ComponentProvider<T>(private val createComponent: () -> T) : Provider<T> {
 
     private var component: T? = null
 
-    override fun get() = component
-            ?: createComponent().also { component = it }
+    override fun get() = component ?: createComponent().also { component = it }
 
     override fun release() {
         component = null

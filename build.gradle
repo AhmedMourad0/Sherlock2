@@ -6,8 +6,8 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:3.4.1"
-        classpath "com.google.gms:google-services:4.2.0"
+        classpath 'com.android.tools.build:gradle:3.4.2'
+        classpath "com.google.gms:google-services:4.3.0"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "de.mannodermaus.gradle.plugins:android-junit5:1.4.2.0"
     }
@@ -22,8 +22,8 @@ allprojects {
     }
     ext {
         butterKnifeVersion = "10.0.0"
-        roomVersion = "2.1.0-rc01"
-        firebaseVersion = "16.0.5"
+        roomVersion = "2.1.0"
+        firebaseVersion = "18.0.0"
         daggerVersion = "2.20"
         splittiesVersion = "2.1.0"
         timberVersion = "4.7.1"

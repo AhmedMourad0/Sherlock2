@@ -19,9 +19,15 @@ class ColorSelector<T : Enum<T>>(vararg items: Item<T>, default: T = items[0].id
     val onSelectionChangeListeners = mutableListOf<(T) -> Unit>()
 
     init {
-        items.ifEmpty { throw IllegalArgumentException("The items list cannot be empty!") }
-        items.find { it.id == default }?.setSelected(true)
-                ?: throw IllegalArgumentException("$default was not found in the items list!")
+
+        require(items.isNotEmpty()) {
+            "The items list cannot be empty!"
+        }
+
+        requireNotNull(items.find { it.id == default }?.setSelected(true)) {
+            "$default was not found in the items list!"
+        }
+
         onSelectionChangeListeners.forEach { it(selectedItemId) }
     }
 

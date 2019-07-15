@@ -57,11 +57,14 @@ class TextFormatter : Formatter<String> {
             appCtx.getString(R.string.not_available)
     }
 
-    override fun formatNotes(notes: String): String = if (notes.isBlank()) appCtx.getString(R.string.not_available) else notes
+    override fun formatNotes(notes: String): String = if (notes.isNotBlank()) notes else appCtx.getString(R.string.not_available)
 
     override fun formatAge(age: AppRange): String = appCtx.getString(R.string.years_range, "${age.from} - ${age.to}")
 
     override fun formatLocation(location: AppLocation): String {
+
+        if (!location.isValid())
+            return appCtx.getString(R.string.not_available)
 
         val isNameEmpty = location.name.isBlank()
         val isAddressEmpty = location.address.isBlank()

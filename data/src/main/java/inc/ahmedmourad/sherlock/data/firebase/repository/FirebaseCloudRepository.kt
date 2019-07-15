@@ -122,49 +122,61 @@ class FirebaseCloudRepository(private val bus: Lazy<Bus>, private val provider: 
 }
 
 fun DataSnapshot.extractFirebaseUrlChild() = FirebaseUrlChild(
-        this.key
-                ?: throw IllegalArgumentException("id is null!"),
-        this.child(FirebaseContract.Database.CHILDREN_PUBLICATION_DATE).value?.toString()?.toLong()
-                ?: throw IllegalArgumentException("publicationDate is null!"),
-        extractFirebaseName(this),
-        this.child(FirebaseContract.Database.CHILDREN_NOTES).value?.toString()
-                ?: throw IllegalArgumentException("notes is null!"),
-        FirebaseLocation.parse(this.child(FirebaseContract.Database.CHILDREN_LOCATION).value?.toString()
-                ?: throw IllegalArgumentException("location is null!")),
-        extractFirebaseAppearance(this),
-        this.child(FirebaseContract.Database.CHILDREN_PICTURE_URL).value?.toString()
-                ?: throw IllegalArgumentException("pictureUrl is null!")
+        requireNotNull(this.key) {
+            "id is null!"
+        },
+        requireNotNull(this.child(FirebaseContract.Database.CHILDREN_PUBLICATION_DATE).value?.toString()?.toLong()) {
+            "publicationDate is null!"
+        }, extractFirebaseName(this),
+        requireNotNull(this.child(FirebaseContract.Database.CHILDREN_NOTES).value?.toString()) {
+            "notes is null!"
+        },
+        FirebaseLocation.parse(requireNotNull(this.child(FirebaseContract.Database.CHILDREN_LOCATION).value?.toString()) {
+            "location is null!"
+        }), extractFirebaseAppearance(this),
+        requireNotNull(this.child(FirebaseContract.Database.CHILDREN_PICTURE_URL).value?.toString()) {
+            "pictureUrl is null!"
+        }
 )
 
 private fun extractFirebaseName(snapshot: DataSnapshot) = FirebaseName(
-        snapshot.child(FirebaseContract.Database.CHILDREN_FIRST_NAME).value?.toString()
-                ?: throw IllegalArgumentException("firstNme is null!"),
-        snapshot.child(FirebaseContract.Database.CHILDREN_LAST_NAME).value?.toString()
-                ?: throw IllegalArgumentException("lastName is null!")
+        requireNotNull(snapshot.child(FirebaseContract.Database.CHILDREN_FIRST_NAME).value?.toString()) {
+            "firstName is null!"
+        },
+        requireNotNull(snapshot.child(FirebaseContract.Database.CHILDREN_LAST_NAME).value?.toString()) {
+            "lastName is null!"
+        }
 )
 
 private fun extractFirebaseAppearance(snapshot: DataSnapshot) = FirebaseAppearance(
-        findEnum(snapshot.child(FirebaseContract.Database.CHILDREN_GENDER).value?.toString()?.toInt()
-                ?: throw IllegalArgumentException("gender is null!"), Gender.values()),
-        findEnum(snapshot.child(FirebaseContract.Database.CHILDREN_SKIN).value?.toString()?.toInt()
-                ?: throw IllegalArgumentException("skin is null!"), Skin.values()),
-        findEnum(snapshot.child(FirebaseContract.Database.CHILDREN_HAIR).value?.toString()?.toInt()
-                ?: throw IllegalArgumentException("hair is null!"), Hair.values()),
+        findEnum(requireNotNull(snapshot.child(FirebaseContract.Database.CHILDREN_GENDER).value?.toString()?.toInt()) {
+            "gender is null!"
+        }, Gender.values()),
+        findEnum(requireNotNull(snapshot.child(FirebaseContract.Database.CHILDREN_SKIN).value?.toString()?.toInt()) {
+            "skin is null!"
+        }, Skin.values()),
+        findEnum(requireNotNull(snapshot.child(FirebaseContract.Database.CHILDREN_HAIR).value?.toString()?.toInt()) {
+            "hair is null!"
+        }, Hair.values()),
         extractFirebaseAge(snapshot),
         extractFirebaseHeight(snapshot)
 )
 
 private fun extractFirebaseAge(snapshot: DataSnapshot) = FirebaseRange(
-        snapshot.child(FirebaseContract.Database.CHILDREN_START_AGE).value?.toString()?.toInt()
-                ?: throw IllegalArgumentException("startAge is null!"),
-        snapshot.child(FirebaseContract.Database.CHILDREN_END_AGE).value?.toString()?.toInt()
-                ?: throw IllegalArgumentException("endAge is null!")
+        requireNotNull(snapshot.child(FirebaseContract.Database.CHILDREN_START_AGE).value?.toString()?.toInt()) {
+            "startAge is null!"
+        },
+        requireNotNull(snapshot.child(FirebaseContract.Database.CHILDREN_END_AGE).value?.toString()?.toInt()) {
+            "endAge is null!"
+        }
 )
 
 
 private fun extractFirebaseHeight(snapshot: DataSnapshot) = FirebaseRange(
-        snapshot.child(FirebaseContract.Database.CHILDREN_START_HEIGHT).value?.toString()?.toInt()
-                ?: throw IllegalArgumentException("startHeight is null!"),
-        snapshot.child(FirebaseContract.Database.CHILDREN_END_HEIGHT).value?.toString()?.toInt()
-                ?: throw IllegalArgumentException("endHeight is null!")
+        requireNotNull(snapshot.child(FirebaseContract.Database.CHILDREN_START_HEIGHT).value?.toString()?.toInt()) {
+            "startHeight is null!"
+        },
+        requireNotNull(snapshot.child(FirebaseContract.Database.CHILDREN_END_HEIGHT).value?.toString()?.toInt()) {
+            "endHeight is null!"
+        }
 )

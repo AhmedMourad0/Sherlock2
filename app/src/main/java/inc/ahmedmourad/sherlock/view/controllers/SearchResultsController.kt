@@ -75,10 +75,11 @@ class SearchResultsController(args: Bundle) : LifecycleController(args) {
 
         setSupportActionBar(toolbar)
 
-        toolbar.setTitle(R.string.results)
+        toolbar.setTitle(R.string.search_results)
 
-        rules = args.getParcelable(ARG_RULES)
-                ?: throw IllegalArgumentException("Rules cannot be null!")
+        rules = requireNotNull(args.getParcelable(ARG_RULES)) {
+            "Rules cannot be null!"
+        }
 
         initializeRecyclerView()
 

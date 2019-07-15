@@ -72,12 +72,13 @@ class DisplayChildController(args: Bundle) : Controller(args) {
 
         setSupportActionBar(toolbar)
 
-        val child = args.getParcelable<AppChild>(ARG_CHILD)
-                ?: throw IllegalArgumentException("Child cannot be null!")
+        val child = requireNotNull(args.getParcelable<AppChild>(ARG_CHILD)) {
+            "Child cannot be null!"
+        }
 
-
-        val score = args.getInt(ARG_SCORE, INVALID_SCORE).takeUnless { it == INVALID_SCORE }
-                ?: throw IllegalArgumentException("Score cannot be null!")
+        val score = requireNotNull(args.getInt(ARG_SCORE, INVALID_SCORE).takeUnless { it == INVALID_SCORE }) {
+            "Score cannot be null!"
+        }
 
         result = child to score
 
@@ -106,11 +107,9 @@ class DisplayChildController(args: Bundle) : Controller(args) {
 
         hairTextView.text = formatter.formatHair(result.first.appearance.hair)
 
-        if (result.first.location.isValid())
-            locationTextView.text = formatter.formatLocation(result.first.location)
+        locationTextView.text = formatter.formatLocation(result.first.location)
 
-        if (result.first.notes.isNotBlank())
-            notesTextView.text = result.first.notes
+        notesTextView.text = formatter.formatNotes(result.first.notes)
     }
 
     override fun onDestroy() {

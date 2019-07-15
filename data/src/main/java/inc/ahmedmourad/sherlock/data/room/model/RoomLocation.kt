@@ -9,8 +9,9 @@ data class RoomLocation(val id: String, val name: String, val address: String, v
 
             val details = location.split("\\|\\|".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
 
-            if (details.size < 5)
-                throw IllegalArgumentException("\"$location\" is not a valid location string")
+            require(details.size < 5) {
+                "\"$location\" is not a valid location string"
+            }
 
             return RoomLocation(details[0],
                     details[1],

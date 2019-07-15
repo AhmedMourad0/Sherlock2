@@ -26,17 +26,21 @@ class ResultsRemoteViewsService : RemoteViewsService() {
 
     override fun onGetViewFactory(intent: Intent): RemoteViewsFactory {
 
-        val hackBundle = intent.getBundleExtra(EXTRA_HACK_BUNDLE)
-                ?: throw IllegalArgumentException("Hack Bundle cannot be null!")
+        val hackBundle = requireNotNull(intent.getBundleExtra(EXTRA_HACK_BUNDLE)) {
+            "Hack Bundle cannot be null!"
+        }
 
-        val children = hackBundle.getParcelableArrayList<AppUrlChild>(EXTRA_CHILDREN)
-                ?: throw IllegalArgumentException("Children list cannot be null!")
+        val children = requireNotNull(hackBundle.getParcelableArrayList<AppUrlChild>(EXTRA_CHILDREN)) {
+            "Children list cannot be null!"
+        }
 
-        val scores = intent.getIntegerArrayListExtra(EXTRA_SCORES)
-                ?: throw IllegalArgumentException("Scores list cannot be null!")
+        val scores = requireNotNull(intent.getIntegerArrayListExtra(EXTRA_SCORES)) {
+            "Scores list cannot be null!"
+        }
 
-        if (children.size != scores.size)
-            throw IllegalArgumentException("Children list and Scores list must be of the same size!")
+        require(children.size == scores.size) {
+            "Children list and Scores list must be of the same size!"
+        }
 
         return resultsRemoteViewsFactoryFactory.get().create(applicationContext, children.zip(scores))
     }
@@ -48,18 +52,18 @@ class ResultsRemoteViewsService : RemoteViewsService() {
 
     companion object {
 
-        /** This's as ridiculous as it looks, but it's the only way that works */
+        /** This's as ridiculous as it looks, but it's the only way this works */
         const val EXTRA_HACK_BUNDLE = "inc.ahmedmourad.sherlock.external.adapter.extra.HACK_BUNDLE"
         const val EXTRA_CHILDREN = "inc.ahmedmourad.sherlock.external.adapter.extra.CHILDREN"
         const val EXTRA_SCORES = "inc.ahmedmourad.sherlock.external.adapter.extra.SCORES"
 
         fun create(appWidgetId: Int, results: List<Pair<AppUrlChild, Int>>): Intent {
-            return Intent(appCtx, ResultsRemoteViewsService::class.java).apply {
-                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
-                data = getUniqueDataUri(appWidgetId)
-                putExtra(EXTRA_HACK_BUNDLE, Bundle(2).apply {
-                    this.putParcelableArrayList(EXTRA_CHILDREN, ArrayList(results.map { it.first }))
-                    this.putIntegerArrayList(EXTRA_SCORES, ArrayList(results.map { it.second }))
+            return Intent(appCtx, ResultsRemoteViewsService::class.java).also { intent ->
+                intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                intent.data = getUniqueDataUri(appWidgetId)
+                intent.putExtra(EXTRA_HACK_BUNDLE, Bundle(2).apply {
+                    putParcelableArrayList(EXTRA_CHILDREN, ArrayList(results.map { it.first }))
+                    putIntegerArrayList(EXTRA_SCORES, ArrayList(results.map { it.second }))
                 })
             }
         }

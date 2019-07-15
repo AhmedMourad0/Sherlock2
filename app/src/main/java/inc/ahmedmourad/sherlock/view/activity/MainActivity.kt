@@ -16,6 +16,7 @@ import io.reactivex.disposables.Disposable
 import javax.inject.Inject
 
 //TODO: use Anko's Dsl for all of our layouts
+//TODO: use Kotlin's extensions instead of ButterKnife
 class MainActivity : AppCompatActivity() {
 
     @BindView(R.id.main_controllers_container)
