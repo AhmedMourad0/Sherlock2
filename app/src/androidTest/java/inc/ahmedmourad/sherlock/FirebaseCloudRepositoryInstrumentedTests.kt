@@ -22,9 +22,11 @@ import inc.ahmedmourad.sherlock.domain.constants.Skin
 import inc.ahmedmourad.sherlock.domain.filter.Filter
 import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
 import inc.ahmedmourad.sherlock.domain.model.*
+import inc.ahmedmourad.sherlock.utils.deleteChildren
+import inc.ahmedmourad.sherlock.utils.deletePictures
 import inc.ahmedmourad.sherlock.utils.getImageBytes
-import io.reactivex.Completable
 import io.reactivex.Single
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Before
@@ -44,8 +46,8 @@ class FirebaseCloudRepositoryInstrumentedTests {
     private lateinit var repository: CloudRepository
 
     private val ongoingState = Bus.PublishingState("ongoing", true)
-    private val successState = Bus.PublishingState("ongoing", false)
-    private val failureState = Bus.PublishingState("ongoing", false)
+    private val successState = Bus.PublishingState("success", false)
+    private val failureState = Bus.PublishingState("failure", false)
 
     private val child0 = DomainPictureChild(
             UUID.randomUUID().toString(),
@@ -59,7 +61,7 @@ class FirebaseCloudRepositoryInstrumentedTests {
                     Hair.DARK,
                     DomainRange(18, 22),
                     DomainRange(170, 190)
-            ), getImageBytes(R.drawable.found_child))
+            ), getImageBytes(R.drawable.found_a_child))
 
     private val child1 = DomainPictureChild(
             UUID.randomUUID().toString(),
@@ -114,11 +116,13 @@ class FirebaseCloudRepositoryInstrumentedTests {
     @Before
     fun setupDatabase() {
         db = FirebaseDatabase.getInstance()
+        deleteChildren()
     }
 
     @Before
     fun setupStorage() {
         storage = FirebaseStorage.getInstance()
+        deletePictures()
     }
 
     @Test
@@ -171,14 +175,13 @@ class FirebaseCloudRepositoryInstrumentedTests {
 
         }.map { (_, publishedChild) ->
             publishedChild
-        }.onEach {
-            assertChildCorrect(it)
-        }.onEach {
-            assertPictureExists(it, true)
         }.forEach {
-            deleteChild(it)
-            deletePicture(it)
+            assertChildCorrect(it)
+            assertPictureExists(it, true)
         }
+
+        deleteChildren()
+        deletePictures()
     }
 
     @Test
@@ -232,7 +235,7 @@ class FirebaseCloudRepositoryInstrumentedTests {
                 .assertNoErrors()
                 .assertValue(domainPublishedChildren.sortedBy { it.id }.mapIndexed { i, child -> child to i * 100 })
 
-        domainPublishedChildren.forEach(this::deleteChild)
+        deleteChildren()
     }
 
     private fun publishChild(child: FirebaseUrlChild): Single<FirebaseUrlChild> {
@@ -249,37 +252,10 @@ class FirebaseCloudRepositoryInstrumentedTests {
         }
     }
 
-    private fun deleteChild(child: DomainChild) {
-
-        Completable.create {
-            db.getReference(FirebaseContract.Database.PATH_CHILDREN)
-                    .child(child.id)
-                    .removeValue { error, _ ->
-                        if (error == null)
-                            it.onComplete()
-                        else
-                            it.onError(error.toException())
-                    }
-        }.test().await().assertNoErrors().assertComplete()
-
-        assertChildExists(child, false)
-    }
-
-    private fun deletePicture(child: DomainChild) {
-
-        Completable.create {
-            storage.getReference(FirebaseContract.Storage.PATH_CHILDREN)
-                    .child("${child.id}.${FirebaseContract.Storage.FILE_FORMAT}")
-                    .delete()
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful)
-                            it.onComplete()
-                        else
-                            it.onError(task.exception ?: RuntimeException())
-                    }
-        }.test().await().assertNoErrors().assertComplete()
-
-        assertPictureExists(child, false)
+    @After
+    fun clearDatabase() {
+        deleteChildren()
+        deletePictures()
     }
 
     private fun assertChildExists(child: DomainChild, exists: Boolean) {
