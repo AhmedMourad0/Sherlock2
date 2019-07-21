@@ -1,4 +1,4 @@
-package inc.ahmedmourad.sherlock.domain.device
+package inc.ahmedmourad.sherlock.domain.framework
 
 interface DateManager {
 

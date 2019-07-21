@@ -1,4 +1,5 @@
 <resources>
+	
 	<string name="app_name">Sherlock</string>
 	
 	<string name="error">Something went wrong!</string>

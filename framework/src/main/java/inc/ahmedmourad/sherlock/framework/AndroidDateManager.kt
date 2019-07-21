@@ -1,7 +1,7 @@
-package inc.ahmedmourad.sherlock.device
+package inc.ahmedmourad.sherlock.framework
 
 import android.text.format.DateUtils
-import inc.ahmedmourad.sherlock.domain.device.DateManager
+import inc.ahmedmourad.sherlock.domain.framework.DateManager
 import splitties.init.appCtx
 
 class AndroidDateManager : DateManager {

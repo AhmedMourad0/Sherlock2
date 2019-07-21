@@ -1,4 +1,4 @@
-package inc.ahmedmourad.sherlock.utils
+package inc.ahmedmourad.sherlock.idling
 
 import androidx.test.espresso.IdlingResource
 import androidx.test.espresso.IdlingResource.ResourceCallback

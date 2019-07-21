@@ -1,7 +1,7 @@
-package inc.ahmedmourad.sherlock.device
+package inc.ahmedmourad.sherlock.framework
 
 import android.location.Location
-import inc.ahmedmourad.sherlock.domain.device.LocationManager
+import inc.ahmedmourad.sherlock.domain.framework.LocationManager
 
 class AndroidLocationManager : LocationManager {
     override fun distanceBetween(startLatitude: Double, startLongitude: Double, endLatitude: Double, endLongitude: Double): Long {
