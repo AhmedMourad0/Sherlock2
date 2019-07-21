@@ -21,6 +21,6 @@ fun LifecycleController.viewModelProvider(): ViewModelProvider {
 
 fun LifecycleController.defaultFactory(): ViewModelProvider.AndroidViewModelFactory {
     return ViewModelProvider.AndroidViewModelFactory(
-            activity?.application ?: throw IllegalStateException("Activity is null")
+            checkNotNull(activity?.application) { "Activity is null" }
     )
 }

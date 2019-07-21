@@ -3,8 +3,12 @@ package inc.ahmedmourad.sherlock.data.room.daos
 import androidx.room.*
 import inc.ahmedmourad.sherlock.data.room.contract.RoomContract.ChildrenEntry
 import inc.ahmedmourad.sherlock.data.room.entities.RoomChildEntity
+import inc.ahmedmourad.sherlock.domain.model.Optional
+import inc.ahmedmourad.sherlock.domain.model.asOptional
 import io.reactivex.Completable
 import io.reactivex.Flowable
+import io.reactivex.Maybe
+import io.reactivex.Single
 
 @Dao
 abstract class SearchResultsDao {
@@ -27,7 +31,18 @@ abstract class SearchResultsDao {
             ${ChildrenEntry.COLUMN_SCORE}
             FROM
             ${ChildrenEntry.TABLE_NAME}""")
-    abstract fun getResults(): Flowable<List<RoomChildEntity>>
+    abstract fun findAll(): Flowable<List<RoomChildEntity>>
+
+    @Query("""SELECT
+            ${ChildrenEntry.COLUMN_SCORE}
+            FROM
+            ${ChildrenEntry.TABLE_NAME}
+            WHERE
+            ${ChildrenEntry.COLUMN_ID} = :childId""")
+    abstract fun findScore(childId: String): Maybe<Int>
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    protected abstract fun update(child: RoomChildEntity): Completable
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     protected abstract fun bulkInsert(resultsEntities: List<RoomChildEntity>)
@@ -36,12 +51,18 @@ abstract class SearchResultsDao {
     protected abstract fun deleteAll()
 
     @Transaction
-    protected open fun replaceResultsTransaction(resultsEntities: List<RoomChildEntity>) {
+    protected open fun replaceAllTransaction(resultsEntities: List<RoomChildEntity>) {
         deleteAll()
         bulkInsert(resultsEntities)
     }
 
-    fun replaceResults(resultsEntities: List<RoomChildEntity>): Completable {
-        return Completable.fromAction { replaceResultsTransaction(resultsEntities) }
+    fun replaceAll(resultsEntities: List<RoomChildEntity>): Completable {
+        return Completable.fromAction { replaceAllTransaction(resultsEntities) }
+    }
+
+    fun updateIfExists(child: RoomChildEntity): Single<Optional<RoomChildEntity>> {
+        return findScore(child.id).map {
+            child.copy(score = it)
+        }.flatMap { update(it).andThen(Maybe.just(it.asOptional())) }.toSingle(null.asOptional())
     }
 }

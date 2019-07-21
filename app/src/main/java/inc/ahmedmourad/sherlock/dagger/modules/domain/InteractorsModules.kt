@@ -4,10 +4,7 @@ import dagger.Lazy
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
-import inc.ahmedmourad.sherlock.dagger.modules.domain.factories.AddChildInteractorAbstractFactory
-import inc.ahmedmourad.sherlock.dagger.modules.domain.factories.AddChildInteractorFactory
-import inc.ahmedmourad.sherlock.dagger.modules.domain.factories.FindChildrenInteractorAbstractFactory
-import inc.ahmedmourad.sherlock.dagger.modules.domain.factories.FindChildrenInteractorFactory
+import inc.ahmedmourad.sherlock.dagger.modules.domain.factories.*
 import inc.ahmedmourad.sherlock.domain.interactors.GetLastSearchResultsInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.Interactor
 import inc.ahmedmourad.sherlock.domain.model.DomainUrlChild
@@ -26,6 +23,13 @@ class FindChildrenInteractorModule {
     @Provides
     @Reusable
     fun provideFindChildrenInteractor(repository: Lazy<Repository>): FindChildrenInteractorAbstractFactory = FindChildrenInteractorFactory(repository)
+}
+
+@Module
+class FindChildInteractorModule {
+    @Provides
+    @Reusable
+    fun provideFindChildInteractor(repository: Lazy<Repository>): FindChildInteractorAbstractFactory = FindChildInteractorFactory(repository)
 }
 
 @Module

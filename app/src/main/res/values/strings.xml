@@ -58,5 +58,19 @@
 	
 	<string name="widget_title">Sherlock - Last Search Results</string>
 	<string name="no_results_found">No results found</string>
+	
+	<string name="publishing">Publishing…</string>
+	<string name="publishing_child_data_with_name">Publishing %1$s\'s data…</string>
+	<string name="publishing_child_data">Publishing child\'s data…</string>
+	<string name="channel_name_background_context">Background context</string>
+	<string name="channel_description_background_context">Notifies the user with context of background operations, e.g., Publishing child data progress and completion</string>
+	<string name="published_successfully">Published Successfully!</string>
+	<string name="published_child_data_successfully_with_name">Published %1$s\'s data successfully!</string>
+	<string name="published_child_data_successfully">Published child\'s data successfully!</string>
+	<string name="something_went_wrong">Something went wrong!</string>
+	<string name="click_to_retry_with_reason">Reason: %1$s\n\nClick to retry!</string>
+	<string name="publishing_failed_with_name">Publishing %1$s\'s data has failed!</string>
+	<string name="publishing_failed">Publishing failed!</string>
+	<string name="child_data_deleted">This child\'s data has been deleted!</string>
 
 </resources>

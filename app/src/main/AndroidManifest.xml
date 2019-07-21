@@ -3,6 +3,8 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	package="inc.ahmedmourad.sherlock">
 	
+	<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+	
 	<application
 		android:name=".application.SherlockApplication"
 		android:allowBackup="true"

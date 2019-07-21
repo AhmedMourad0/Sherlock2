@@ -1,8 +1,8 @@
 package inc.ahmedmourad.sherlock.viewmodel
 
+import android.os.Build
 import androidx.lifecycle.ViewModel
 import dagger.Lazy
-import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.app.factories.SherlockIntentServiceAbstractFactory
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
@@ -11,12 +11,8 @@ import inc.ahmedmourad.sherlock.model.*
 import inc.ahmedmourad.sherlock.viewmodel.model.DefaultLiveData
 
 import splitties.init.appCtx
-import javax.inject.Inject
 
-class AddChildViewModel : ViewModel() {
-
-    @Inject
-    lateinit var intentServiceFactory: Lazy<SherlockIntentServiceAbstractFactory>
+class AddChildViewModel(private val intentServiceFactory: Lazy<SherlockIntentServiceAbstractFactory>) : ViewModel() {
 
     val firstName by lazy { DefaultLiveData("") }
     val lastName by lazy { DefaultLiveData("") }
@@ -37,12 +33,26 @@ class AddChildViewModel : ViewModel() {
 
     val picturePath by lazy { DefaultLiveData("") }
 
-    init {
-        SherlockComponent.ViewModels.addChildComponent.get().inject(this)
+    fun publish(child: AppPictureChild) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            appCtx.startForegroundService(intentServiceFactory.get().createIntent(child))
+        else
+            appCtx.startService(intentServiceFactory.get().createIntent(child))
     }
 
-    fun publish(child: AppPictureChild) {
-        appCtx.startService(intentServiceFactory.get().create(child))
+    fun mapFromAppPictureChild(child: AppPictureChild) {
+        firstName.value = child.name.first
+        lastName.value = child.name.last
+        skin.value = child.appearance.skin
+        hair.value = child.appearance.hair
+        gender.value = child.appearance.gender
+        location.value = child.location
+        startAge.value = child.appearance.age.from
+        endAge.value = child.appearance.age.to
+        startHeight.value = child.appearance.height.from
+        endHeight.value = child.appearance.height.to
+        notes.value = child.notes
+        picturePath.value = child.picturePath
     }
 
     fun toAppPictureChild() = AppPictureChild(
@@ -58,9 +68,4 @@ class AddChildViewModel : ViewModel() {
                     AppRange(startHeight.value, endHeight.value)
             ), picturePath = picturePath.value
     )
-
-    override fun onCleared() {
-        SherlockComponent.ViewModels.addChildComponent.release()
-        super.onCleared()
-    }
 }

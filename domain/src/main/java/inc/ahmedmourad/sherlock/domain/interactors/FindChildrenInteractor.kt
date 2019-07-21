@@ -11,6 +11,6 @@ class FindChildrenInteractor(private val repository: Lazy<Repository>,
                              private val rules: DomainChildCriteriaRules,
                              private val filter: Filter<DomainUrlChild>) : Interactor<Flowable<List<Pair<DomainUrlChild, Int>>>> {
     override fun execute(): Flowable<List<Pair<DomainUrlChild, Int>>> {
-        return repository.get().find(rules, filter)
+        return repository.get().findAll(rules, filter)
     }
 }

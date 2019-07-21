@@ -1,18 +1,23 @@
 package inc.ahmedmourad.sherlock.view.activity
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
-import com.bluelinelabs.conductor.*
-import com.google.android.material.snackbar.Snackbar
+import com.bluelinelabs.conductor.ChangeHandlerFrameLayout
+import com.bluelinelabs.conductor.Conductor
+import com.bluelinelabs.conductor.Router
+import com.bluelinelabs.conductor.RouterTransaction
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.app.qualifiers.HomeControllerQualifier
 import inc.ahmedmourad.sherlock.domain.bus.Bus
+import inc.ahmedmourad.sherlock.view.model.TaggedController
 import io.reactivex.disposables.Disposable
+import splitties.init.appCtx
 import javax.inject.Inject
 
 //TODO: use Anko's Dsl for all of our layouts
@@ -24,7 +29,7 @@ class MainActivity : AppCompatActivity() {
 
     @Inject
     @HomeControllerQualifier
-    lateinit var homeController: Lazy<Controller>
+    lateinit var homeController: Lazy<TaggedController>
 
     @Inject
     lateinit var bus: Bus
@@ -46,19 +51,7 @@ class MainActivity : AppCompatActivity() {
         router = Conductor.attachRouter(this, container, savedInstanceState)
 
         if (!router.hasRootController())
-            router.setRoot(RouterTransaction.with(homeController.get()))
-    }
-
-    override fun onStart() {
-        super.onStart()
-        disposable = bus.state.backgroundState.get().subscribe({
-
-            Snackbar.make(container,
-                    it.message,
-                    if (it.isIndefinite) Snackbar.LENGTH_INDEFINITE else Snackbar.LENGTH_LONG
-            ).show()
-
-        }, { bus.errors.normalErrors.notify(Bus.NormalError("", it)) }) //TODO: message
+            router.setRoot(RouterTransaction.with(homeController.get().controller).tag(homeController.get().tag))
     }
 
     override fun onStop() {
@@ -75,5 +68,18 @@ class MainActivity : AppCompatActivity() {
         SherlockComponent.Activities.mainComponent.release()
         unbinder.unbind()
         super.onDestroy()
+    }
+
+    companion object {
+
+        const val EXTRA_DESTINATION_ID = "inc.ahmedmourad.sherlock.view.activities.extra.DESTINATION_ID"
+        const val INVALID_DESTINATION = -1
+
+        fun createIntent(destinationId: Int): Intent {
+            return Intent(appCtx, MainActivity::class.java).apply {
+                putExtra(EXTRA_DESTINATION_ID, destinationId)
+                addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            }
+        }
     }
 }

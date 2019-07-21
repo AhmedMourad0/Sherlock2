@@ -19,11 +19,6 @@ object SherlockComponent {
         val searchResultsComponent = ComponentProvider(appComponent::plusSearchResultsControllerComponent)
     }
 
-    object ViewModels {
-        val searchResultsComponent = ComponentProvider(appComponent::plusSearchResultsViewModelComponent)
-        val addChildComponent = ComponentProvider(appComponent::plusAddChildViewModelComponent)
-    }
-
     object Services {
         val sherlockServiceComponent = ComponentProvider(appComponent::plusSherlockIntentServiceComponent)
     }

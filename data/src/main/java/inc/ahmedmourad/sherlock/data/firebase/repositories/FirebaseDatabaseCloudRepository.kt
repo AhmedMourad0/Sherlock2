@@ -1,5 +1,6 @@
-package inc.ahmedmourad.sherlock.data.firebase.repository
+package inc.ahmedmourad.sherlock.data.firebase.repositories
 
+import androidx.annotation.VisibleForTesting
 import com.google.firebase.FirebaseApp
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -21,21 +22,22 @@ import inc.ahmedmourad.sherlock.domain.filter.Filter
 import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
 import inc.ahmedmourad.sherlock.domain.model.DomainPictureChild
 import inc.ahmedmourad.sherlock.domain.model.DomainUrlChild
+import inc.ahmedmourad.sherlock.domain.model.Optional
+import inc.ahmedmourad.sherlock.domain.model.asOptional
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Single
 import splitties.init.appCtx
 
-//TODO: maybe inject db and storage too
-class FirebaseCloudRepository(private val bus: Lazy<Bus>, private val provider: Lazy<Bus.PublishingState.Provider>) : CloudRepository {
-
-    private val db = FirebaseDatabase.getInstance()
-    private val storage = FirebaseStorage.getInstance()
+class FirebaseDatabaseCloudRepository(
+        private val db: Lazy<FirebaseDatabase>,
+        private val storage: Lazy<FirebaseStorage>,
+        private val bus: Lazy<Bus>) : CloudRepository {
 
     init {
         if (FirebaseApp.getApps(appCtx).isEmpty()) {
             FirebaseApp.initializeApp(appCtx)
-            db.setPersistenceEnabled(false)
+            db.get().setPersistenceEnabled(false)
         }
     }
 
@@ -48,69 +50,58 @@ class FirebaseCloudRepository(private val bus: Lazy<Bus>, private val provider: 
                 .map { FirebaseUrlChild(pictureChild, it) }
                 .flatMap(this::storeChild)
                 .map(DataModelsMapper::toDomainUrlChild)
-                .doOnSubscribe { bus.get().state.backgroundState.notify(provider.get().ongoing()) }
-                .doOnSuccess { bus.get().state.backgroundState.notify(provider.get().success()) }
-                .doOnError { bus.get().state.backgroundState.notify(provider.get().failure()) }
+                .doOnSubscribe { bus.get().publishingState.notify(Bus.PublishingState.ONGOING) }
+                .doOnSuccess { bus.get().publishingState.notify(Bus.PublishingState.SUCCESS) }
+                .doOnError { bus.get().publishingState.notify(Bus.PublishingState.FAILURE) }
     }
 
     private fun storeChildPicture(child: FirebasePictureChild): Single<StorageReference> {
 
-        val filePath = storage.getReference(FirebaseContract.Storage.PATH_CHILDREN)
+        val filePath = storage.get().getReference(FirebaseContract.Storage.PATH_CHILDREN)
                 .child("${child.id}.${FirebaseContract.Storage.FILE_FORMAT}")
 
-        return Single.create {
-            filePath.putBytes(child.picture)
-                    .addOnCompleteListener { task ->
-                        //TODO: this must be retriable
-                        if (task.isSuccessful)
-                            it.onSuccess(filePath)
-                        else
-                            it.onError(task.exception ?: RuntimeException())
-                    }
+        return Single.create { emitter ->
+            filePath.putBytes(child.picture).addOnSuccessListener {
+                emitter.onSuccess(filePath)
+            }.addOnFailureListener {
+                emitter.onError(it)
+            }
         }
     }
 
     private fun fetchChildPictureUrl(filePath: StorageReference): Single<String> {
-        return Single.create {
-            filePath.downloadUrl.addOnCompleteListener { task ->
-                //TODO: this must be retriable
-                if (task.isSuccessful)
-                    it.onSuccess(task.result.toString())
-                else
-                    it.onError(task.exception ?: RuntimeException())
+        return Single.create { emitter ->
+            filePath.downloadUrl.addOnSuccessListener {
+                emitter.onSuccess(it.toString())
+            }.addOnFailureListener {
+                emitter.onError(it)
             }
         }
     }
 
     private fun storeChild(child: FirebaseUrlChild): Single<FirebaseUrlChild> {
-        return Single.create {
-            db.getReference(FirebaseContract.Database.PATH_CHILDREN)
+        return Single.create { emitter ->
+            db.get().getReference(FirebaseContract.Database.PATH_CHILDREN)
                     .child(child.id)
                     .updateChildren(child.toMap())
-                    .addOnCompleteListener { task ->
-                        //TODO: this must be retriable
-                        if (task.isSuccessful)
-                            it.onSuccess(child)
-                        else
-                            it.onError(task.exception ?: RuntimeException())
+                    .addOnSuccessListener {
+                        emitter.onSuccess(child)
+                    }.addOnFailureListener {
+                        emitter.onError(it)
                     }
         }
     }
 
-    override fun find(rules: DomainChildCriteriaRules, filter: Filter<DomainUrlChild>): Flowable<List<Pair<DomainUrlChild, Int>>> {
+    override fun find(childId: String): Flowable<Optional<DomainUrlChild>> {
         return Flowable.create({
-            db.getReference(FirebaseContract.Database.PATH_CHILDREN)
-                    .orderByChild(FirebaseContract.Database.CHILDREN_SKIN)
-                    .equalTo(rules.appearance.skin.value.toDouble())
+            db.get().getReference(FirebaseContract.Database.PATH_CHILDREN)
+                    .child(childId)
                     .addValueEventListener(object : ValueEventListener {
                         override fun onDataChange(dataSnapshot: DataSnapshot) {
-                            it.onNext(if (dataSnapshot.exists())
-                                filter.filter(dataSnapshot.children
-                                        .map(DataSnapshot::extractFirebaseUrlChild)
-                                        .map(DataModelsMapper::toDomainUrlChild))
+                            it.onNext((if (dataSnapshot.exists())
+                                DataModelsMapper.toDomainUrlChild(dataSnapshot.extractFirebaseUrlChild())
                             else
-                                emptyList()
-                            )
+                                null).asOptional())
                         }
 
                         override fun onCancelled(databaseError: DatabaseError) {
@@ -119,8 +110,33 @@ class FirebaseCloudRepository(private val bus: Lazy<Bus>, private val provider: 
                     })
         }, BackpressureStrategy.BUFFER)
     }
+
+    override fun findAll(rules: DomainChildCriteriaRules, filter: Filter<DomainUrlChild>): Flowable<List<Pair<DomainUrlChild, Int>>> {
+        return Flowable.create({ emitter ->
+            db.get().getReference(FirebaseContract.Database.PATH_CHILDREN)
+                    .orderByChild(FirebaseContract.Database.CHILDREN_SKIN)
+                    .equalTo(rules.appearance.skin.value.toDouble())
+                    .addValueEventListener(object : ValueEventListener {
+                        override fun onDataChange(dataSnapshot: DataSnapshot) {
+                            emitter.onNext(if (dataSnapshot.exists())
+                                filter.filter(dataSnapshot.children
+                                        .filter { it.exists() }
+                                        .map(DataSnapshot::extractFirebaseUrlChild)
+                                        .map(DataModelsMapper::toDomainUrlChild))
+                            else
+                                emptyList()
+                            )
+                        }
+
+                        override fun onCancelled(databaseError: DatabaseError) {
+                            emitter.onError(databaseError.toException())
+                        }
+                    })
+        }, BackpressureStrategy.BUFFER)
+    }
 }
 
+@VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 fun DataSnapshot.extractFirebaseUrlChild() = FirebaseUrlChild(
         requireNotNull(this.key) {
             "id is null!"

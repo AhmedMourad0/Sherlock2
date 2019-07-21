@@ -8,11 +8,11 @@ import inc.ahmedmourad.sherlock.widget.adapter.ResultsRemoteViewsFactory
 import inc.ahmedmourad.sherlock.widget.adapter.ResultsRemoteViewsService
 
 interface ResultsRemoteViewsServiceAbstractFactory {
-    fun create(appWidgetId: Int, results: List<Pair<AppUrlChild, Int>>): Intent
+    fun createIntent(appWidgetId: Int, results: List<Pair<AppUrlChild, Int>>): Intent
 }
 
 class ResultsRemoteViewsServiceFactory : ResultsRemoteViewsServiceAbstractFactory {
-    override fun create(appWidgetId: Int, results: List<Pair<AppUrlChild, Int>>): Intent {
+    override fun createIntent(appWidgetId: Int, results: List<Pair<AppUrlChild, Int>>): Intent {
         return ResultsRemoteViewsService.create(appWidgetId, results)
     }
 }

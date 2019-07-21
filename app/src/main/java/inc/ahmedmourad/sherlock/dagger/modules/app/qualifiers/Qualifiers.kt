@@ -17,11 +17,6 @@ annotation class FindChildrenViewModelQualifier
 @Qualifier
 @Retention(RUNTIME)
 @Target(FIELD, VALUE_PARAMETER, FUNCTION, PROPERTY_GETTER, PROPERTY_SETTER)
-annotation class AddChildControllerQualifier
-
-@Qualifier
-@Retention(RUNTIME)
-@Target(FIELD, VALUE_PARAMETER, FUNCTION, PROPERTY_GETTER, PROPERTY_SETTER)
 annotation class FindChildrenControllerQualifier
 
 @Qualifier

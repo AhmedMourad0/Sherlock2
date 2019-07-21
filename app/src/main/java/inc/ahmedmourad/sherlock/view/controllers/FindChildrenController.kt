@@ -30,12 +30,12 @@ import inc.ahmedmourad.sherlock.domain.bus.Bus
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
-import inc.ahmedmourad.sherlock.exceptions.ActivityNotFoundException
 import inc.ahmedmourad.sherlock.model.AppCoordinates
 import inc.ahmedmourad.sherlock.model.AppLocation
 import inc.ahmedmourad.sherlock.utils.ColorSelector
 import inc.ahmedmourad.sherlock.utils.setSupportActionBar
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
+import inc.ahmedmourad.sherlock.view.model.TaggedController
 import inc.ahmedmourad.sherlock.viewmodel.FindChildrenViewModel
 import javax.inject.Inject
 
@@ -213,14 +213,16 @@ class FindChildrenController : LifecycleController(), View.OnClickListener {
     }
 
     private fun search() {
-        router.pushController(RouterTransaction.with(searchResultsControllerFactory.get().create(viewModel.toAppChildCriteriaRules())))
+
+        val taggedController = searchResultsControllerFactory.get().create(viewModel.toAppChildCriteriaRules())
+
+        router.pushController(RouterTransaction.with(taggedController.controller).tag(taggedController.tag))
     }
 
     private fun startPlacePicker() {
 
-        if (activity == null) {
-            bus.get().errors.normalErrors.notify(Bus.NormalError("", ActivityNotFoundException("Activity is null!"))) //TODO: message
-            return
+        checkNotNull(activity) {
+            "Activity is null!"
         }
 
         try {
@@ -243,7 +245,7 @@ class FindChildrenController : LifecycleController(), View.OnClickListener {
             return
 
         if (data == null) {
-            bus.get().errors.normalErrors.notify(Bus.NormalError("", IllegalArgumentException("Parameter data is null!"))) //TODO: message
+            Toast.makeText(context, R.string.something_went_wrong, Toast.LENGTH_LONG).show()
             return
         }
 
@@ -297,8 +299,10 @@ class FindChildrenController : LifecycleController(), View.OnClickListener {
 
     companion object {
 
+        private const val CONTROLLER_TAG = "inc.ahmedmourad.sherlock.view.controllers.tag.FindChildrenController"
+
         private const val PLACE_PICKER_REQUEST = 2723
 
-        fun newInstance() = FindChildrenController()
+        fun newInstance() = TaggedController(FindChildrenController(), CONTROLLER_TAG)
     }
 }

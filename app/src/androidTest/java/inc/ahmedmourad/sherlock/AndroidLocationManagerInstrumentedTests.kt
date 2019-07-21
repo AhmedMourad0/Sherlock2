@@ -1,7 +1,7 @@
 package inc.ahmedmourad.sherlock
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import inc.ahmedmourad.sherlock.device.AndroidLocationManager
+import inc.ahmedmourad.sherlock.framework.AndroidLocationManager
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test

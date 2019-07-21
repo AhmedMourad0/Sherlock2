@@ -1,13 +1,10 @@
 package inc.ahmedmourad.sherlock.dagger.components
 
 import dagger.Subcomponent
-import inc.ahmedmourad.sherlock.dagger.modules.app.AddChildControllerModule
 import inc.ahmedmourad.sherlock.dagger.modules.app.FindChildrenControllerModule
 import inc.ahmedmourad.sherlock.view.controllers.*
 
-@Subcomponent(modules = [AddChildControllerModule::class,
-    FindChildrenControllerModule::class
-])
+@Subcomponent(modules = [FindChildrenControllerModule::class])
 interface HomeComponent {
     fun inject(controller: HomeController)
 }

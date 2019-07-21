@@ -51,5 +51,5 @@ data class RoomChildEntity(
         val pictureUrl: String = "",
 
         @ColumnInfo(name = ChildrenEntry.COLUMN_SCORE)
-        val score: Int = 0
+        val score: Int = -1
 )

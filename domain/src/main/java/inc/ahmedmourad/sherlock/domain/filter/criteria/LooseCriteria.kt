@@ -1,7 +1,7 @@
 package inc.ahmedmourad.sherlock.domain.filter.criteria
 
 import dagger.Lazy
-import inc.ahmedmourad.sherlock.domain.device.LocationManager
+import inc.ahmedmourad.sherlock.domain.framework.LocationManager
 import inc.ahmedmourad.sherlock.domain.model.DomainChild
 import me.xdrop.fuzzywuzzy.FuzzySearch
 

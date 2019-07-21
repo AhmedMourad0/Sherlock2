@@ -30,6 +30,8 @@ object DataModelsMapper {
             child.second
     )
 
+    fun toRoomChildEntity(child: DomainUrlChild) = toRoomChildEntity(child to -1)
+
     private fun toRoomLocation(location: DomainLocation) = RoomLocation(
             location.id,
             location.name,

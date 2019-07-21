@@ -18,7 +18,7 @@ fun deleteChildren() {
                 }
     }.blockingAwait()
 
-    RoomLocalRepository(Lazy { SherlockDatabase.getInstance() }).replaceResults(emptyList())
+    RoomLocalRepository(Lazy { SherlockDatabase.getInstance() }).replaceAll(emptyList())
             .test()
             .await()
             .assertNoErrors()

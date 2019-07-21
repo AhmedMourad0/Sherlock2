@@ -62,7 +62,7 @@ class AppWidget : AppWidgetProvider() {
                     views.setEmptyView(R.id.widget_list_view, R.id.widget_empty_view)
 
                     views.setRemoteAdapter(R.id.widget_list_view,
-                            resultsRemoteViewsServiceFactory.get().create(appWidgetId,
+                            resultsRemoteViewsServiceFactory.get().createIntent(appWidgetId,
                                     it.map { (child, score) ->
                                         AppModelsMapper.toAppChild(child) to score
                                     }
@@ -72,12 +72,13 @@ class AppWidget : AppWidgetProvider() {
                     appWidgetManager.updateAppWidget(appWidgetId, views)
 
                 }, {
-                    //TODO: try the retry or repeat operator, maybe in other places too
-                    //TODO: message
-                    bus.get().widget.retriableErrors.notify(Bus.RetriableError("", it) {
-                        updateAppWidget(context, appWidgetManager, appWidgetId)
-                    })
+                    //TODO: show retry view
+                    it.printStackTrace()
                 })
+    }
+
+    private fun retry(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
+        updateAppWidget(context, appWidgetManager, appWidgetId)
     }
 
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {

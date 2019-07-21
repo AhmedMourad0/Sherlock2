@@ -1,25 +1,20 @@
 package inc.ahmedmourad.sherlock.dagger.modules.app
 
-import com.bluelinelabs.conductor.Controller
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
-import inc.ahmedmourad.sherlock.dagger.modules.app.factories.DisplayChildControllerAbstractFactory
-import inc.ahmedmourad.sherlock.dagger.modules.app.factories.DisplayChildControllerFactory
-import inc.ahmedmourad.sherlock.dagger.modules.app.factories.SearchResultsControllerAbstractFactory
-import inc.ahmedmourad.sherlock.dagger.modules.app.factories.SearchResultsControllerFactory
-import inc.ahmedmourad.sherlock.dagger.modules.app.qualifiers.AddChildControllerQualifier
+import inc.ahmedmourad.sherlock.dagger.modules.app.factories.*
 import inc.ahmedmourad.sherlock.dagger.modules.app.qualifiers.FindChildrenControllerQualifier
 import inc.ahmedmourad.sherlock.dagger.modules.app.qualifiers.HomeControllerQualifier
-import inc.ahmedmourad.sherlock.view.controllers.AddChildController
 import inc.ahmedmourad.sherlock.view.controllers.FindChildrenController
 import inc.ahmedmourad.sherlock.view.controllers.HomeController
+import inc.ahmedmourad.sherlock.view.model.TaggedController
 
 @Module
 class AddChildControllerModule {
     @Provides
-    @AddChildControllerQualifier
-    fun provideAddChildController(): Controller = AddChildController.newInstance()
+    @Reusable
+    fun provideAddChildController(): AddChildControllerAbstractFactory = AddChildControllerFactory()
 }
 
 @Module
@@ -33,14 +28,14 @@ class DisplayChildControllerModule {
 class FindChildrenControllerModule {
     @Provides
     @FindChildrenControllerQualifier
-    fun provideFindChildrenController(): Controller = FindChildrenController.newInstance()
+    fun provideFindChildrenController(): TaggedController = FindChildrenController.newInstance()
 }
 
 @Module
 class HomeControllerModule {
     @Provides
     @HomeControllerQualifier
-    fun provideHomeController(): Controller = HomeController.newInstance()
+    fun provideHomeController(): TaggedController = HomeController.newInstance()
 }
 
 @Module

@@ -73,7 +73,7 @@ object InteractorsUnitTests : Spek({
 
         describe("FindChildrenInteractor") {
 
-            it("should call find on repository when execute is called") {
+            it("should call findAll on repository when execute is called") {
 
                 val filter = mock<Filter<DomainUrlChild>>()
                 val result = Flowable.empty<List<Pair<DomainUrlChild, Int>>>()
@@ -89,14 +89,14 @@ object InteractorsUnitTests : Spek({
                         )
                 )
 
-                whenever(repository.find(rules, filter)).thenReturn(result)
+                whenever(repository.findAll(rules, filter)).thenReturn(result)
 
                 assertSame(
                         FindChildrenInteractor(Lazy { repository }, rules, filter).execute(),
                         result
                 )
 
-                verify(repository).find(rules, filter)
+                verify(repository).findAll(rules, filter)
             }
         }
 

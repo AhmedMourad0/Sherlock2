@@ -89,10 +89,10 @@ class RoomLocalRepositoryInstrumentedTests {
     @Test
     fun replaceResults_shouldReplaceTheSearchResultsInTheDatabaseWithTheOnesProvided() {
 
-        repository.replaceResults(listOf(child1, child2)).test().await()
+        repository.replaceAll(listOf(child1, child2)).test().await()
 
         val resultsTestObserver = db.resultsDao()
-                .getResults()
+                .findAll()
                 .distinctUntilChanged()
                 .map { it.map(DataModelsMapper::toDomainUrlChild) }
                 .test()
@@ -100,10 +100,10 @@ class RoomLocalRepositoryInstrumentedTests {
         resultsTestObserver.awaitCount(1).assertValuesOnly(listOf(child1, child2))
 
         repository.apply {
-            replaceResults(listOf(child0, child1, child2))
-                    .andThen(replaceResults(listOf(child0)))
-                    .andThen(replaceResults(listOf(child1, child2)))
-                    .andThen(replaceResults(listOf(child0, child1, child2)))
+            replaceAll(listOf(child0, child1, child2))
+                    .andThen(replaceAll(listOf(child0)))
+                    .andThen(replaceAll(listOf(child1, child2)))
+                    .andThen(replaceAll(listOf(child0, child1, child2)))
                     .subscribe()
         }
 
@@ -119,17 +119,17 @@ class RoomLocalRepositoryInstrumentedTests {
     @Test
     fun getResults_shouldBeNotifiedWithExistingAndChangingSearchResults() {
 
-        db.resultsDao().replaceResults(listOf(child1, child2).map(DataModelsMapper::toRoomChildEntity)).test().await()
+        db.resultsDao().replaceAll(listOf(child1, child2).map(DataModelsMapper::toRoomChildEntity)).test().await()
 
-        val resultsTestObserver = repository.getResults().test()
+        val resultsTestObserver = repository.findAll().test()
 
         resultsTestObserver.awaitCount(1).assertValuesOnly(listOf(child1, child2))
 
         db.resultsDao().apply {
-            replaceResults(listOf(child0, child1, child2).map(DataModelsMapper::toRoomChildEntity))
-                    .andThen(replaceResults(listOf(child0).map(DataModelsMapper::toRoomChildEntity)))
-                    .andThen(replaceResults(listOf(child1, child2).map(DataModelsMapper::toRoomChildEntity)))
-                    .andThen(replaceResults(listOf(child0, child1, child2).map(DataModelsMapper::toRoomChildEntity)))
+            replaceAll(listOf(child0, child1, child2).map(DataModelsMapper::toRoomChildEntity))
+                    .andThen(replaceAll(listOf(child0).map(DataModelsMapper::toRoomChildEntity)))
+                    .andThen(replaceAll(listOf(child1, child2).map(DataModelsMapper::toRoomChildEntity)))
+                    .andThen(replaceAll(listOf(child0, child1, child2).map(DataModelsMapper::toRoomChildEntity)))
                     .subscribe()
         }
 

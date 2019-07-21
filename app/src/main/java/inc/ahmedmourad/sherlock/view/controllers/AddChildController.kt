@@ -3,20 +3,19 @@ package inc.ahmedmourad.sherlock.view.controllers
 import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.RadioGroup
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
+import com.bluelinelabs.conductor.Router
 import com.bluelinelabs.conductor.RouterTransaction
 import com.bluelinelabs.conductor.archlifecycle.LifecycleController
 import com.esafirm.imagepicker.features.ImagePicker
@@ -39,18 +38,23 @@ import inc.ahmedmourad.sherlock.domain.bus.Bus
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
-import inc.ahmedmourad.sherlock.exceptions.ActivityNotFoundException
 import inc.ahmedmourad.sherlock.model.AppCoordinates
 import inc.ahmedmourad.sherlock.model.AppLocation
+import inc.ahmedmourad.sherlock.model.AppPictureChild
 import inc.ahmedmourad.sherlock.utils.ColorSelector
 import inc.ahmedmourad.sherlock.utils.getImageBitmap
 import inc.ahmedmourad.sherlock.utils.setSupportActionBar
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
+import inc.ahmedmourad.sherlock.view.activity.MainActivity
+import inc.ahmedmourad.sherlock.view.model.ExternallyNavigableController
+import inc.ahmedmourad.sherlock.view.model.TaggedController
 import inc.ahmedmourad.sherlock.viewmodel.AddChildViewModel
+import io.reactivex.disposables.Disposable
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
-class AddChildController : LifecycleController(), View.OnClickListener {
+//TODO: maybe never allow publishing until all publishing operations and finished?
+class AddChildController(args: Bundle) : LifecycleController(args), View.OnClickListener {
 
     @BindView(R.id.toolbar)
     internal lateinit var toolbar: Toolbar
@@ -125,6 +129,14 @@ class AddChildController : LifecycleController(), View.OnClickListener {
 
     private lateinit var unbinder: Unbinder
 
+    private var publishingDisposable: Disposable? = null
+        set(value) {
+            field?.dispose()
+            field = value
+        }
+
+    constructor() : this(Bundle(0))
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup): View {
 
         SherlockComponent.Controllers.addChildComponent.get().inject(this)
@@ -140,6 +152,27 @@ class AddChildController : LifecycleController(), View.OnClickListener {
         toolbar.title = view.context.getString(R.string.found_a_child)
 
         viewModel = viewModelProvider(viewModelFactory)[AddChildViewModel::class.java]
+
+        val navigationChild = args.getParcelable<AppPictureChild>(ARG_CHILD)
+
+        if (navigationChild != null) {
+
+            viewModel.mapFromAppPictureChild(navigationChild)
+
+            handlePublishingStateValue(requireNotNull(bus.get().publishingState.lastValue), navigationChild)
+
+            if (bus.get().publishingState.lastValue == Bus.PublishingState.ONGOING) {
+
+                publishingDisposable = bus.get().publishingState.get().subscribe({
+
+                    handlePublishingStateValue(it, navigationChild)
+
+                }, { it.printStackTrace() })
+            }
+
+        } else {
+            setEnabledAndIdle(true)
+        }
 
         skinColorSelector = createSkinColorViews()
         hairColorSelector = createHairColorViews()
@@ -161,9 +194,58 @@ class AddChildController : LifecycleController(), View.OnClickListener {
                 hairBrownView,
                 hairDarkView,
                 pictureTextView,
-                pictureTextView).forEach { it.setOnClickListener(this) }
+                pictureTextView
+        ).forEach { it.setOnClickListener(this) }
 
         return view
+    }
+
+    private fun handlePublishingStateValue(value: Bus.PublishingState, child: AppPictureChild) {
+
+        when (value) {
+
+            Bus.PublishingState.SUCCESS -> {
+
+                val taggedController = displayChildControllerFactory.get().create(child.id)
+
+                router.popToRoot()
+                router.pushController(RouterTransaction.with(taggedController.controller).tag(taggedController.tag))
+                publishingDisposable?.dispose()
+            }
+
+            Bus.PublishingState.FAILURE -> {
+                setEnabledAndIdle(true)
+                publishingDisposable?.dispose()
+            }
+
+            Bus.PublishingState.ONGOING -> {
+                setEnabledAndIdle(false)
+            }
+        }
+    }
+
+    private fun setEnabledAndIdle(enabled: Boolean) {
+
+        //TODO: start loading when false and stop when true
+
+        arrayOf(skinWhiteView,
+                skinWheatView,
+                skinDarkView,
+                hairBlondView,
+                hairBrownView,
+                hairDarkView,
+                firstNameEditText,
+                lastNameEditText,
+                genderRadioGroup,
+                ageSeekBar,
+                heightSeekBar,
+                locationTextView,
+                locationImageView,
+                pictureImageView,
+                pictureTextView,
+                notesEditText,
+                publishButton
+        ).forEach { it.isEnabled = enabled }
     }
 
     private fun createSkinColorViews() = ColorSelector(
@@ -268,22 +350,22 @@ class AddChildController : LifecycleController(), View.OnClickListener {
     }
 
     private fun publish() {
-        with(viewModel.toAppPictureChild()) {
 
-            publishButton.isEnabled = false
+        val child = viewModel.toAppPictureChild()
 
-            viewModel.publish(this)
+        publishingDisposable = bus.get().publishingState.get().subscribe({
 
-            router.popToRoot()
-            router.pushController(RouterTransaction.with(displayChildControllerFactory.get().create(this)))
-        }
+            handlePublishingStateValue(it, child)
+
+        }, { it.printStackTrace() })
+
+        viewModel.publish(child)
     }
 
     private fun startImagePicker() {
 
-        if (activity == null) {
-            bus.get().errors.normalErrors.notify(Bus.NormalError("", ActivityNotFoundException("Activity is null!"))) //TODO: message
-            return
+        checkNotNull(activity) {
+            "Activity is null!"
         }
 
         setPictureEnabled(false)
@@ -306,9 +388,8 @@ class AddChildController : LifecycleController(), View.OnClickListener {
     //TODO: should only start when connected to the internet, not the only one though
     private fun startPlacePicker() {
 
-        if (activity == null) {
-            bus.get().errors.normalErrors.notify(Bus.NormalError("", ActivityNotFoundException("Activity is null!"))) //TODO: message
-            return
+        checkNotNull(activity) {
+            "Activity is null!"
         }
 
         try {
@@ -337,7 +418,8 @@ class AddChildController : LifecycleController(), View.OnClickListener {
             return
 
         if (data == null) {
-            bus.get().errors.normalErrors.notify(Bus.NormalError("", IllegalArgumentException("Parameter data is null!"))) //TODO: message
+            Toast.makeText(context, R.string.something_went_wrong, Toast.LENGTH_LONG).show()
+            IllegalArgumentException("Parameter data is null!").printStackTrace()
             return
         }
 
@@ -369,6 +451,7 @@ class AddChildController : LifecycleController(), View.OnClickListener {
     }
 
     override fun onDestroy() {
+        publishingDisposable?.dispose()
         unbinder.unbind()
         SherlockComponent.Controllers.addChildComponent.release()
         super.onDestroy()
@@ -398,11 +481,45 @@ class AddChildController : LifecycleController(), View.OnClickListener {
         }
     }
 
-    companion object {
+    companion object : ExternallyNavigableController {
+
+        private const val CONTROLLER_TAG = "inc.ahmedmourad.sherlock.view.controllers.tag.AddChildController"
 
         private const val PLACE_PICKER_REQUEST = 7424
         private const val IMAGE_PICKER_REQUEST = 4287
 
-        fun newInstance() = AddChildController()
+        private const val ARG_CHILD = "inc.ahmedmourad.sherlock.view.controllers.arg.CHILD"
+
+        private const val DESTINATION_ID = 4727
+
+        private const val EXTRA_CHILD = "inc.ahmedmourad.sherlock.view.controllers.extra.CHILD"
+
+        fun newInstance() = TaggedController(AddChildController(), CONTROLLER_TAG)
+
+        private fun newInstance(child: AppPictureChild) = TaggedController(AddChildController(Bundle(1).apply {
+            putParcelable(ARG_CHILD, child)
+        }), CONTROLLER_TAG)
+
+        fun createIntent(child: AppPictureChild): Intent {
+            return MainActivity.createIntent(DESTINATION_ID).apply {
+                putExtra(EXTRA_CHILD, child)
+            }
+        }
+
+        override fun isDestination(destinationId: Int): Boolean {
+            return destinationId == DESTINATION_ID
+        }
+
+        override fun navigate(router: Router, intent: Intent) {
+
+            val addChildControllerBackstackInstance = router.getControllerWithTag(CONTROLLER_TAG)
+
+            if (addChildControllerBackstackInstance != null)
+                router.popController(addChildControllerBackstackInstance)
+
+            val taggedController = newInstance(intent.getParcelableExtra(EXTRA_CHILD))
+
+            router.pushController(RouterTransaction.with(taggedController.controller).tag(taggedController.tag))
+        }
     }
 }

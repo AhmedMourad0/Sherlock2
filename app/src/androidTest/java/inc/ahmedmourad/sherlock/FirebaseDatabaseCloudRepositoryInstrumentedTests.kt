@@ -11,8 +11,8 @@ import com.nhaarman.mockitokotlin2.*
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.data.firebase.contract.FirebaseContract
 import inc.ahmedmourad.sherlock.data.firebase.model.FirebaseUrlChild
-import inc.ahmedmourad.sherlock.data.firebase.repository.FirebaseCloudRepository
-import inc.ahmedmourad.sherlock.data.firebase.repository.extractFirebaseUrlChild
+import inc.ahmedmourad.sherlock.data.firebase.repositories.FirebaseDatabaseCloudRepository
+import inc.ahmedmourad.sherlock.data.firebase.repositories.extractFirebaseUrlChild
 import inc.ahmedmourad.sherlock.data.mapper.DataModelsMapper
 import inc.ahmedmourad.sherlock.data.repositories.CloudRepository
 import inc.ahmedmourad.sherlock.domain.bus.Bus
@@ -37,17 +37,12 @@ import timber.log.Timber
 import java.util.*
 
 @RunWith(AndroidJUnit4::class)
-class FirebaseCloudRepositoryInstrumentedTests {
+class FirebaseDatabaseCloudRepositoryInstrumentedTests {
 
     private lateinit var bus: Bus
-    private lateinit var provider: Bus.PublishingState.Provider
     private lateinit var db: FirebaseDatabase
     private lateinit var storage: FirebaseStorage
     private lateinit var repository: CloudRepository
-
-    private val ongoingState = Bus.PublishingState("ongoing", true)
-    private val successState = Bus.PublishingState("success", false)
-    private val failureState = Bus.PublishingState("failure", false)
 
     private val child0 = DomainPictureChild(
             UUID.randomUUID().toString(),
@@ -99,18 +94,15 @@ class FirebaseCloudRepositoryInstrumentedTests {
     @Before
     fun setupRepository() {
 
-        val event = mock<Bus.Event<Bus.BackgroundState>>()
-        val state = mock<Bus.State> { on { backgroundState } doReturn event }
+        val event = mock<Bus.Event<Bus.PublishingState>>()
 
-        bus = mock { on { this.state } doReturn state }
+        bus = mock { on { publishingState } doReturn event }
 
-        provider = mock {
-            on { ongoing() } doReturn ongoingState
-            on { success() } doReturn successState
-            on { failure() } doReturn failureState
-        }
-
-        repository = FirebaseCloudRepository(Lazy { bus }, Lazy { provider })
+        repository = FirebaseDatabaseCloudRepository(
+                Lazy { FirebaseDatabase.getInstance() },
+                Lazy { FirebaseStorage.getInstance() },
+                Lazy { bus }
+        )
     }
 
     @Before
@@ -163,14 +155,10 @@ class FirebaseCloudRepositoryInstrumentedTests {
             (index + 1) to publishedChild
         }.onEach { (index, _) ->
 
-            verify(bus.state) {
-                ((index * 2) + (index - 1)) * { backgroundState }
-            }
-
-            verify(bus.state.backgroundState) {
-                (index * 1) * { notify(ongoingState) }
-                (index * 1) * { notify(successState) }
-                (index * 0) * { notify(failureState) }
+            verify(bus.publishingState) {
+                (index * 1) * { notify(Bus.PublishingState.ONGOING) }
+                (index * 1) * { notify(Bus.PublishingState.SUCCESS) }
+                (index * 0) * { notify(Bus.PublishingState.FAILURE) }
             }
 
         }.map { (_, publishedChild) ->
@@ -228,7 +216,7 @@ class FirebaseCloudRepositoryInstrumentedTests {
                 )
         )
 
-        repository.find(rules, filter)
+        repository.findAll(rules, filter)
                 .test()
                 .awaitCount(1)
                 .assertNotComplete()
@@ -247,7 +235,8 @@ class FirebaseCloudRepositoryInstrumentedTests {
                         if (task.isSuccessful)
                             it.onSuccess(child)
                         else
-                            it.onError(task.exception ?: RuntimeException())
+                            it.onError(task.exception
+                                    ?: IllegalArgumentException("Exception is null!"))
                     }
         }
     }
@@ -310,7 +299,8 @@ class FirebaseCloudRepositoryInstrumentedTests {
                         if (task.isSuccessful)
                             it.onSuccess(task.result.toString() == url)
                         else
-                            it.onError(task.exception ?: RuntimeException())
+                            it.onError(task.exception
+                                    ?: IllegalArgumentException("Exception is null!"))
                     }
         }.test().await().assertComplete().assertNoErrors().assertValue(true)
     }

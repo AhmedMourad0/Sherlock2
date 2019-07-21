@@ -13,23 +13,27 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
 import com.google.android.material.textfield.TextInputEditText
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.storage.FirebaseStorage
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.custom.ProperNumberPicker
-import inc.ahmedmourad.sherlock.data.firebase.repository.FirebaseCloudRepository
+import inc.ahmedmourad.sherlock.data.firebase.repositories.FirebaseDatabaseCloudRepository
 import inc.ahmedmourad.sherlock.data.repositories.SherlockRepository
 import inc.ahmedmourad.sherlock.data.room.database.SherlockDatabase
 import inc.ahmedmourad.sherlock.data.room.repository.RoomLocalRepository
-import inc.ahmedmourad.sherlock.device.AndroidDateManager
-import inc.ahmedmourad.sherlock.device.AndroidTextManager
-import inc.ahmedmourad.sherlock.domain.bus.Bus
 import inc.ahmedmourad.sherlock.domain.bus.RxBus
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
 import inc.ahmedmourad.sherlock.domain.repository.Repository
+import inc.ahmedmourad.sherlock.framework.AndroidDateManager
+import inc.ahmedmourad.sherlock.idling.SearchResultsIdlingResource
 import inc.ahmedmourad.sherlock.mapper.AppModelsMapper
 import inc.ahmedmourad.sherlock.model.*
-import inc.ahmedmourad.sherlock.utils.*
+import inc.ahmedmourad.sherlock.utils.TextFormatter
+import inc.ahmedmourad.sherlock.utils.childAt
+import inc.ahmedmourad.sherlock.utils.deleteChildren
+import inc.ahmedmourad.sherlock.utils.deletePictures
 import inc.ahmedmourad.sherlock.view.activity.MainActivity
 import org.junit.After
 import org.junit.Before
@@ -94,9 +98,10 @@ class SearchResultsControllerInstrumentedTests {
         repository = SherlockRepository(
                 Lazy { RoomLocalRepository(Lazy { SherlockDatabase.getInstance() }) },
                 Lazy {
-                    FirebaseCloudRepository(
-                            Lazy { RxBus() },
-                            Lazy { Bus.PublishingState.TextManagerProvider(Lazy { AndroidTextManager() }) }
+                    FirebaseDatabaseCloudRepository(
+                            Lazy { FirebaseDatabase.getInstance() },
+                            Lazy { FirebaseStorage.getInstance() },
+                            Lazy { RxBus() }
                     )
                 }
         )

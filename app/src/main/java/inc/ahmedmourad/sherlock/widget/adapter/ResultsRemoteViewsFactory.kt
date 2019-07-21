@@ -8,7 +8,7 @@ import com.squareup.picasso.Picasso
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
-import inc.ahmedmourad.sherlock.domain.device.DateManager
+import inc.ahmedmourad.sherlock.domain.framework.DateManager
 import inc.ahmedmourad.sherlock.model.AppUrlChild
 import inc.ahmedmourad.sherlock.utils.Formatter
 import java.io.IOException

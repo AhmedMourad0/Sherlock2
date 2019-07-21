@@ -62,6 +62,7 @@ object AppModelsMapper {
             range.to
     )
 
+    //TODO: only store the picture if it's actually changed
     fun toDomainPictureChild(child: AppPictureChild) = DomainPictureChild(
             child.id,
             child.publicationDate,

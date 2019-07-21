@@ -3,12 +3,10 @@ package inc.ahmedmourad.sherlock.dagger.modules.device
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
-import inc.ahmedmourad.sherlock.device.AndroidDateManager
-import inc.ahmedmourad.sherlock.device.AndroidLocationManager
-import inc.ahmedmourad.sherlock.device.AndroidTextManager
-import inc.ahmedmourad.sherlock.domain.device.DateManager
-import inc.ahmedmourad.sherlock.domain.device.LocationManager
-import inc.ahmedmourad.sherlock.domain.device.TextManager
+import inc.ahmedmourad.sherlock.domain.framework.DateManager
+import inc.ahmedmourad.sherlock.domain.framework.LocationManager
+import inc.ahmedmourad.sherlock.framework.AndroidDateManager
+import inc.ahmedmourad.sherlock.framework.AndroidLocationManager
 
 @Module
 class AndroidDateManagerModule {
@@ -22,11 +20,4 @@ class AndroidLocationManagerModule {
     @Provides
     @Reusable
     fun provideAndroidLocationManager(): LocationManager = AndroidLocationManager()
-}
-
-@Module
-class AndroidTextManagerModule {
-    @Provides
-    @Reusable
-    fun provideAndroidTextManager(): TextManager = AndroidTextManager()
 }

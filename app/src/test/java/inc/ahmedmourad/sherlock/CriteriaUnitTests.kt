@@ -8,11 +8,11 @@ import dagger.Lazy
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
-import inc.ahmedmourad.sherlock.domain.device.LocationManager
 import inc.ahmedmourad.sherlock.domain.filter.ResultsFilter
 import inc.ahmedmourad.sherlock.domain.filter.criteria.Criteria
 import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
 import inc.ahmedmourad.sherlock.domain.filter.criteria.LooseCriteria
+import inc.ahmedmourad.sherlock.domain.framework.LocationManager
 import inc.ahmedmourad.sherlock.domain.model.*
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue

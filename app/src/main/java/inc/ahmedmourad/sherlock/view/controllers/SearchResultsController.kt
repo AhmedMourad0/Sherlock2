@@ -21,11 +21,12 @@ import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.app.factories.DisplayChildControllerAbstractFactory
 import inc.ahmedmourad.sherlock.dagger.modules.app.factories.ResultsRecyclerAdapterAbstractFactory
 import inc.ahmedmourad.sherlock.dagger.modules.app.factories.SearchResultsViewModelFactoryAbstractFactory
-import inc.ahmedmourad.sherlock.domain.device.DateManager
+import inc.ahmedmourad.sherlock.domain.framework.DateManager
 import inc.ahmedmourad.sherlock.model.AppChildCriteriaRules
 import inc.ahmedmourad.sherlock.utils.Formatter
 import inc.ahmedmourad.sherlock.utils.setSupportActionBar
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
+import inc.ahmedmourad.sherlock.view.model.TaggedController
 import inc.ahmedmourad.sherlock.viewmodel.SearchResultsViewModel
 import javax.inject.Inject
 
@@ -93,9 +94,14 @@ class SearchResultsController(args: Bundle) : LifecycleController(args) {
     }
 
     private fun initializeRecyclerView() {
+
         adapter = adapterFactory.create(dateManager, formatter) {
-            router.pushController(RouterTransaction.with(displayChildControllerFactory.get().create(it)))
+
+            val taggedController = displayChildControllerFactory.get().create(it.first.id)
+
+            router.pushController(RouterTransaction.with(taggedController.controller).tag(taggedController.tag))
         }
+
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         recyclerView.isVerticalScrollBarEnabled = true
@@ -109,10 +115,12 @@ class SearchResultsController(args: Bundle) : LifecycleController(args) {
 
     companion object {
 
+        private const val CONTROLLER_TAG = "inc.ahmedmourad.sherlock.view.controllers.tag.SearchResultsController"
+
         private const val ARG_RULES = "inc.ahmedmourad.sherlock.view.controllers.arg.RULES"
 
-        fun newInstance(rules: AppChildCriteriaRules) = SearchResultsController(Bundle(1).apply {
+        fun newInstance(rules: AppChildCriteriaRules) = TaggedController(SearchResultsController(Bundle(1).apply {
             putParcelable(ARG_RULES, rules)
-        })
+        }), CONTROLLER_TAG)
     }
 }

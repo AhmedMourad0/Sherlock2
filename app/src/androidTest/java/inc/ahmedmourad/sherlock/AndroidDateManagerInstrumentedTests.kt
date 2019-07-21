@@ -2,7 +2,7 @@ package inc.ahmedmourad.sherlock
 
 import android.text.format.DateUtils
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import inc.ahmedmourad.sherlock.device.AndroidDateManager
+import inc.ahmedmourad.sherlock.framework.AndroidDateManager
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
