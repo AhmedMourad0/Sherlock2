@@ -7,14 +7,14 @@ import android.os.Bundle
 import android.widget.RemoteViewsService
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
-import inc.ahmedmourad.sherlock.dagger.modules.app.factories.ResultsRemoteViewsFactoryAbstractFactory
-import inc.ahmedmourad.sherlock.model.AppUrlChild
+import inc.ahmedmourad.sherlock.dagger.modules.factories.ResultsRemoteViewsFactoryAbstractFactory
+import inc.ahmedmourad.sherlock.model.AppSimpleRetrievedChild
 import splitties.init.appCtx
 import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 
-class ResultsRemoteViewsService : RemoteViewsService() {
+internal class ResultsRemoteViewsService : RemoteViewsService() {
 
     @Inject
     lateinit var resultsRemoteViewsFactoryFactory: Lazy<ResultsRemoteViewsFactoryAbstractFactory>
@@ -26,21 +26,13 @@ class ResultsRemoteViewsService : RemoteViewsService() {
 
     override fun onGetViewFactory(intent: Intent): RemoteViewsFactory {
 
-        val hackBundle = requireNotNull(intent.getBundleExtra(EXTRA_HACK_BUNDLE)) {
-            "Hack Bundle cannot be null!"
-        }
+        val hackBundle = requireNotNull(intent.getBundleExtra(EXTRA_HACK_BUNDLE))
 
-        val children = requireNotNull(hackBundle.getParcelableArrayList<AppUrlChild>(EXTRA_CHILDREN)) {
-            "Children list cannot be null!"
-        }
+        val children = requireNotNull(hackBundle.getParcelableArrayList<AppSimpleRetrievedChild>(EXTRA_CHILDREN))
 
-        val scores = requireNotNull(intent.getIntegerArrayListExtra(EXTRA_SCORES)) {
-            "Scores list cannot be null!"
-        }
+        val scores = requireNotNull(hackBundle.getIntegerArrayList(EXTRA_SCORES))
 
-        require(children.size == scores.size) {
-            "Children list and Scores list must be of the same size!"
-        }
+        require(children.size == scores.size)
 
         return resultsRemoteViewsFactoryFactory.get().create(applicationContext, children.zip(scores))
     }
@@ -57,7 +49,7 @@ class ResultsRemoteViewsService : RemoteViewsService() {
         const val EXTRA_CHILDREN = "inc.ahmedmourad.sherlock.external.adapter.extra.CHILDREN"
         const val EXTRA_SCORES = "inc.ahmedmourad.sherlock.external.adapter.extra.SCORES"
 
-        fun create(appWidgetId: Int, results: List<Pair<AppUrlChild, Int>>): Intent {
+        fun create(appWidgetId: Int, results: List<Pair<AppSimpleRetrievedChild, Int>>): Intent {
             return Intent(appCtx, ResultsRemoteViewsService::class.java).also { intent ->
                 intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                 intent.data = getUniqueDataUri(appWidgetId)

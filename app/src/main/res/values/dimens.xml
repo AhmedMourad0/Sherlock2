@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
+	
+	<!-- It's a shame that something as simple as changing the snackbar padding would require such an ugly hack -->
+	<dimen name="design_snackbar_padding_vertical" tools:override="true">4dp</dimen>
 	
 	<!-- HomeController -->
 	

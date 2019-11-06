@@ -8,21 +8,21 @@ import dagger.Lazy
 
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
-import inc.ahmedmourad.sherlock.dagger.modules.app.factories.ResultsRemoteViewsServiceAbstractFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.ResultsRemoteViewsServiceAbstractFactory
 import inc.ahmedmourad.sherlock.domain.bus.Bus
-import inc.ahmedmourad.sherlock.domain.interactors.Interactor
-import inc.ahmedmourad.sherlock.domain.model.DomainUrlChild
-import inc.ahmedmourad.sherlock.mapper.AppModelsMapper
+import inc.ahmedmourad.sherlock.domain.dagger.modules.factories.FindLastSearchResultsInteractorAbstractFactory
+import inc.ahmedmourad.sherlock.mapper.toAppSimpleChild
 import inc.ahmedmourad.sherlock.utils.DisposablesSparseArray
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import timber.log.Timber
 import javax.inject.Inject
 
-class AppWidget : AppWidgetProvider() {
+internal class AppWidget : AppWidgetProvider() {
 
     @Inject
-    lateinit var interactor: Lazy<Interactor<Flowable<List<Pair<DomainUrlChild, Int>>>>>
+    lateinit var interactor: FindLastSearchResultsInteractorAbstractFactory
 
     @Inject
     lateinit var bus: Lazy<Bus>
@@ -50,10 +50,17 @@ class AppWidget : AppWidgetProvider() {
      * @param appWidgetId      The appWidgetIds for which an update is needed.
      */
     private fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int): Disposable {
-        return interactor.get()
+        return interactor.create()
                 .execute()
+                .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
+                .flatMap {
+                    Flowable.fromIterable(it)
+                            .map { (child, score) ->
+                                child.toAppSimpleChild() to score
+                            }.toList()
+                            .toFlowable()
+                }.subscribe({
 
                     val views = RemoteViews(context.packageName, R.layout.app_widget)
 
@@ -62,19 +69,12 @@ class AppWidget : AppWidgetProvider() {
                     views.setEmptyView(R.id.widget_list_view, R.id.widget_empty_view)
 
                     views.setRemoteAdapter(R.id.widget_list_view,
-                            resultsRemoteViewsServiceFactory.get().createIntent(appWidgetId,
-                                    it.map { (child, score) ->
-                                        AppModelsMapper.toAppChild(child) to score
-                                    }
-                            )
+                            resultsRemoteViewsServiceFactory.get().createIntent(appWidgetId, it)
                     )
 
                     appWidgetManager.updateAppWidget(appWidgetId, views)
 
-                }, {
-                    //TODO: show retry view
-                    it.printStackTrace()
-                })
+                }, Timber::e) //TODO: show retry view
     }
 
     private fun retry(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {

@@ -8,21 +8,23 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
-import com.squareup.picasso.Picasso
+import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
-import inc.ahmedmourad.sherlock.domain.framework.DateManager
-import inc.ahmedmourad.sherlock.model.AppUrlChild
-import inc.ahmedmourad.sherlock.utils.Formatter
+import inc.ahmedmourad.sherlock.domain.platform.DateManager
+import inc.ahmedmourad.sherlock.formatter.Formatter
+import inc.ahmedmourad.sherlock.model.AppSimpleRetrievedChild
+import splitties.init.appCtx
 import java.util.*
 
-class ResultsRecyclerAdapter(
+internal class ResultsRecyclerAdapter(
         private val dateManager: Lazy<DateManager>,
-        private val formatter: Lazy<Formatter<String>>,
-        private val onResultSelectedListener: (Pair<AppUrlChild, Int>) -> Unit
+        private val formatter: Lazy<Formatter>,
+        private val onResultSelectedListener: (Pair<AppSimpleRetrievedChild, Int>) -> Unit
 ) : RecyclerView.Adapter<ResultsRecyclerAdapter.ViewHolder>() {
 
-    private val resultsList = ArrayList<Pair<AppUrlChild, Int>>()
+    private val resultsList = ArrayList<Pair<AppSimpleRetrievedChild, Int>>()
 
     override fun onCreateViewHolder(container: ViewGroup, viewType: Int) = ViewHolder(LayoutInflater.from(container.context).inflate(R.layout.item_result, container, false))
 
@@ -30,7 +32,7 @@ class ResultsRecyclerAdapter(
 
     override fun getItemCount() = resultsList.size
 
-    fun updateList(list: List<Pair<AppUrlChild, Int>>) {
+    fun updateList(list: List<Pair<AppSimpleRetrievedChild, Int>>) {
         resultsList.clear()
         resultsList.addAll(list)
         notifyDataSetChanged()
@@ -50,16 +52,16 @@ class ResultsRecyclerAdapter(
         @BindView(R.id.result_location)
         internal lateinit var locationTextView: TextView
 
-        private val picasso: Picasso
+        private val glide: RequestManager
 
         init {
             ButterKnife.bind(this, view)
-            picasso = Picasso.get()
+            glide = Glide.with(appCtx)
         }
 
-        internal fun bind(result: Pair<AppUrlChild, Int>) {
+        internal fun bind(result: Pair<AppSimpleRetrievedChild, Int>) {
 
-            picasso.load(result.first.pictureUrl)
+            glide.load(result.first.pictureUrl)
                     .placeholder(R.drawable.placeholder)
                     .error(R.drawable.placeholder)
                     .into(pictureImageView)
@@ -67,7 +69,7 @@ class ResultsRecyclerAdapter(
             //TODO: this needs to change with time
             dateTextView.text = dateManager.get().getRelativeDateTimeString(result.first.publicationDate)
             notesTextView.text = formatter.get().formatNotes(result.first.notes)
-            locationTextView.text = formatter.get().formatLocation(result.first.location)
+            locationTextView.text = formatter.get().formatLocation(result.first.locationName, result.first.locationAddress)
 
             itemView.setOnClickListener { onResultSelectedListener(result) }
         }

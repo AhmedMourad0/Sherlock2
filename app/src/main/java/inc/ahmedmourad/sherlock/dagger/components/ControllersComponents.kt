@@ -1,30 +1,30 @@
 package inc.ahmedmourad.sherlock.dagger.components
 
 import dagger.Subcomponent
-import inc.ahmedmourad.sherlock.dagger.modules.app.FindChildrenControllerModule
+import inc.ahmedmourad.sherlock.dagger.modules.FindChildrenControllerModule
 import inc.ahmedmourad.sherlock.view.controllers.*
 
 @Subcomponent(modules = [FindChildrenControllerModule::class])
-interface HomeComponent {
+internal interface HomeComponent {
     fun inject(controller: HomeController)
 }
 
 @Subcomponent
-interface AddChildComponent {
+internal interface AddChildComponent {
     fun inject(controller: AddChildController)
 }
 
 @Subcomponent
-interface DisplayChildComponent {
+internal interface DisplayChildComponent {
     fun inject(controller: DisplayChildController)
 }
 
 @Subcomponent
-interface FindChildrenComponent {
+internal interface FindChildrenComponent {
     fun inject(controller: FindChildrenController)
 }
 
 @Subcomponent
-interface SearchResultsComponent {
+internal interface SearchResultsComponent {
     fun inject(controller: SearchResultsController)
 }

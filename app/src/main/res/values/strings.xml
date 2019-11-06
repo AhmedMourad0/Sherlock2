@@ -3,14 +3,6 @@
 	
 	<string name="app_name">Sherlock</string>
 	
-	<string name="white_skin">White skin</string>
-	<string name="wheatish_skin">Wheatish skin</string>
-	<string name="dark_skin">Dark skin</string>
-	
-	<string name="blonde_hair">Blonde hair</string>
-	<string name="dark_hair">Dark hair</string>
-	<string name="brown_hair">Brown hair</string>
-	
 	<string name="male">Male</string>
 	<string name="female">Female</string>
 	
@@ -54,7 +46,6 @@
 	<string name="date">Yesterday at 05:24 AM</string>
 	<string name="child">Child</string>
 	<string name="location_label">Location:</string>
-	<string name="no_internet_connection">No internet connection!</string>
 	
 	<string name="widget_title">Sherlock - Last Search Results</string>
 	<string name="no_results_found">No results found</string>
@@ -65,12 +56,16 @@
 	<string name="channel_name_background_context">Background context</string>
 	<string name="channel_description_background_context">Notifies the user with context of background operations, e.g., Publishing child data progress and completion</string>
 	<string name="published_successfully">Published Successfully!</string>
+	<string name="success">Success!</string>
 	<string name="published_child_data_successfully_with_name">Published %1$s\'s data successfully!</string>
 	<string name="published_child_data_successfully">Published child\'s data successfully!</string>
 	<string name="something_went_wrong">Something went wrong!</string>
-	<string name="click_to_retry_with_reason">Reason: %1$s\n\nClick to retry!</string>
+	<string name="click_to_retry_with_reason">%1$s\n\nClick to retry!</string>
 	<string name="publishing_failed_with_name">Publishing %1$s\'s data has failed!</string>
 	<string name="publishing_failed">Publishing failed!</string>
 	<string name="child_data_deleted">This child\'s data has been deleted!</string>
+	<string name="connecting">Connecting</string>
+	<string name="back_online">Connected</string>
+	<string name="no_connection">No connection</string>
 
 </resources>

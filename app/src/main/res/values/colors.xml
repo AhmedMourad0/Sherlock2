@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	
 	<color name="colorPrimary">#795548</color>
 	<color name="colorPrimaryDark">#5D4037</color>
 	<color name="colorAccent">#9C27B0</color>
@@ -15,4 +16,9 @@
 	<color name="colorDivider">#80CBC4</color>
 	<color name="colorFontSection">#c8616161</color>
 	<color name="colorRecyclerBackground">#EFEBE9</color>
+	
+	<color name="colorConnectivitySnackBarConnected">#43A047</color>
+	<color name="colorConnectivitySnackBarConnecting">#FF9100</color>
+	<color name="colorConnectivitySnackBarDisconnected">#E53935</color>
+
 </resources>

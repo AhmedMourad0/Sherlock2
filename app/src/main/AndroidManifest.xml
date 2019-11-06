@@ -4,7 +4,9 @@
 	package="inc.ahmedmourad.sherlock">
 	
 	<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+	<uses-permission android:name="android.permission.INTERNET" />
 	
+	<!--TODO: Google indexing-->
 	<application
 		android:name=".application.SherlockApplication"
 		android:allowBackup="true"
@@ -26,7 +28,7 @@
 			android:name="com.google.android.geo.API_KEY"
 			android:value="@string/google_places_api_key" />
 		<service
-			android:name=".services.SherlockIntentService"
+			android:name=".services.SherlockService"
 			android:exported="false" />
 		
 		<receiver android:name=".widget.AppWidget">

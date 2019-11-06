@@ -13,27 +13,15 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
 import com.google.android.material.textfield.TextInputEditText
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.storage.FirebaseStorage
-import dagger.Lazy
 import inc.ahmedmourad.sherlock.custom.ProperNumberPicker
-import inc.ahmedmourad.sherlock.data.firebase.repositories.FirebaseDatabaseCloudRepository
-import inc.ahmedmourad.sherlock.data.repositories.SherlockRepository
-import inc.ahmedmourad.sherlock.data.room.database.SherlockDatabase
-import inc.ahmedmourad.sherlock.data.room.repository.RoomLocalRepository
-import inc.ahmedmourad.sherlock.domain.bus.RxBus
+import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
-import inc.ahmedmourad.sherlock.domain.repository.Repository
-import inc.ahmedmourad.sherlock.framework.AndroidDateManager
-import inc.ahmedmourad.sherlock.idling.SearchResultsIdlingResource
-import inc.ahmedmourad.sherlock.mapper.AppModelsMapper
+import inc.ahmedmourad.sherlock.idling.toIdlingResource
+import inc.ahmedmourad.sherlock.mapper.toAppChild
 import inc.ahmedmourad.sherlock.model.*
-import inc.ahmedmourad.sherlock.utils.TextFormatter
 import inc.ahmedmourad.sherlock.utils.childAt
-import inc.ahmedmourad.sherlock.utils.deleteChildren
-import inc.ahmedmourad.sherlock.utils.deletePictures
 import inc.ahmedmourad.sherlock.view.activity.MainActivity
 import org.junit.After
 import org.junit.Before
@@ -41,36 +29,39 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import timber.log.Timber
-import java.util.*
 
 @RunWith(AndroidJUnit4::class)
 class SearchResultsControllerInstrumentedTests {
 
     @get:Rule
-    val activityTestRule = ActivityTestRule(MainActivity::class.java)
+    internal val activityTestRule = ActivityTestRule(MainActivity::class.java)
 
-    private lateinit var repository: Repository
-    private lateinit var idlingResource: SearchResultsIdlingResource
+    private val component by lazy { SherlockComponent.Test.testComponent }
+
+    private val bus by lazy { component.get().bus() }
+    private val repository by lazy { component.get().childrenRepository() }
+    private val formatter by lazy { component.get().formatter() }
+    private val dateManager by lazy { component.get().dateManager() }
+
+    private val childrenFindingIdlingResource = bus.childrenFindingState.toIdlingResource("childrenFindingState")
 
     private val rules = AppChildCriteriaRules(
             AppName("Yasmeen", "Mourad"),
             AppLocation.empty(),
-            AppAppearance(
+            AppExactAppearance(
                     Gender.FEMALE,
                     Skin.WHITE,
                     Hair.BLONDE,
-                    PInt(20),
-                    PInt(180)
+                    20,
+                    180
             )
     )
 
-    private val child = AppPictureChild(
-            UUID.randomUUID().toString(),
-            System.currentTimeMillis(),
+    private val publishedChild = AppPublishedChild(
             AppName("Yasmeen", "Mourad"),
             "bla bla bla",
             AppLocation.empty(),
-            AppAppearance(
+            AppEstimatedAppearance(
                     Gender.FEMALE,
                     Skin.WHITE,
                     Hair.BLONDE,
@@ -79,53 +70,35 @@ class SearchResultsControllerInstrumentedTests {
             ), ""
     )
 
-    @Before
-    fun setupTimber() {
-        Timber.plant(Timber.DebugTree())
-    }
+    private lateinit var retrievedChild: AppRetrievedChild
 
     @Before
-    fun setupActivity() {
+    fun setup() {
+        Timber.plant(Timber.DebugTree())
+        setupActivity()
+        setupRepository()
+        setupEspresso()
+    }
+
+    private fun setupActivity() {
         activityTestRule.launchActivity(Intent(ApplicationProvider.getApplicationContext(), MainActivity::class.java))
     }
 
-    @Before
-    fun setupRepository() {
+    private fun setupRepository() {
 
-        setupDatabase()
-        setupStorage()
+        repository.test().clear().test().await().assertNoErrors().assertComplete()
 
-        repository = SherlockRepository(
-                Lazy { RoomLocalRepository(Lazy { SherlockDatabase.getInstance() }) },
-                Lazy {
-                    FirebaseDatabaseCloudRepository(
-                            Lazy { FirebaseDatabase.getInstance() },
-                            Lazy { FirebaseStorage.getInstance() },
-                            Lazy { RxBus() }
-                    )
-                }
-        )
-
-        repository.publish(AppModelsMapper.toDomainPictureChild(child))
+        retrievedChild = repository.publish(publishedChild.toDomainChild())
                 .test()
                 .await()
                 .assertNoErrors()
                 .assertComplete()
-
-        setupEspresso()
-    }
-
-    private fun setupDatabase() {
-        deleteChildren()
-    }
-
-    private fun setupStorage() {
-        deletePictures()
+                .values()[0]
+                .toAppChild()
     }
 
     private fun setupEspresso() {
-        idlingResource = SearchResultsIdlingResource(repository)
-        IdlingRegistry.getInstance().register(idlingResource)
+        IdlingRegistry.getInstance().register(childrenFindingIdlingResource)
     }
 
     @Test
@@ -147,17 +120,13 @@ class SearchResultsControllerInstrumentedTests {
                 findViewById<TextInputEditText>(R.id.last_name_edit_text)
                         .setText(rules.name.last)
 
-                findViewById<ProperNumberPicker>(R.id.find_children_age_number_picker).value = rules.appearance.age.value
+                findViewById<ProperNumberPicker>(R.id.find_children_age_number_picker).value = rules.appearance.age
 
-                findViewById<ProperNumberPicker>(R.id.find_children_height_number_picker).value = rules.appearance.height.value
-
-                idlingResource.onStart()
+                findViewById<ProperNumberPicker>(R.id.find_children_height_number_picker).value = rules.appearance.height
 
                 findViewById<Button>(R.id.find_children_search_button).performClick()
             }
         }
-
-        val formatter = TextFormatter()
 
         onView(withId(R.id.toolbar))
                 .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
@@ -166,20 +135,24 @@ class SearchResultsControllerInstrumentedTests {
         onView(withId(R.id.search_results_recycler).childAt(0))
                 .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
 //                .check(matches(hasDescendant(withText(formatter.formatName(child.name))))))
-                .check(matches(hasDescendant(withText(formatter.formatLocation(child.location)))))
-                .check(matches(hasDescendant(withText(formatter.formatNotes(child.notes)))))
-                .check(matches(hasDescendant(withText(AndroidDateManager().getRelativeDateTimeString(child.publicationDate)))))
+                .check(matches(hasDescendant(withText(formatter.formatLocation(retrievedChild.location)))))
+                .check(matches(hasDescendant(withText(formatter.formatNotes(retrievedChild.notes)))))
+                .check(matches(hasDescendant(withText(dateManager.getRelativeDateTimeString(retrievedChild.publicationDate)))))
     }
 
     @After
-    fun clearEspresso() {
-        idlingResource.dispose()
-        IdlingRegistry.getInstance().unregister(idlingResource)
+    fun clear() {
+        clearEspresso()
         clearDatabase()
+        component.release()
+    }
+
+    private fun clearEspresso() {
+        childrenFindingIdlingResource.dispose()
+        IdlingRegistry.getInstance().unregister(childrenFindingIdlingResource)
     }
 
     private fun clearDatabase() {
-        deleteChildren()
-        deletePictures()
+        repository.test().clear().test().await().assertNoErrors().assertComplete()
     }
 }

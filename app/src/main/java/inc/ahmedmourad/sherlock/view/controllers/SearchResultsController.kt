@@ -5,8 +5,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
@@ -18,20 +18,23 @@ import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.adapters.ResultsRecyclerAdapter
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
-import inc.ahmedmourad.sherlock.dagger.modules.app.factories.DisplayChildControllerAbstractFactory
-import inc.ahmedmourad.sherlock.dagger.modules.app.factories.ResultsRecyclerAdapterAbstractFactory
-import inc.ahmedmourad.sherlock.dagger.modules.app.factories.SearchResultsViewModelFactoryAbstractFactory
-import inc.ahmedmourad.sherlock.domain.framework.DateManager
+import inc.ahmedmourad.sherlock.dagger.modules.factories.DisplayChildControllerAbstractFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.ResultsRecyclerAdapterAbstractFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.SearchResultsViewModelFactoryAbstractFactory
+import inc.ahmedmourad.sherlock.domain.model.Either
+import inc.ahmedmourad.sherlock.domain.model.disposable
+import inc.ahmedmourad.sherlock.domain.platform.DateManager
+import inc.ahmedmourad.sherlock.formatter.Formatter
 import inc.ahmedmourad.sherlock.model.AppChildCriteriaRules
-import inc.ahmedmourad.sherlock.utils.Formatter
 import inc.ahmedmourad.sherlock.utils.setSupportActionBar
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
 import inc.ahmedmourad.sherlock.view.model.TaggedController
-import inc.ahmedmourad.sherlock.viewmodel.SearchResultsViewModel
+import inc.ahmedmourad.sherlock.viewmodel.controllers.SearchResultsViewModel
+import timber.log.Timber
 import javax.inject.Inject
 
 //TODO: needs a better name, maybe?
-class SearchResultsController(args: Bundle) : LifecycleController(args) {
+internal class SearchResultsController(args: Bundle) : LifecycleController(args) {
 
     @BindView(R.id.toolbar)
     internal lateinit var toolbar: Toolbar
@@ -43,7 +46,7 @@ class SearchResultsController(args: Bundle) : LifecycleController(args) {
     lateinit var dateManager: Lazy<DateManager>
 
     @Inject
-    lateinit var formatter: Lazy<Formatter<String>>
+    lateinit var formatter: Lazy<Formatter>
 
     @Inject
     lateinit var adapterFactory: ResultsRecyclerAdapterAbstractFactory
@@ -58,9 +61,12 @@ class SearchResultsController(args: Bundle) : LifecycleController(args) {
 
     private lateinit var rules: AppChildCriteriaRules
 
+    //TODO: create an interface instead
     private lateinit var adapter: ResultsRecyclerAdapter
 
-    private var viewModel: SearchResultsViewModel? = null
+    private lateinit var viewModel: SearchResultsViewModel
+
+    private var findAllResultsDisposable by disposable()
 
     private lateinit var unbinder: Unbinder
 
@@ -78,27 +84,44 @@ class SearchResultsController(args: Bundle) : LifecycleController(args) {
 
         toolbar.setTitle(R.string.search_results)
 
-        rules = requireNotNull(args.getParcelable(ARG_RULES)) {
-            "Rules cannot be null!"
-        }
+        rules = requireNotNull(args.getParcelable(ARG_RULES))
 
         initializeRecyclerView()
 
         viewModel = viewModelProvider(viewModelFactoryFactory.create(rules))[SearchResultsViewModel::class.java]
 
-        viewModel?.searchResults?.observe(this, Observer {
-            adapter.updateList(it)
-        })
-
         return view
+    }
+
+    override fun onAttach(view: View) {
+        super.onAttach(view)
+
+        //TODO: either give the option to update or not, or onPublish new values to the bottom
+        //TODO: paginate
+        findAllResultsDisposable = viewModel.searchResults.subscribe({
+
+            when (it) {
+
+                is Either.Value -> adapter.updateList(it.value)
+
+                is Either.Error -> {
+                    Timber.e(it.error)
+                    Toast.makeText(context, it.error.localizedMessage, Toast.LENGTH_LONG).show()
+                }
+            }
+
+        }, Timber::e)
+    }
+
+    override fun onDetach(view: View) {
+        findAllResultsDisposable?.dispose()
+        super.onDetach(view)
     }
 
     private fun initializeRecyclerView() {
 
-        adapter = adapterFactory.create(dateManager, formatter) {
-
-            val taggedController = displayChildControllerFactory.get().create(it.first.id)
-
+        adapter = adapterFactory.create {
+            val taggedController = displayChildControllerFactory.get().create(it.first)
             router.pushController(RouterTransaction.with(taggedController.controller).tag(taggedController.tag))
         }
 
@@ -109,6 +132,7 @@ class SearchResultsController(args: Bundle) : LifecycleController(args) {
 
     override fun onDestroy() {
         SherlockComponent.Controllers.searchResultsComponent.release()
+        findAllResultsDisposable?.dispose()
         unbinder.unbind()
         super.onDestroy()
     }

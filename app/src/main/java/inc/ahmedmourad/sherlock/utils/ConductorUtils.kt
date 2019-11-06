@@ -7,20 +7,20 @@ import androidx.lifecycle.ViewModelStore
 import com.bluelinelabs.conductor.Controller
 import com.bluelinelabs.conductor.archlifecycle.LifecycleController
 
-fun Controller.setSupportActionBar(toolbar: Toolbar) {
+internal fun Controller.setSupportActionBar(toolbar: Toolbar) {
     (activity as AppCompatActivity).setSupportActionBar(toolbar)
 }
 
-fun LifecycleController.viewModelProvider(factory: ViewModelProvider.NewInstanceFactory?): ViewModelProvider {
+internal fun LifecycleController.viewModelProvider(factory: ViewModelProvider.NewInstanceFactory?): ViewModelProvider {
     return if (factory == null) viewModelProvider() else ViewModelProvider(ViewModelStore(), factory)
 }
 
-fun LifecycleController.viewModelProvider(): ViewModelProvider {
+internal fun LifecycleController.viewModelProvider(): ViewModelProvider {
     return ViewModelProvider(ViewModelStore(), defaultFactory())
 }
 
-fun LifecycleController.defaultFactory(): ViewModelProvider.AndroidViewModelFactory {
+internal fun LifecycleController.defaultFactory(): ViewModelProvider.AndroidViewModelFactory {
     return ViewModelProvider.AndroidViewModelFactory(
-            checkNotNull(activity?.application) { "Activity is null" }
+            checkNotNull(activity?.application)
     )
 }

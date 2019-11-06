@@ -10,7 +10,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
-import androidx.lifecycle.Observer
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
@@ -19,19 +18,23 @@ import com.bluelinelabs.conductor.RouterTransaction
 import com.bluelinelabs.conductor.archlifecycle.LifecycleController
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
-import inc.ahmedmourad.sherlock.dagger.modules.app.factories.DisplayChildViewModelFactoryAbstractFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.DisplayChildViewModelFactoryAbstractFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.MainActivityAbstractFactory
+import inc.ahmedmourad.sherlock.domain.model.Either
+import inc.ahmedmourad.sherlock.domain.model.disposable
+import inc.ahmedmourad.sherlock.formatter.Formatter
 import inc.ahmedmourad.sherlock.model.AppChild
-import inc.ahmedmourad.sherlock.utils.Formatter
+import inc.ahmedmourad.sherlock.model.AppSimpleRetrievedChild
 import inc.ahmedmourad.sherlock.utils.setSupportActionBar
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
-import inc.ahmedmourad.sherlock.view.activity.MainActivity
 import inc.ahmedmourad.sherlock.view.model.ExternallyNavigableController
 import inc.ahmedmourad.sherlock.view.model.TaggedController
-import inc.ahmedmourad.sherlock.viewmodel.model.DisplayChildViewModel
+import inc.ahmedmourad.sherlock.viewmodel.controllers.DisplayChildViewModel
+import timber.log.Timber
 import javax.inject.Inject
 
 //TODO: rename to ChildDetailsController maybe?
-class DisplayChildController(args: Bundle) : LifecycleController(args) {
+internal class DisplayChildController(args: Bundle) : LifecycleController(args) {
 
     @BindView(R.id.display_child_toolbar)
     internal lateinit var toolbar: Toolbar
@@ -64,19 +67,16 @@ class DisplayChildController(args: Bundle) : LifecycleController(args) {
     internal lateinit var notesTextView: TextView
 
     @Inject
-    lateinit var interactor: Formatter<String>
-
-    @Inject
-    lateinit var formatter: Formatter<String>
+    lateinit var formatter: Formatter
 
     @Inject
     lateinit var viewModelFactoryFactory: DisplayChildViewModelFactoryAbstractFactory
 
-    private var viewModel: DisplayChildViewModel? = null
-
-    private lateinit var childId: String
+    private lateinit var viewModel: DisplayChildViewModel
 
     private lateinit var context: Context
+
+    private var findChildDisposable by disposable()
 
     private lateinit var unbinder: Unbinder
 
@@ -92,28 +92,45 @@ class DisplayChildController(args: Bundle) : LifecycleController(args) {
 
         setSupportActionBar(toolbar)
 
-        childId = requireNotNull(args.getString(ARG_CHILD_ID)) {
-            "childId cannot be null!"
-        }
+        val child = requireNotNull(args.getParcelable<AppSimpleRetrievedChild>(ARG_CHILD))
 
-        viewModel = viewModelProvider(viewModelFactoryFactory.create(childId))[DisplayChildViewModel::class.java]
-
-        viewModel?.result?.observe(this, Observer {
-
-            val (value) = it
-
-            if (value != null)
-                populateUi(value)
-            else
-                Toast.makeText(context, context.getString(R.string.child_data_deleted), Toast.LENGTH_LONG).show()
-        })
+        viewModel = viewModelProvider(viewModelFactoryFactory.create(child))[DisplayChildViewModel::class.java]
 
         return view
     }
 
-    private fun populateUi(result: Pair<AppChild, Int>) {
+    override fun onAttach(view: View) {
+        super.onAttach(view)
 
-        //TODO: should we inject picasso?
+        //TODO: notify the user when the data is updated
+        findChildDisposable = viewModel.result.subscribe({
+
+            when (it) {
+
+                is Either.Value -> populateUi(it.value)
+
+                is Either.Error -> {
+                    Timber.e(it.error)
+                    Toast.makeText(context, it.error.localizedMessage, Toast.LENGTH_LONG).show()
+                }
+            }
+
+        }, Timber::e)
+    }
+
+    override fun onDetach(view: View) {
+        findChildDisposable?.dispose()
+        super.onDetach(view)
+    }
+
+    private fun populateUi(result: Pair<AppChild, Int>?) {
+
+        if (result == null) {
+            Toast.makeText(context, context.getString(R.string.child_data_deleted), Toast.LENGTH_LONG).show()
+            return
+        }
+
+        //TODO: should we inject picasso/glide?
         result.first.loadImage(pictureImageView)
 
         val name = formatter.formatName(result.first.name)
@@ -137,6 +154,7 @@ class DisplayChildController(args: Bundle) : LifecycleController(args) {
 
     override fun onDestroy() {
         SherlockComponent.Controllers.displayChildComponent.release()
+        findChildDisposable?.dispose()
         unbinder.unbind()
         super.onDestroy()
     }
@@ -145,19 +163,19 @@ class DisplayChildController(args: Bundle) : LifecycleController(args) {
 
         private const val CONTROLLER_TAG = "inc.ahmedmourad.sherlock.view.controllers.tag.DisplayChildController"
 
-        private const val ARG_CHILD_ID = "inc.ahmedmourad.sherlock.view.controllers.arg.CHILD_ID"
+        private const val ARG_CHILD = "inc.ahmedmourad.sherlock.view.controllers.arg.CHILD"
 
         private const val DESTINATION_ID = 3763
 
-        private const val EXTRA_CHILD_ID = "inc.ahmedmourad.sherlock.view.controllers.extra.CHILD_ID"
+        private const val EXTRA_CHILD = "inc.ahmedmourad.sherlock.view.controllers.extra.CHILD"
 
-        fun newInstance(childId: String) = TaggedController(DisplayChildController(Bundle(1).apply {
-            putString(ARG_CHILD_ID, childId)
+        fun newInstance(child: AppSimpleRetrievedChild) = TaggedController(DisplayChildController(Bundle(1).apply {
+            putParcelable(ARG_CHILD, child)
         }), CONTROLLER_TAG)
 
-        fun createIntent(childId: String): Intent {
-            return MainActivity.createIntent(DESTINATION_ID).apply {
-                putExtra(EXTRA_CHILD_ID, childId)
+        fun createIntent(activityFactory: MainActivityAbstractFactory, child: AppSimpleRetrievedChild): Intent {
+            return activityFactory.createIntent(DESTINATION_ID).apply {
+                putExtra(EXTRA_CHILD, child)
             }
         }
 
@@ -167,9 +185,7 @@ class DisplayChildController(args: Bundle) : LifecycleController(args) {
 
         override fun navigate(router: Router, intent: Intent) {
 
-            val taggedController = newInstance(requireNotNull(intent.getStringExtra(EXTRA_CHILD_ID)) {
-                "childId is null!"
-            })
+            val taggedController = newInstance(requireNotNull(intent.getParcelableExtra(EXTRA_CHILD)))
 
             router.pushController(RouterTransaction.with(taggedController.controller).tag(taggedController.tag))
         }

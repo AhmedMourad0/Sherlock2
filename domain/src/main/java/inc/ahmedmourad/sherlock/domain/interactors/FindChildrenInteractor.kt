@@ -1,16 +1,18 @@
 package inc.ahmedmourad.sherlock.domain.interactors
 
 import dagger.Lazy
+import inc.ahmedmourad.sherlock.domain.data.ChildrenRepository
 import inc.ahmedmourad.sherlock.domain.filter.Filter
 import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
-import inc.ahmedmourad.sherlock.domain.model.DomainUrlChild
-import inc.ahmedmourad.sherlock.domain.repository.Repository
+import inc.ahmedmourad.sherlock.domain.model.DomainRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.DomainSimpleRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.Either
 import io.reactivex.Flowable
 
-class FindChildrenInteractor(private val repository: Lazy<Repository>,
-                             private val rules: DomainChildCriteriaRules,
-                             private val filter: Filter<DomainUrlChild>) : Interactor<Flowable<List<Pair<DomainUrlChild, Int>>>> {
-    override fun execute(): Flowable<List<Pair<DomainUrlChild, Int>>> {
-        return repository.get().findAll(rules, filter)
+internal class FindChildrenInteractor(private val childrenRepository: Lazy<ChildrenRepository>,
+                                      private val rules: DomainChildCriteriaRules,
+                                      private val filter: Filter<DomainRetrievedChild>) : Interactor<Flowable<Either<List<Pair<DomainSimpleRetrievedChild, Int>>, Throwable>>> {
+    override fun execute(): Flowable<Either<List<Pair<DomainSimpleRetrievedChild, Int>>, Throwable>> {
+        return childrenRepository.get().findAll(rules, filter)
     }
 }

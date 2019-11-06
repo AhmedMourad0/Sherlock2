@@ -23,23 +23,24 @@ import com.google.android.material.textfield.TextInputEditText
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
-import inc.ahmedmourad.sherlock.dagger.modules.app.factories.SearchResultsControllerAbstractFactory
-import inc.ahmedmourad.sherlock.dagger.modules.app.qualifiers.FindChildrenViewModelQualifier
+import inc.ahmedmourad.sherlock.dagger.modules.factories.SearchResultsControllerAbstractFactory
+import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.FindChildrenViewModelQualifier
 import inc.ahmedmourad.sherlock.defaults.DefaultTextWatcher
-import inc.ahmedmourad.sherlock.domain.bus.Bus
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
+import inc.ahmedmourad.sherlock.domain.model.disposable
 import inc.ahmedmourad.sherlock.model.AppCoordinates
 import inc.ahmedmourad.sherlock.model.AppLocation
 import inc.ahmedmourad.sherlock.utils.ColorSelector
 import inc.ahmedmourad.sherlock.utils.setSupportActionBar
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
 import inc.ahmedmourad.sherlock.view.model.TaggedController
-import inc.ahmedmourad.sherlock.viewmodel.FindChildrenViewModel
+import inc.ahmedmourad.sherlock.viewmodel.controllers.FindChildrenViewModel
+import timber.log.Timber
 import javax.inject.Inject
 
-class FindChildrenController : LifecycleController(), View.OnClickListener {
+internal class FindChildrenController : LifecycleController(), View.OnClickListener {
 
     @BindView(R.id.toolbar)
     internal lateinit var toolbar: Toolbar
@@ -87,19 +88,18 @@ class FindChildrenController : LifecycleController(), View.OnClickListener {
     internal lateinit var searchButton: Button
 
     @Inject
-    @FindChildrenViewModelQualifier
+    @field:FindChildrenViewModelQualifier
     lateinit var viewModelFactory: ViewModelProvider.NewInstanceFactory
 
     @Inject
     lateinit var searchResultsControllerFactory: Lazy<SearchResultsControllerAbstractFactory>
 
-    @Inject
-    lateinit var bus: Lazy<Bus>
-
     private lateinit var skinColorSelector: ColorSelector<Skin>
     private lateinit var hairColorSelector: ColorSelector<Hair>
 
     private lateinit var viewModel: FindChildrenViewModel
+
+    private var internetConnectionDisposable by disposable()
 
     private lateinit var context: Context
 
@@ -107,13 +107,28 @@ class FindChildrenController : LifecycleController(), View.OnClickListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup): View {
 
+        var time = System.currentTimeMillis()
         SherlockComponent.Controllers.findChildrenComponent.get().inject(this)
+        val injection = System.currentTimeMillis() - time
 
+        time = System.currentTimeMillis()
         val view = inflater.inflate(R.layout.controller_find_children, container, false)
+        val inflation = System.currentTimeMillis() - time
 
+        time = System.currentTimeMillis()
         unbinder = ButterKnife.bind(this, view)
+        val binding = System.currentTimeMillis() - time
+
+        val result = "Injection: $injection\niInflation: $inflation\nBinding: $binding"
 
         context = view.context
+
+        Timber.e(result)
+        Toast.makeText(
+                context.applicationContext,
+                result,
+                Toast.LENGTH_LONG
+        ).show()
 
         setSupportActionBar(toolbar)
 
@@ -121,10 +136,9 @@ class FindChildrenController : LifecycleController(), View.OnClickListener {
 
         viewModel = viewModelProvider(viewModelFactory)[FindChildrenViewModel::class.java]
 
-        skinColorSelector = createSkinColorViews()
-        hairColorSelector = createHairColorViews()
-
-        listOf(::initializeEditTexts,
+        arrayOf(::createSkinColorViews,
+                ::createHairColorViews,
+                ::initializeEditTexts,
                 ::initializeGenderRadioGroup,
                 ::initializeLocationTextView,
                 ::initializeNumberPickers).forEach { it() }
@@ -142,22 +156,36 @@ class FindChildrenController : LifecycleController(), View.OnClickListener {
         return view
     }
 
-    private fun createSkinColorViews() = ColorSelector(
-            ColorSelector.newItem(Skin.WHITE, skinWhiteView, R.color.colorSkinWhite),
-            ColorSelector.newItem(Skin.WHEAT, skinWheatView, R.color.colorSkinWheat),
-            ColorSelector.newItem(Skin.DARK, skinDarkView, R.color.colorSkinDark),
-            default = viewModel.skin.value
-    ).apply {
-        onSelectionChangeListeners.add { viewModel.skin.value = it }
+    override fun onAttach(view: View) {
+        super.onAttach(view)
+        internetConnectionDisposable = viewModel.internetConnectivityObserver
+                .subscribe(this::handleConnectionStatusChange, Timber::e)
     }
 
-    private fun createHairColorViews() = ColorSelector(
-            ColorSelector.newItem(Hair.BLONDE, hairBlondView, R.color.colorHairBlonde),
-            ColorSelector.newItem(Hair.BROWN, hairBrownView, R.color.colorHairBrown),
-            ColorSelector.newItem(Hair.DARK, hairDarkView, R.color.colorHairDark),
-            default = viewModel.hair.value
-    ).apply {
-        onSelectionChangeListeners.add { viewModel.hair.value = it }
+    private fun handleConnectionStatusChange(connected: Boolean) {
+        setLocationEnabled(connected)
+    }
+
+    private fun createSkinColorViews() {
+        skinColorSelector = ColorSelector(
+                ColorSelector.newItem(Skin.WHITE, skinWhiteView, R.color.colorSkinWhite),
+                ColorSelector.newItem(Skin.WHEAT, skinWheatView, R.color.colorSkinWheat),
+                ColorSelector.newItem(Skin.DARK, skinDarkView, R.color.colorSkinDark),
+                default = viewModel.skin.value
+        ).apply {
+            onSelectionChangeListeners.add { viewModel.skin.value = it }
+        }
+    }
+
+    private fun createHairColorViews() {
+        hairColorSelector = ColorSelector(
+                ColorSelector.newItem(Hair.BLONDE, hairBlondView, R.color.colorHairBlonde),
+                ColorSelector.newItem(Hair.BROWN, hairBrownView, R.color.colorHairBrown),
+                ColorSelector.newItem(Hair.DARK, hairDarkView, R.color.colorHairDark),
+                default = viewModel.hair.value
+        ).apply {
+            onSelectionChangeListeners.add { viewModel.hair.value = it }
+        }
     }
 
     private fun initializeEditTexts() {
@@ -213,27 +241,23 @@ class FindChildrenController : LifecycleController(), View.OnClickListener {
     }
 
     private fun search() {
-
         val taggedController = searchResultsControllerFactory.get().create(viewModel.toAppChildCriteriaRules())
-
         router.pushController(RouterTransaction.with(taggedController.controller).tag(taggedController.tag))
     }
 
     private fun startPlacePicker() {
 
-        checkNotNull(activity) {
-            "Activity is null!"
-        }
+        checkNotNull(activity)
 
         try {
             setLocationEnabled(false)
             startActivityForResult(PlacePicker.IntentBuilder().build(activity), PLACE_PICKER_REQUEST)
         } catch (e: GooglePlayServicesRepairableException) {
             setLocationEnabled(true)
-            e.printStackTrace()
+            Timber.e(e)
         } catch (e: GooglePlayServicesNotAvailableException) {
             setLocationEnabled(true)
-            e.printStackTrace()
+            Timber.e(e)
         }
     }
 
@@ -244,27 +268,35 @@ class FindChildrenController : LifecycleController(), View.OnClickListener {
         if (resultCode != RESULT_OK)
             return
 
-        if (data == null) {
+        checkNotNull(data) {
             Toast.makeText(context, R.string.something_went_wrong, Toast.LENGTH_LONG).show()
-            return
+            "Parameter data is null!"
         }
 
         when (requestCode) {
-            PLACE_PICKER_REQUEST -> {
-                viewModel.location.value = PlacePicker.getPlace(context, data)?.run {
-                    AppLocation(this.id,
-                            this.name.toString(),
-                            this.address.toString(),
-                            AppCoordinates(this.latLng.latitude, this.latLng.longitude)
-                    )
-                } ?: AppLocation.empty()
-            }
+            PLACE_PICKER_REQUEST -> handlePlacePickerResult(data)
         }
 
         super.onActivityResult(requestCode, resultCode, data)
     }
 
+    private fun handlePlacePickerResult(data: Intent) {
+        viewModel.location.value = PlacePicker.getPlace(context, data)?.run {
+            AppLocation(this.id,
+                    this.name.toString(),
+                    this.address.toString(),
+                    AppCoordinates(this.latLng.latitude, this.latLng.longitude)
+            )
+        } ?: AppLocation.empty()
+    }
+
+    override fun onDetach(view: View) {
+        internetConnectionDisposable?.dispose()
+        super.onDetach(view)
+    }
+
     override fun onDestroy() {
+        internetConnectionDisposable?.dispose()
         SherlockComponent.Controllers.findChildrenComponent.release()
         unbinder.unbind()
         super.onDestroy()

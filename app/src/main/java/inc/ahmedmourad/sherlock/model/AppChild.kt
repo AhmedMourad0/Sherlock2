@@ -2,15 +2,16 @@ package inc.ahmedmourad.sherlock.model
 
 import android.os.Parcelable
 import android.widget.ImageView
+import inc.ahmedmourad.sherlock.domain.model.DomainChild
 
-interface AppChild : Parcelable {
+internal interface AppChild : Parcelable {
 
-    val id: String
-    val publicationDate: Long
     val name: AppName
     val notes: String
     val location: AppLocation
-    val appearance: AppAppearance<AppRange>
+    val appearance: AppEstimatedAppearance
 
     fun loadImage(imageView: ImageView)
+
+    fun toDomainChild(): DomainChild
 }

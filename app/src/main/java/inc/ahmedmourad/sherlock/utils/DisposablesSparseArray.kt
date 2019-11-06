@@ -4,7 +4,7 @@ import android.util.SparseArray
 
 import io.reactivex.disposables.Disposable
 
-class DisposablesSparseArray : SparseArray<Disposable>() {
+internal class DisposablesSparseArray : SparseArray<Disposable>() {
 
     fun dispose() {
         for (i in 0 until size())

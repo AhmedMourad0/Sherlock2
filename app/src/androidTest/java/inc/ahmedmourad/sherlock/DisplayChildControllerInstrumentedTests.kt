@@ -13,23 +13,16 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
 import com.google.android.material.textfield.TextInputEditText
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.storage.FirebaseStorage
 import com.jaygoo.widget.RangeSeekBar
-import dagger.Lazy
 import inc.ahmedmourad.sherlock.custom.ProperNumberPicker
-import inc.ahmedmourad.sherlock.data.firebase.repositories.FirebaseDatabaseCloudRepository
-import inc.ahmedmourad.sherlock.data.repositories.SherlockRepository
-import inc.ahmedmourad.sherlock.data.room.database.SherlockDatabase
-import inc.ahmedmourad.sherlock.data.room.repository.RoomLocalRepository
-import inc.ahmedmourad.sherlock.domain.bus.RxBus
+import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
-import inc.ahmedmourad.sherlock.idling.SearchResultsIdlingResource
-import inc.ahmedmourad.sherlock.mapper.AppModelsMapper
+import inc.ahmedmourad.sherlock.idling.toIdlingResource
 import inc.ahmedmourad.sherlock.model.*
-import inc.ahmedmourad.sherlock.utils.*
+import inc.ahmedmourad.sherlock.utils.childAt
+import inc.ahmedmourad.sherlock.utils.nestedScrollTo
 import inc.ahmedmourad.sherlock.view.activity.MainActivity
 import org.junit.After
 import org.junit.Before
@@ -37,33 +30,39 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import timber.log.Timber
-import java.util.*
 
 @RunWith(AndroidJUnit4::class)
 class DisplayChildControllerInstrumentedTests {
 
     @get:Rule
-    val activityTestRule = ActivityTestRule(MainActivity::class.java)
+    internal val activityTestRule = ActivityTestRule(MainActivity::class.java)
+
+    private val component by lazy { SherlockComponent.Test.testComponent }
+
+    private val bus by lazy { component.get().bus() }
+    private val repository by lazy { component.get().childrenRepository() }
+    private val formatter by lazy { component.get().formatter() }
+
+    private val childFindingIdlingResource = bus.childFindingState.toIdlingResource("childFindingState")
+    private val childPublishingIdlingResource = bus.childPublishingState.toIdlingResource("childPublishingState")
 
     private val rules = AppChildCriteriaRules(
             AppName("Yasmeen", "Mourad"),
             AppLocation.empty(),
-            AppAppearance(
+            AppExactAppearance(
                     Gender.FEMALE,
                     Skin.WHITE,
                     Hair.BLONDE,
-                    PInt(20),
-                    PInt(180)
+                    20,
+                    180
             )
     )
 
-    private val child = AppPictureChild(
-            UUID.randomUUID().toString(),
-            System.currentTimeMillis(),
+    private val child = AppPublishedChild(
             AppName("Yasmeen", "Mourad"),
             "bla bla bla",
             AppLocation.empty(),
-            AppAppearance(
+            AppEstimatedAppearance(
                     Gender.FEMALE,
                     Skin.WHITE,
                     Hair.BLONDE,
@@ -73,23 +72,23 @@ class DisplayChildControllerInstrumentedTests {
     )
 
     @Before
-    fun setupTimber() {
+    fun setup() {
         Timber.plant(Timber.DebugTree())
+        setupActivity()
+        setupRepository()
+        setupEspresso()
     }
 
-    @Before
-    fun setupActivity() {
+    private fun setupActivity() {
         activityTestRule.launchActivity(Intent(ApplicationProvider.getApplicationContext(), MainActivity::class.java))
     }
 
-    @Before
-    fun setupDatabase() {
-        deleteChildren()
+    private fun setupRepository() {
+//        childrenRepository.test().clear().test().await().assertNoErrors().assertComplete()
     }
 
-    @Before
-    fun setupStorage() {
-        deletePictures()
+    private fun setupEspresso() {
+        IdlingRegistry.getInstance().register(childFindingIdlingResource, childPublishingIdlingResource)
     }
 
     @Test
@@ -132,25 +131,11 @@ class DisplayChildControllerInstrumentedTests {
     @Test
     fun displayChildController_fromFindChildrenController_hasAllCorrectElements() {
 
-        val repository = SherlockRepository(
-                Lazy { RoomLocalRepository(Lazy { SherlockDatabase.getInstance() }) },
-                Lazy {
-                    FirebaseDatabaseCloudRepository(
-                            Lazy { FirebaseDatabase.getInstance() },
-                            Lazy { FirebaseStorage.getInstance() },
-                            Lazy { RxBus() }
-                    )
-                }
-        )
-
-        repository.publish(AppModelsMapper.toDomainPictureChild(child))
+        repository.publish(child.toDomainChild())
                 .test()
                 .await()
                 .assertNoErrors()
                 .assertComplete()
-
-        val idlingResource = SearchResultsIdlingResource(repository)
-        IdlingRegistry.getInstance().register(idlingResource)
 
         onView(withId(R.id.home_recycler))
                 .perform(actionOnItemAtPosition<RecyclerView.ViewHolder>(1, click()))
@@ -168,11 +153,9 @@ class DisplayChildControllerInstrumentedTests {
                 findViewById<TextInputEditText>(R.id.last_name_edit_text)
                         .setText(rules.name.last)
 
-                findViewById<ProperNumberPicker>(R.id.find_children_age_number_picker).value = rules.appearance.age.value
+                findViewById<ProperNumberPicker>(R.id.find_children_age_number_picker).value = rules.appearance.age
 
-                findViewById<ProperNumberPicker>(R.id.find_children_height_number_picker).value = rules.appearance.height.value
-
-                idlingResource.onStart()
+                findViewById<ProperNumberPicker>(R.id.find_children_height_number_picker).value = rules.appearance.height
 
                 findViewById<Button>(R.id.find_children_search_button).performClick()
             }
@@ -181,14 +164,10 @@ class DisplayChildControllerInstrumentedTests {
         onView(withId(R.id.search_results_recycler).childAt(0)).perform(click())
 
         testDisplayChildController()
-
-        idlingResource.dispose()
-        IdlingRegistry.getInstance().unregister(idlingResource)
     }
 
     private fun testDisplayChildController() {
 
-        val formatter = TextFormatter()
         val name = formatter.formatName(child.name)
 
         onView(withId(R.id.display_child_toolbar))
@@ -238,8 +217,11 @@ class DisplayChildControllerInstrumentedTests {
     }
 
     @After
-    fun clearDatabase() {
-        deleteChildren()
-        deletePictures()
+    fun clear() {
+        childFindingIdlingResource.dispose()
+        childPublishingIdlingResource.dispose()
+        IdlingRegistry.getInstance().unregister(childFindingIdlingResource, childPublishingIdlingResource)
+        repository.test().clear().test().await().assertNoErrors().assertComplete()
+        component.release()
     }
 }

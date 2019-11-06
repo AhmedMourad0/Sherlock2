@@ -8,12 +8,16 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
 import butterknife.ButterKnife
+import com.bluelinelabs.conductor.Controller
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
-import inc.ahmedmourad.sherlock.model.AppSection
+import inc.ahmedmourad.sherlock.view.model.AppSection
 import inc.ahmedmourad.sherlock.view.model.TaggedController
 
-class SectionsRecyclerAdapter(private val sectionsList: List<AppSection>, private val onSectionSelectedListener: (Lazy<out TaggedController>?) -> Unit) : RecyclerView.Adapter<SectionsRecyclerAdapter.ViewHolder>() {
+internal class SectionsRecyclerAdapter(
+        private val sectionsList: List<AppSection>,
+        private val onSectionSelectedListener: (Lazy<out TaggedController<Controller>>?) -> Unit
+) : RecyclerView.Adapter<SectionsRecyclerAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(container: ViewGroup, viewType: Int) = ViewHolder(LayoutInflater.from(container.context).inflate(R.layout.item_section, container, false))
 

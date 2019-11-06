@@ -24,15 +24,15 @@ import timber.log.Timber
 class FindChildrenControllerInstrumentedTests {
 
     @get:Rule
-    val activityTestRule = ActivityTestRule(MainActivity::class.java)
+    internal val activityTestRule = ActivityTestRule(MainActivity::class.java)
 
     @Before
-    fun setupTimber() {
+    fun setup() {
         Timber.plant(Timber.DebugTree())
+        setupActivity()
     }
 
-    @Before
-    fun setupActivity() {
+    private fun setupActivity() {
         activityTestRule.launchActivity(Intent(ApplicationProvider.getApplicationContext(), MainActivity::class.java))
         onView(withId(R.id.home_recycler))
                 .perform(actionOnItemAtPosition<RecyclerView.ViewHolder>(1, click()))

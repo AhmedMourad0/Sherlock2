@@ -6,7 +6,7 @@ import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import inc.ahmedmourad.sherlock.R
 
-class ColorSelector<T : Enum<T>>(vararg items: Item<T>, default: T = items[0].id) {
+internal class ColorSelector<T : Enum<T>>(vararg items: Item<T>, default: T = items[0].id) {
 
     private val items = arrayOf(*items)
 

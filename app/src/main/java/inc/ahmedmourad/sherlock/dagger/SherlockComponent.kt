@@ -1,41 +1,45 @@
 package inc.ahmedmourad.sherlock.dagger
 
-import inc.ahmedmourad.sherlock.dagger.components.AppComponent
-import inc.ahmedmourad.sherlock.dagger.components.DaggerAppComponent
+import inc.ahmedmourad.sherlock.dagger.components.ApplicationComponent
+import inc.ahmedmourad.sherlock.dagger.components.DaggerApplicationComponent
 
-object SherlockComponent {
+internal object SherlockComponent {
 
-    private val appComponent: AppComponent = DaggerAppComponent.create()
+    private val applicationComponent: ApplicationComponent = DaggerApplicationComponent.create()
 
     object Activities {
-        val mainComponent = ComponentProvider(appComponent::plusMainActivityComponent)
+        val mainComponent = ComponentProvider(applicationComponent::plusMainActivityComponent)
     }
 
     object Controllers {
-        val homeComponent = ComponentProvider(appComponent::plusHomeControllerComponent)
-        val addChildComponent = ComponentProvider(appComponent::plusAddChildControllerComponent)
-        val displayChildComponent = ComponentProvider(appComponent::plusDisplayChildControllerComponent)
-        val findChildrenComponent = ComponentProvider(appComponent::plusFindChildrenControllerComponent)
-        val searchResultsComponent = ComponentProvider(appComponent::plusSearchResultsControllerComponent)
+        val homeComponent = ComponentProvider(applicationComponent::plusHomeControllerComponent)
+        val addChildComponent = ComponentProvider(applicationComponent::plusAddChildControllerComponent)
+        val displayChildComponent = ComponentProvider(applicationComponent::plusDisplayChildControllerComponent)
+        val findChildrenComponent = ComponentProvider(applicationComponent::plusFindChildrenControllerComponent)
+        val searchResultsComponent = ComponentProvider(applicationComponent::plusSearchResultsControllerComponent)
     }
 
     object Services {
-        val sherlockServiceComponent = ComponentProvider(appComponent::plusSherlockIntentServiceComponent)
+        val sherlockServiceComponent = ComponentProvider(applicationComponent::plusSherlockIntentServiceComponent)
     }
 
     object Widget {
-        val resultsRemoteViewsFactoryComponent = ComponentProvider(appComponent::plusResultsRemoteViewsFactoryComponent)
-        val resultsRemoteViewsServiceComponent = ComponentProvider(appComponent::plusResultsRemoteViewsServiceComponent)
-        val appWidgetComponent = ComponentProvider(appComponent::plusAppWidgetComponent)
+        val resultsRemoteViewsFactoryComponent = ComponentProvider(applicationComponent::plusResultsRemoteViewsFactoryComponent)
+        val resultsRemoteViewsServiceComponent = ComponentProvider(applicationComponent::plusResultsRemoteViewsServiceComponent)
+        val appWidgetComponent = ComponentProvider(applicationComponent::plusAppWidgetComponent)
+    }
+
+    object Test {
+        val testComponent = ComponentProvider(applicationComponent::plusTestComponent)
     }
 }
 
-interface Provider<T> {
+internal interface Provider<T> {
     fun get(): T
     fun release()
 }
 
-class ComponentProvider<T>(private val createComponent: () -> T) : Provider<T> {
+internal class ComponentProvider<T>(private val createComponent: () -> T) : Provider<T> {
 
     private var component: T? = null
 

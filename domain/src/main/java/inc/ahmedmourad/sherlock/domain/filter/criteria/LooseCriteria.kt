@@ -1,12 +1,12 @@
 package inc.ahmedmourad.sherlock.domain.filter.criteria
 
 import dagger.Lazy
-import inc.ahmedmourad.sherlock.domain.framework.LocationManager
 import inc.ahmedmourad.sherlock.domain.model.DomainChild
+import inc.ahmedmourad.sherlock.domain.platform.LocationManager
 import me.xdrop.fuzzywuzzy.FuzzySearch
 
 //TODO: date of losing and finding the child matters
-class LooseCriteria<C : DomainChild>(private val rules: DomainChildCriteriaRules, private val locationManager: Lazy<LocationManager>) : Criteria<C> {
+internal class LooseCriteria<C : DomainChild>(private val rules: DomainChildCriteriaRules, private val locationManager: Lazy<LocationManager>) : Criteria<C> {
 
     override fun apply(result: C): Pair<C, Criteria.Score> {
         return result to Score(getFirstNameRatio(result),

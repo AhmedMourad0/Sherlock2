@@ -16,17 +16,18 @@ import com.bluelinelabs.conductor.RouterTransaction
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
-import inc.ahmedmourad.sherlock.dagger.modules.app.factories.AddChildControllerAbstractFactory
-import inc.ahmedmourad.sherlock.dagger.modules.app.factories.SectionsRecyclerAdapterAbstractFactory
-import inc.ahmedmourad.sherlock.dagger.modules.app.qualifiers.FindChildrenControllerQualifier
-import inc.ahmedmourad.sherlock.model.AppSection
+import inc.ahmedmourad.sherlock.dagger.modules.factories.AddChildControllerAbstractFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.SectionsRecyclerAdapterAbstractFactory
+import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.FindChildrenControllerQualifier
 import inc.ahmedmourad.sherlock.utils.setSupportActionBar
 import inc.ahmedmourad.sherlock.view.activity.MainActivity
+import inc.ahmedmourad.sherlock.view.model.AppSection
 import inc.ahmedmourad.sherlock.view.model.TaggedController
+import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
 
-class HomeController : Controller() {
+internal class HomeController : Controller() {
 
     @BindView(R.id.toolbar)
     internal lateinit var toolbar: Toolbar
@@ -41,8 +42,8 @@ class HomeController : Controller() {
     lateinit var addChildControllerFactory: Lazy<AddChildControllerAbstractFactory>
 
     @Inject
-    @FindChildrenControllerQualifier
-    lateinit var findChildrenController: Lazy<TaggedController>
+    @field:FindChildrenControllerQualifier
+    lateinit var findChildrenController: Lazy<TaggedController<Controller>>
 
     private lateinit var context: Context
     private lateinit var unbinder: Unbinder
@@ -68,14 +69,15 @@ class HomeController : Controller() {
             val destination = activity.intent.getStringExtra(MainActivity.EXTRA_DESTINATION_ID)
                     ?: ""
 
-            checkNotNull(listOf(
+            listOf(
                     AddChildController.Companion,
                     DisplayChildController.Companion
             ).firstOrNull {
                 it.isDestination(activity.intent.getIntExtra(MainActivity.EXTRA_DESTINATION_ID, MainActivity.INVALID_DESTINATION))
-            }?.navigate(router, activity.intent)) {
-                "Destination is not supported: $destination!"
-            }
+            }?.navigate(
+                    router,
+                    activity.intent
+            ) ?: Timber.e(IllegalStateException("Destination is not supported: $destination!"))
         }
 
         return view

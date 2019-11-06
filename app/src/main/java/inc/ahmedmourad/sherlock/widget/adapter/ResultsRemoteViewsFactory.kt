@@ -4,20 +4,21 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
-import com.squareup.picasso.Picasso
+import com.bumptech.glide.Glide
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
-import inc.ahmedmourad.sherlock.domain.framework.DateManager
-import inc.ahmedmourad.sherlock.model.AppUrlChild
-import inc.ahmedmourad.sherlock.utils.Formatter
-import java.io.IOException
+import inc.ahmedmourad.sherlock.domain.platform.DateManager
+import inc.ahmedmourad.sherlock.formatter.Formatter
+import inc.ahmedmourad.sherlock.model.AppSimpleRetrievedChild
+import splitties.init.appCtx
+import timber.log.Timber
 import javax.inject.Inject
 
-class ResultsRemoteViewsFactory constructor(private val context: Context, private val results: List<Pair<AppUrlChild, Int>>) : RemoteViewsService.RemoteViewsFactory {
+internal class ResultsRemoteViewsFactory(private val context: Context, private val results: List<Pair<AppSimpleRetrievedChild, Int>>) : RemoteViewsService.RemoteViewsFactory {
 
     @Inject
-    lateinit var formatter: Lazy<Formatter<String>>
+    lateinit var formatter: Lazy<Formatter>
 
     @Inject
     lateinit var dateManager: Lazy<DateManager>
@@ -42,9 +43,23 @@ class ResultsRemoteViewsFactory constructor(private val context: Context, privat
         val views = RemoteViews(context.packageName, R.layout.item_widget_result)
 
         //TODO: needs to change over time
-        views.setTextViewText(R.id.widget_result_date, dateManager.get().getRelativeDateTimeString(result.first.publicationDate))
-        views.setTextViewText(R.id.widget_result_notes, result.first.notes)
-        views.setTextViewText(R.id.widget_result_location, formatter.get().formatLocation(result.first.location))
+        views.setTextViewText(
+                R.id.widget_result_date,
+                dateManager.get().getRelativeDateTimeString(result.first.publicationDate)
+        )
+
+        views.setTextViewText(
+                R.id.widget_result_notes,
+                result.first.notes
+        )
+
+        views.setTextViewText(
+                R.id.widget_result_location,
+                formatter.get().formatLocation(
+                        result.first.locationName,
+                        result.first.locationAddress
+                )
+        )
 
         setPicture(views, result.first.pictureUrl)
 
@@ -56,12 +71,14 @@ class ResultsRemoteViewsFactory constructor(private val context: Context, privat
         var bitmap: Bitmap?
 
         try {
-            bitmap = Picasso.get()
+            bitmap = Glide.with(appCtx)
+                    .asBitmap()
                     .load(pictureUrl)
+                    .submit()
                     .get()
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             bitmap = null
-            e.printStackTrace()
+            Timber.e(e)
         }
 
         if (bitmap != null)

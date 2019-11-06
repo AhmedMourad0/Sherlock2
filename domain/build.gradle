@@ -13,19 +13,24 @@ test {
     }
 }
 
+sourceSets.each {
+    it.java.srcDirs += "src/$it.name/kotlin"
+}
+
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-    implementation "io.reactivex.rxjava2:rxjava:2.2.8"
-    implementation "com.jakewharton.rxrelay2:rxrelay:2.1.0"
+    api "io.reactivex.rxjava2:rxjava:2.2.9"
+    api "com.jakewharton.rxrelay2:rxrelay:2.1.0"
 
     implementation "nl.littlerobots.rxlint:rxlint:1.7.1"
 
     implementation "me.xdrop:fuzzywuzzy:1.2.0"
 
-    api "com.google.dagger:dagger:$daggerVersion"
+    implementation "com.google.dagger:dagger:$daggerVersion"
+    kapt "com.google.dagger:dagger-compiler:$daggerVersion"
 
     testImplementation "junit:junit:4.12"
 

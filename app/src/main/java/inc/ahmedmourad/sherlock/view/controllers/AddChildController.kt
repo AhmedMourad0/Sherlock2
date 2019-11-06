@@ -1,5 +1,6 @@
 package inc.ahmedmourad.sherlock.view.controllers
 
+//TODO: Thanks, Google!
 import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
@@ -22,7 +23,6 @@ import com.esafirm.imagepicker.features.ImagePicker
 import com.esafirm.imagepicker.features.ReturnMode
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException
 import com.google.android.gms.common.GooglePlayServicesRepairableException
-//TODO: Thanks, Google!
 import com.google.android.gms.location.places.ui.PlacePicker
 import com.google.android.material.textfield.TextInputEditText
 import com.jaygoo.widget.RangeSeekBar
@@ -30,31 +30,35 @@ import dagger.Lazy
 import de.hdodenhof.circleimageview.CircleImageView
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
-import inc.ahmedmourad.sherlock.dagger.modules.app.factories.DisplayChildControllerAbstractFactory
-import inc.ahmedmourad.sherlock.dagger.modules.app.qualifiers.AddChildViewModelQualifier
+import inc.ahmedmourad.sherlock.dagger.modules.factories.DisplayChildControllerAbstractFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.MainActivityAbstractFactory
+import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.AddChildViewModelQualifier
 import inc.ahmedmourad.sherlock.defaults.DefaultOnRangeChangedListener
 import inc.ahmedmourad.sherlock.defaults.DefaultTextWatcher
 import inc.ahmedmourad.sherlock.domain.bus.Bus
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
+import inc.ahmedmourad.sherlock.domain.model.disposable
+import inc.ahmedmourad.sherlock.mapper.toAppChild
 import inc.ahmedmourad.sherlock.model.AppCoordinates
 import inc.ahmedmourad.sherlock.model.AppLocation
-import inc.ahmedmourad.sherlock.model.AppPictureChild
+import inc.ahmedmourad.sherlock.model.AppPublishedChild
+import inc.ahmedmourad.sherlock.model.AppRetrievedChild
 import inc.ahmedmourad.sherlock.utils.ColorSelector
 import inc.ahmedmourad.sherlock.utils.getImageBitmap
 import inc.ahmedmourad.sherlock.utils.setSupportActionBar
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
-import inc.ahmedmourad.sherlock.view.activity.MainActivity
 import inc.ahmedmourad.sherlock.view.model.ExternallyNavigableController
 import inc.ahmedmourad.sherlock.view.model.TaggedController
-import inc.ahmedmourad.sherlock.viewmodel.AddChildViewModel
-import io.reactivex.disposables.Disposable
+import inc.ahmedmourad.sherlock.viewmodel.controllers.AddChildViewModel
+import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
 //TODO: maybe never allow publishing until all publishing operations and finished?
-class AddChildController(args: Bundle) : LifecycleController(args), View.OnClickListener {
+//TODO: try moving stuff to the view model, other controllers too
+internal class AddChildController(args: Bundle) : LifecycleController(args), View.OnClickListener {
 
     @BindView(R.id.toolbar)
     internal lateinit var toolbar: Toolbar
@@ -111,14 +115,11 @@ class AddChildController(args: Bundle) : LifecycleController(args), View.OnClick
     internal lateinit var publishButton: Button
 
     @Inject
-    @AddChildViewModelQualifier
+    @field:AddChildViewModelQualifier
     lateinit var viewModelFactory: ViewModelProvider.NewInstanceFactory
 
     @Inject
     lateinit var displayChildControllerFactory: Lazy<DisplayChildControllerAbstractFactory>
-
-    @Inject
-    lateinit var bus: Lazy<Bus>
 
     private lateinit var skinColorSelector: ColorSelector<Skin>
     private lateinit var hairColorSelector: ColorSelector<Hair>
@@ -129,23 +130,36 @@ class AddChildController(args: Bundle) : LifecycleController(args), View.OnClick
 
     private lateinit var unbinder: Unbinder
 
-    private var publishingDisposable: Disposable? = null
-        set(value) {
-            field?.dispose()
-            field = value
-        }
+    private var publishingDisposable by disposable()
+    private var internetConnectionDisposable by disposable()
+    private var internetConnectivitySingleDisposable by disposable()
 
     constructor() : this(Bundle(0))
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup): View {
 
+        var time = System.currentTimeMillis()
         SherlockComponent.Controllers.addChildComponent.get().inject(this)
+        val injection = System.currentTimeMillis() - time
 
+        time = System.currentTimeMillis()
         val view = inflater.inflate(R.layout.controller_add_child, container, false)
+        val inflation = System.currentTimeMillis() - time
 
+        time = System.currentTimeMillis()
         unbinder = ButterKnife.bind(this, view)
+        val binding = System.currentTimeMillis() - time
+
+        val result = "Injection: $injection\niInflation: $inflation\nBinding: $binding"
 
         context = view.context
+
+        Timber.e(result)
+        Toast.makeText(
+                context.applicationContext,
+                result,
+                Toast.LENGTH_LONG
+        ).show()
 
         setSupportActionBar(toolbar)
 
@@ -153,31 +167,16 @@ class AddChildController(args: Bundle) : LifecycleController(args), View.OnClick
 
         viewModel = viewModelProvider(viewModelFactory)[AddChildViewModel::class.java]
 
-        val navigationChild = args.getParcelable<AppPictureChild>(ARG_CHILD)
+        val navigationChild = args.getParcelable<AppPublishedChild>(ARG_CHILD)
 
-        if (navigationChild != null) {
-
-            viewModel.mapFromAppPictureChild(navigationChild)
-
-            handlePublishingStateValue(requireNotNull(bus.get().publishingState.lastValue), navigationChild)
-
-            if (bus.get().publishingState.lastValue == Bus.PublishingState.ONGOING) {
-
-                publishingDisposable = bus.get().publishingState.get().subscribe({
-
-                    handlePublishingStateValue(it, navigationChild)
-
-                }, { it.printStackTrace() })
-            }
-
-        } else {
+        if (navigationChild != null)
+            handleExternalNavigation(navigationChild)
+        else
             setEnabledAndIdle(true)
-        }
 
-        skinColorSelector = createSkinColorViews()
-        hairColorSelector = createHairColorViews()
-
-        listOf(::initializeSeekBars,
+        arrayOf(::createSkinColorViews,
+                ::createHairColorViews,
+                ::initializeSeekBars,
                 ::initializeEditTexts,
                 ::initializeGenderRadioGroup,
                 ::initializePictureImageView,
@@ -200,34 +199,76 @@ class AddChildController(args: Bundle) : LifecycleController(args), View.OnClick
         return view
     }
 
-    private fun handlePublishingStateValue(value: Bus.PublishingState, child: AppPictureChild) {
+    override fun onAttach(view: View) {
+        super.onAttach(view)
 
+        // we only handle connection (enabling and disabling internet-dependant
+        // views) if publishing isn't underway
+        internetConnectionDisposable = viewModel.internetConnectivityObserver
+                .flatMapSingle { isConnected ->
+                    viewModel.publishingStateSingle.map { isConnected to it }
+                }.subscribe({ (isConnected, publishingState) ->
+
+                    val (state) = publishingState
+
+                    if (state != null) {
+                        handlePublishingStateValue(state)
+                    } else {
+                        setEnabledAndIdle(true)
+                        handleConnectionStateChange(isConnected)
+                    }
+
+                }, Timber::e)
+    }
+
+
+    private fun publish() {
+
+        publishingDisposable = viewModel.publishingStateObserver
+                .subscribe(this::handlePublishingStateValue, Timber::e)
+
+        setEnabledAndIdle(false)
+        viewModel.onPublish()
+    }
+
+    private fun handleExternalNavigation(navigationChild: AppPublishedChild) {
+
+        viewModel.take(navigationChild)
+
+        publishingDisposable = viewModel.publishingStateObserver
+                .subscribe(this::handlePublishingStateValue) {
+                    Toast.makeText(context, R.string.something_went_wrong, Toast.LENGTH_LONG).show()
+                    Timber.e(it)
+                }
+    }
+
+    private fun handlePublishingStateValue(value: Bus.PublishingState<*>) {
         when (value) {
-
-            Bus.PublishingState.SUCCESS -> {
-
-                val taggedController = displayChildControllerFactory.get().create(child.id)
-
-                router.popToRoot()
-                router.pushController(RouterTransaction.with(taggedController.controller).tag(taggedController.tag))
-                publishingDisposable?.dispose()
-            }
-
-            Bus.PublishingState.FAILURE -> {
-                setEnabledAndIdle(true)
-                publishingDisposable?.dispose()
-            }
-
-            Bus.PublishingState.ONGOING -> {
-                setEnabledAndIdle(false)
-            }
+            is Bus.PublishingState.Success -> onPublishedSuccessfully(value.child.toAppChild())
+            is Bus.PublishingState.Failure -> onPublishingFailed()
+            is Bus.PublishingState.Ongoing -> onPublishingOngoing()
         }
+    }
+
+    private fun onPublishedSuccessfully(child: AppRetrievedChild) {
+        publishingDisposable?.dispose()
+        val taggedController = displayChildControllerFactory.get().create(child.simplify())
+        router.popCurrentController()
+        router.pushController(RouterTransaction.with(taggedController.controller).tag(taggedController.tag))
+    }
+
+    private fun onPublishingFailed() {
+        publishingDisposable?.dispose()
+        setEnabledAndIdle(true)
+    }
+
+    private fun onPublishingOngoing() {
+        setEnabledAndIdle(false)
     }
 
     private fun setEnabledAndIdle(enabled: Boolean) {
 
         //TODO: start loading when false and stop when true
-
         arrayOf(skinWhiteView,
                 skinWheatView,
                 skinDarkView,
@@ -246,24 +287,41 @@ class AddChildController(args: Bundle) : LifecycleController(args), View.OnClick
                 notesEditText,
                 publishButton
         ).forEach { it.isEnabled = enabled }
+
+        // we disable internet-dependant views if no longer publishing and there's no internet connection
+        internetConnectivitySingleDisposable = viewModel.internetConnectivitySingle
+                .map { enabled && !it }
+                .subscribe({
+                    if (it)
+                        handleConnectionStateChange(false)
+                }, Timber::e)
     }
 
-    private fun createSkinColorViews() = ColorSelector(
-            ColorSelector.newItem(Skin.WHITE, skinWhiteView, R.color.colorSkinWhite),
-            ColorSelector.newItem(Skin.WHEAT, skinWheatView, R.color.colorSkinWheat),
-            ColorSelector.newItem(Skin.DARK, skinDarkView, R.color.colorSkinDark),
-            default = viewModel.skin.value
-    ).apply {
-        onSelectionChangeListeners.add { viewModel.skin.value = it }
+    private fun handleConnectionStateChange(connected: Boolean) {
+        setLocationEnabled(connected)
+        publishButton.isEnabled = connected
     }
 
-    private fun createHairColorViews() = ColorSelector(
-            ColorSelector.newItem(Hair.BLONDE, hairBlondView, R.color.colorHairBlonde),
-            ColorSelector.newItem(Hair.BROWN, hairBrownView, R.color.colorHairBrown),
-            ColorSelector.newItem(Hair.DARK, hairDarkView, R.color.colorHairDark),
-            default = viewModel.hair.value
-    ).apply {
-        onSelectionChangeListeners.add { viewModel.hair.value = it }
+    private fun createSkinColorViews() {
+        skinColorSelector = ColorSelector(
+                ColorSelector.newItem(Skin.WHITE, skinWhiteView, R.color.colorSkinWhite),
+                ColorSelector.newItem(Skin.WHEAT, skinWheatView, R.color.colorSkinWheat),
+                ColorSelector.newItem(Skin.DARK, skinDarkView, R.color.colorSkinDark),
+                default = viewModel.skin.value
+        ).apply {
+            onSelectionChangeListeners.add { viewModel.skin.value = it }
+        }
+    }
+
+    private fun createHairColorViews() {
+        hairColorSelector = ColorSelector(
+                ColorSelector.newItem(Hair.BLONDE, hairBlondView, R.color.colorHairBlonde),
+                ColorSelector.newItem(Hair.BROWN, hairBrownView, R.color.colorHairBrown),
+                ColorSelector.newItem(Hair.DARK, hairDarkView, R.color.colorHairDark),
+                default = viewModel.hair.value
+        ).apply {
+            onSelectionChangeListeners.add { viewModel.hair.value = it }
+        }
     }
 
     //TODO: consider removing all listeners and using observe and onSaveInstanceState instead
@@ -349,24 +407,9 @@ class AddChildController(args: Bundle) : LifecycleController(args), View.OnClick
         })
     }
 
-    private fun publish() {
-
-        val child = viewModel.toAppPictureChild()
-
-        publishingDisposable = bus.get().publishingState.get().subscribe({
-
-            handlePublishingStateValue(it, child)
-
-        }, { it.printStackTrace() })
-
-        viewModel.publish(child)
-    }
-
     private fun startImagePicker() {
 
-        checkNotNull(activity) {
-            "Activity is null!"
-        }
+        checkNotNull(activity)
 
         setPictureEnabled(false)
 
@@ -388,19 +431,17 @@ class AddChildController(args: Bundle) : LifecycleController(args), View.OnClick
     //TODO: should only start when connected to the internet, not the only one though
     private fun startPlacePicker() {
 
-        checkNotNull(activity) {
-            "Activity is null!"
-        }
+        checkNotNull(activity)
 
         try {
             setLocationEnabled(false)
             startActivityForResult(PlacePicker.IntentBuilder().build(activity), PLACE_PICKER_REQUEST)
         } catch (e: GooglePlayServicesRepairableException) {
             setLocationEnabled(true)
-            e.printStackTrace()
+            Timber.e(e)
         } catch (e: GooglePlayServicesNotAvailableException) {
             setLocationEnabled(true)
-            e.printStackTrace()
+            Timber.e(e)
         }
     }
 
@@ -417,32 +458,33 @@ class AddChildController(args: Bundle) : LifecycleController(args), View.OnClick
         if (resultCode != RESULT_OK)
             return
 
-        if (data == null) {
+        checkNotNull(data) {
             Toast.makeText(context, R.string.something_went_wrong, Toast.LENGTH_LONG).show()
-            IllegalArgumentException("Parameter data is null!").printStackTrace()
-            return
+            "Parameter data is null!"
         }
 
         when (requestCode) {
-
-            IMAGE_PICKER_REQUEST -> {
-                ImagePicker.getFirstImageOrNull(data)?.also {
-                    viewModel.picturePath.value = it.path
-                }
-            }
-
-            PLACE_PICKER_REQUEST -> {
-                viewModel.location.value = PlacePicker.getPlace(context, data)?.run {
-                    AppLocation(this.id,
-                            this.name.toString(),
-                            this.address.toString(),
-                            AppCoordinates(this.latLng.latitude, this.latLng.longitude)
-                    )
-                } ?: AppLocation.empty()
-            }
+            IMAGE_PICKER_REQUEST -> handleImagePickerResult(data)
+            PLACE_PICKER_REQUEST -> handlePlacePickerResult(data)
         }
 
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    private fun handleImagePickerResult(data: Intent) {
+        ImagePicker.getFirstImageOrNull(data)?.also {
+            viewModel.picturePath.value = it.path
+        }
+    }
+
+    private fun handlePlacePickerResult(data: Intent) {
+        viewModel.location.value = PlacePicker.getPlace(context, data)?.run {
+            AppLocation(this.id,
+                    this.name.toString(),
+                    this.address.toString(),
+                    AppCoordinates(this.latLng.latitude, this.latLng.longitude)
+            )
+        } ?: AppLocation.empty()
     }
 
     private fun setLocationEnabled(enabled: Boolean) {
@@ -450,8 +492,17 @@ class AddChildController(args: Bundle) : LifecycleController(args), View.OnClick
         locationTextView.isEnabled = enabled
     }
 
+    override fun onDetach(view: View) {
+        publishingDisposable?.dispose()
+        internetConnectionDisposable?.dispose()
+        internetConnectivitySingleDisposable?.dispose()
+        super.onDetach(view)
+    }
+
     override fun onDestroy() {
         publishingDisposable?.dispose()
+        internetConnectionDisposable?.dispose()
+        internetConnectivitySingleDisposable?.dispose()
         unbinder.unbind()
         SherlockComponent.Controllers.addChildComponent.release()
         super.onDestroy()
@@ -496,12 +547,12 @@ class AddChildController(args: Bundle) : LifecycleController(args), View.OnClick
 
         fun newInstance() = TaggedController(AddChildController(), CONTROLLER_TAG)
 
-        private fun newInstance(child: AppPictureChild) = TaggedController(AddChildController(Bundle(1).apply {
+        private fun newInstance(child: AppPublishedChild) = TaggedController(AddChildController(Bundle(1).apply {
             putParcelable(ARG_CHILD, child)
         }), CONTROLLER_TAG)
 
-        fun createIntent(child: AppPictureChild): Intent {
-            return MainActivity.createIntent(DESTINATION_ID).apply {
+        fun createIntent(activityFactory: MainActivityAbstractFactory, child: AppPublishedChild): Intent {
+            return activityFactory.createIntent(DESTINATION_ID).apply {
                 putExtra(EXTRA_CHILD, child)
             }
         }
@@ -517,7 +568,7 @@ class AddChildController(args: Bundle) : LifecycleController(args), View.OnClick
             if (addChildControllerBackstackInstance != null)
                 router.popController(addChildControllerBackstackInstance)
 
-            val taggedController = newInstance(intent.getParcelableExtra(EXTRA_CHILD))
+            val taggedController = newInstance(requireNotNull(intent.getParcelableExtra(EXTRA_CHILD)))
 
             router.pushController(RouterTransaction.with(taggedController.controller).tag(taggedController.tag))
         }

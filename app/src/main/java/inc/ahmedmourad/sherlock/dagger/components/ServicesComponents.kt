@@ -1,10 +1,9 @@
 package inc.ahmedmourad.sherlock.dagger.components
 
 import dagger.Subcomponent
-import inc.ahmedmourad.sherlock.dagger.modules.domain.AddChildInteractorModule
-import inc.ahmedmourad.sherlock.services.SherlockIntentService
+import inc.ahmedmourad.sherlock.services.SherlockService
 
-@Subcomponent(modules = [AddChildInteractorModule::class])
-interface SherlockIntentServiceComponent {
-    fun inject(service: SherlockIntentService)
+@Subcomponent
+internal interface SherlockIntentServiceComponent {
+    fun inject(service: SherlockService)
 }

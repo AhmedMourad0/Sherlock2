@@ -9,12 +9,11 @@ import inc.ahmedmourad.sherlock.R
 
 private const val CHANNEL_ID_BACKGROUND_CONTEXT = "inc.ahmedmourad.sherlock.utils.notification.channel.id.BACKGROUND_CONTEXT"
 
-fun backgroundContextChannelId(context: Context): String {
+internal fun backgroundContextChannelId(context: Context): String {
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-        checkNotNull(ContextCompat.getSystemService(context, NotificationManager::class.java)) {
-            "NotificationManager is null!"
-        }.createNotificationChannel(NotificationChannel(
+        checkNotNull(ContextCompat.getSystemService(context, NotificationManager::class.java))
+                .createNotificationChannel(NotificationChannel(
                 CHANNEL_ID_BACKGROUND_CONTEXT,
                 context.getString(R.string.channel_name_background_context),
                 NotificationManager.IMPORTANCE_LOW

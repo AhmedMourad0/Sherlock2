@@ -1,6 +1,6 @@
 package inc.ahmedmourad.sherlock.domain.filter.criteria
 
-import inc.ahmedmourad.sherlock.domain.model.DomainAppearance
+import inc.ahmedmourad.sherlock.domain.model.DomainExactAppearance
 import inc.ahmedmourad.sherlock.domain.model.DomainLocation
 import inc.ahmedmourad.sherlock.domain.model.DomainName
 
@@ -17,5 +17,5 @@ interface Criteria<T> {
 data class DomainChildCriteriaRules(
         val name: DomainName,
         val location: DomainLocation,
-        val appearance: DomainAppearance<Int>
+        val appearance: DomainExactAppearance
 )
