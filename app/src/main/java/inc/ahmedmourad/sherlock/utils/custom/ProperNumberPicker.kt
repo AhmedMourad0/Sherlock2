@@ -1,4 +1,4 @@
-package inc.ahmedmourad.sherlock.custom
+package inc.ahmedmourad.sherlock.utils.custom
 
 import android.content.Context
 import android.util.AttributeSet

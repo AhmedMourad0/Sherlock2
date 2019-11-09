@@ -48,18 +48,20 @@ internal class AddChildViewModel(
 
     val picturePath by lazy { DefaultLiveData("") }
 
-    val internetConnectivityObserver: Flowable<Boolean> = observeInternetConnectivityInteractor()
+    val internetConnectivityObserver: Flowable<Pair<Boolean, Optional<Bus.PublishingState<*>>>> = observeInternetConnectivityInteractor()
             .retry()
             .observeOn(AndroidSchedulers.mainThread())
+            .flatMapSingle { isConnected ->
+                checkPublishingStateInteractor()
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .map { isConnected to it }
+            }
 
     val internetConnectivitySingle: Single<Boolean> = checkInternetConnectivityInteractor()
             .observeOn(AndroidSchedulers.mainThread())
 
     val publishingStateObserver: Flowable<Bus.PublishingState<*>> = observePublishingStateInteractor()
             .retry()
-            .observeOn(AndroidSchedulers.mainThread())
-
-    val publishingStateSingle: Single<Optional<Bus.PublishingState<*>>> = checkPublishingStateInteractor()
             .observeOn(AndroidSchedulers.mainThread())
 
     fun onPublish() {

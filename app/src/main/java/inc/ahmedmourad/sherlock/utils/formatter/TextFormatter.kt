@@ -1,4 +1,4 @@
-package inc.ahmedmourad.sherlock.formatter
+package inc.ahmedmourad.sherlock.utils.formatter
 
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.domain.constants.Gender

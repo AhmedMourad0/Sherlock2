@@ -4,7 +4,7 @@ import dagger.Subcomponent
 import inc.ahmedmourad.sherlock.domain.bus.Bus
 import inc.ahmedmourad.sherlock.domain.data.ChildrenRepository
 import inc.ahmedmourad.sherlock.domain.platform.DateManager
-import inc.ahmedmourad.sherlock.formatter.Formatter
+import inc.ahmedmourad.sherlock.utils.formatter.Formatter
 
 @Subcomponent
 internal interface TestComponent {

@@ -22,9 +22,9 @@ import inc.ahmedmourad.sherlock.dagger.modules.factories.DisplayChildViewModelFa
 import inc.ahmedmourad.sherlock.dagger.modules.factories.MainActivityIntentFactory
 import inc.ahmedmourad.sherlock.domain.model.Either
 import inc.ahmedmourad.sherlock.domain.model.disposable
-import inc.ahmedmourad.sherlock.formatter.Formatter
 import inc.ahmedmourad.sherlock.model.AppChild
 import inc.ahmedmourad.sherlock.model.AppSimpleRetrievedChild
+import inc.ahmedmourad.sherlock.utils.formatter.Formatter
 import inc.ahmedmourad.sherlock.utils.setSupportActionBar
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
 import inc.ahmedmourad.sherlock.view.model.ExternallyNavigableController

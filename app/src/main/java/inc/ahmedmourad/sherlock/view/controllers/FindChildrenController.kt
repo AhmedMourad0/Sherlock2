@@ -16,23 +16,19 @@ import butterknife.ButterKnife
 import butterknife.Unbinder
 import com.bluelinelabs.conductor.RouterTransaction
 import com.bluelinelabs.conductor.archlifecycle.LifecycleController
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException
-import com.google.android.gms.common.GooglePlayServicesRepairableException
-import com.google.android.gms.location.places.ui.PlacePicker
 import com.google.android.material.textfield.TextInputEditText
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.factories.SearchResultsControllerFactory
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.FindChildrenViewModelQualifier
-import inc.ahmedmourad.sherlock.defaults.DefaultTextWatcher
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
 import inc.ahmedmourad.sherlock.domain.model.disposable
-import inc.ahmedmourad.sherlock.model.AppCoordinates
-import inc.ahmedmourad.sherlock.model.AppLocation
-import inc.ahmedmourad.sherlock.utils.ColorSelector
+import inc.ahmedmourad.sherlock.utils.defaults.DefaultTextWatcher
+import inc.ahmedmourad.sherlock.utils.pickers.colors.ColorSelector
+import inc.ahmedmourad.sherlock.utils.pickers.places.PlacePicker
 import inc.ahmedmourad.sherlock.utils.setSupportActionBar
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
 import inc.ahmedmourad.sherlock.view.model.TaggedController
@@ -93,6 +89,9 @@ internal class FindChildrenController : LifecycleController(), View.OnClickListe
 
     @Inject
     lateinit var searchResultsControllerFactory: Lazy<SearchResultsControllerFactory>
+
+    @Inject
+    lateinit var placePicker: PlacePicker
 
     private lateinit var skinColorSelector: ColorSelector<Skin>
     private lateinit var hairColorSelector: ColorSelector<Hair>
@@ -246,18 +245,10 @@ internal class FindChildrenController : LifecycleController(), View.OnClickListe
     }
 
     private fun startPlacePicker() {
-
-        checkNotNull(activity)
-
-        try {
-            setLocationEnabled(false)
-            startActivityForResult(PlacePicker.IntentBuilder().build(activity), PLACE_PICKER_REQUEST)
-        } catch (e: GooglePlayServicesRepairableException) {
+        setLocationEnabled(false)
+        placePicker.start(checkNotNull(activity)) {
             setLocationEnabled(true)
-            Timber.e(e)
-        } catch (e: GooglePlayServicesNotAvailableException) {
-            setLocationEnabled(true)
-            Timber.e(e)
+            Timber.e(it)
         }
     }
 
@@ -273,21 +264,9 @@ internal class FindChildrenController : LifecycleController(), View.OnClickListe
             "Parameter data is null!"
         }
 
-        when (requestCode) {
-            PLACE_PICKER_REQUEST -> handlePlacePickerResult(data)
-        }
+        placePicker.handleActivityResult(requestCode, data, viewModel.location::setValue)
 
         super.onActivityResult(requestCode, resultCode, data)
-    }
-
-    private fun handlePlacePickerResult(data: Intent) {
-        viewModel.location.value = PlacePicker.getPlace(context, data)?.run {
-            AppLocation(this.id,
-                    this.name.toString(),
-                    this.address.toString(),
-                    AppCoordinates(this.latLng.latitude, this.latLng.longitude)
-            )
-        } ?: AppLocation.empty()
     }
 
     override fun onDetach(view: View) {
@@ -332,8 +311,6 @@ internal class FindChildrenController : LifecycleController(), View.OnClickListe
     companion object {
 
         private const val CONTROLLER_TAG = "inc.ahmedmourad.sherlock.view.controllers.tag.FindChildrenController"
-
-        private const val PLACE_PICKER_REQUEST = 2723
 
         fun newInstance() = TaggedController(FindChildrenController(), CONTROLLER_TAG)
     }

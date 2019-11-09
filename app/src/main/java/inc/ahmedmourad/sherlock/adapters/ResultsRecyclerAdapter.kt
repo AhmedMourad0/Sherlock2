@@ -13,8 +13,8 @@ import com.bumptech.glide.RequestManager
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.domain.platform.DateManager
-import inc.ahmedmourad.sherlock.formatter.Formatter
 import inc.ahmedmourad.sherlock.model.AppSimpleRetrievedChild
+import inc.ahmedmourad.sherlock.utils.formatter.Formatter
 import splitties.init.appCtx
 import java.util.*
 

@@ -13,7 +13,6 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
 import com.google.android.material.textfield.TextInputEditText
-import inc.ahmedmourad.sherlock.custom.ProperNumberPicker
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
@@ -22,6 +21,7 @@ import inc.ahmedmourad.sherlock.idling.toIdlingResource
 import inc.ahmedmourad.sherlock.mapper.toAppChild
 import inc.ahmedmourad.sherlock.model.*
 import inc.ahmedmourad.sherlock.utils.childAt
+import inc.ahmedmourad.sherlock.utils.custom.ProperNumberPicker
 import inc.ahmedmourad.sherlock.view.activity.MainActivity
 import org.junit.After
 import org.junit.Before

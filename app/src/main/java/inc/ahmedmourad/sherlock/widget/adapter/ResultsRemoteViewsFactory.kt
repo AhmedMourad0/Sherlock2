@@ -9,8 +9,8 @@ import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.domain.platform.DateManager
-import inc.ahmedmourad.sherlock.formatter.Formatter
 import inc.ahmedmourad.sherlock.model.AppSimpleRetrievedChild
+import inc.ahmedmourad.sherlock.utils.formatter.Formatter
 import splitties.init.appCtx
 import timber.log.Timber
 import javax.inject.Inject

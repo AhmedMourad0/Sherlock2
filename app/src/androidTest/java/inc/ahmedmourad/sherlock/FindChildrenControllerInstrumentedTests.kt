@@ -10,7 +10,7 @@ import androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
-import inc.ahmedmourad.sherlock.custom.ProperNumberPicker
+import inc.ahmedmourad.sherlock.utils.custom.ProperNumberPicker
 import inc.ahmedmourad.sherlock.view.activity.MainActivity
 import org.hamcrest.Matchers.not
 import org.junit.Assert.assertEquals

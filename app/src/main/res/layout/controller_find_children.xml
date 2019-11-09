@@ -76,7 +76,7 @@
 					android:text="@string/age"
 					android:textColor="@android:color/black" />
 				
-				<inc.ahmedmourad.sherlock.custom.ProperNumberPicker
+				<inc.ahmedmourad.sherlock.utils.custom.ProperNumberPicker
 					android:id="@+id/find_children_age_number_picker"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -94,7 +94,7 @@
 					android:text="@string/height"
 					android:textColor="@android:color/black" />
 				
-				<inc.ahmedmourad.sherlock.custom.ProperNumberPicker
+				<inc.ahmedmourad.sherlock.utils.custom.ProperNumberPicker
 					android:id="@+id/find_children_height_number_picker"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"

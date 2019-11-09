@@ -19,11 +19,6 @@ import butterknife.Unbinder
 import com.bluelinelabs.conductor.Router
 import com.bluelinelabs.conductor.RouterTransaction
 import com.bluelinelabs.conductor.archlifecycle.LifecycleController
-import com.esafirm.imagepicker.features.ImagePicker
-import com.esafirm.imagepicker.features.ReturnMode
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException
-import com.google.android.gms.common.GooglePlayServicesRepairableException
-import com.google.android.gms.location.places.ui.PlacePicker
 import com.google.android.material.textfield.TextInputEditText
 import com.jaygoo.widget.RangeSeekBar
 import dagger.Lazy
@@ -33,20 +28,20 @@ import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.factories.DisplayChildControllerFactory
 import inc.ahmedmourad.sherlock.dagger.modules.factories.MainActivityIntentFactory
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.AddChildViewModelQualifier
-import inc.ahmedmourad.sherlock.defaults.DefaultOnRangeChangedListener
-import inc.ahmedmourad.sherlock.defaults.DefaultTextWatcher
 import inc.ahmedmourad.sherlock.domain.bus.Bus
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
 import inc.ahmedmourad.sherlock.domain.model.disposable
 import inc.ahmedmourad.sherlock.mapper.toAppChild
-import inc.ahmedmourad.sherlock.model.AppCoordinates
-import inc.ahmedmourad.sherlock.model.AppLocation
 import inc.ahmedmourad.sherlock.model.AppPublishedChild
 import inc.ahmedmourad.sherlock.model.AppRetrievedChild
-import inc.ahmedmourad.sherlock.utils.ColorSelector
+import inc.ahmedmourad.sherlock.utils.defaults.DefaultOnRangeChangedListener
+import inc.ahmedmourad.sherlock.utils.defaults.DefaultTextWatcher
 import inc.ahmedmourad.sherlock.utils.getImageBitmap
+import inc.ahmedmourad.sherlock.utils.pickers.colors.ColorSelector
+import inc.ahmedmourad.sherlock.utils.pickers.images.ImagePicker
+import inc.ahmedmourad.sherlock.utils.pickers.places.PlacePicker
 import inc.ahmedmourad.sherlock.utils.setSupportActionBar
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
 import inc.ahmedmourad.sherlock.view.model.ExternallyNavigableController
@@ -120,6 +115,12 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
 
     @Inject
     lateinit var displayChildControllerFactory: Lazy<DisplayChildControllerFactory>
+
+    @Inject
+    lateinit var placePicker: PlacePicker
+
+    @Inject
+    lateinit var imagePicker: ImagePicker
 
     private lateinit var skinColorSelector: ColorSelector<Skin>
     private lateinit var hairColorSelector: ColorSelector<Hair>
@@ -205,9 +206,7 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
         // we only handle connection (enabling and disabling internet-dependant
         // views) if publishing isn't underway
         internetConnectionDisposable = viewModel.internetConnectivityObserver
-                .flatMapSingle { isConnected ->
-                    viewModel.publishingStateSingle.map { isConnected to it }
-                }.subscribe({ (isConnected, publishingState) ->
+                .subscribe({ (isConnected, publishingState) ->
 
                     val (state) = publishingState
 
@@ -292,8 +291,7 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
         internetConnectivitySingleDisposable = viewModel.internetConnectivitySingle
                 .map { enabled && !it }
                 .subscribe({
-                    if (it)
-                        handleConnectionStateChange(false)
+                    if (it) handleConnectionStateChange(false)
                 }, Timber::e)
     }
 
@@ -408,40 +406,19 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
     }
 
     private fun startImagePicker() {
-
-        checkNotNull(activity)
-
         setPictureEnabled(false)
-
-        startActivityForResult(ImagePicker.create(activity)
-                .returnMode(ReturnMode.ALL)
-                .folderMode(true)
-                .toolbarFolderTitle(context.getString(R.string.pick_a_folder))
-                .toolbarImageTitle(context.getString(R.string.tap_to_select))
-                .single()
-                .limit(1)
-                .showCamera(true)
-                .imageDirectory(context.getString(R.string.camera))
-                .theme(R.style.ImagePickerTheme)
-                .enableLog(true)
-                .getIntent(context), IMAGE_PICKER_REQUEST
-        )
+        imagePicker.start(checkNotNull(activity)) {
+            setPictureEnabled(true)
+            Timber.e(it)
+        }
     }
 
     //TODO: should only start when connected to the internet, not the only one though
     private fun startPlacePicker() {
-
-        checkNotNull(activity)
-
-        try {
-            setLocationEnabled(false)
-            startActivityForResult(PlacePicker.IntentBuilder().build(activity), PLACE_PICKER_REQUEST)
-        } catch (e: GooglePlayServicesRepairableException) {
+        setLocationEnabled(false)
+        placePicker.start(checkNotNull(activity)) {
             setLocationEnabled(true)
-            Timber.e(e)
-        } catch (e: GooglePlayServicesNotAvailableException) {
-            setLocationEnabled(true)
-            Timber.e(e)
+            Timber.e(it)
         }
     }
 
@@ -463,28 +440,13 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
             "Parameter data is null!"
         }
 
-        when (requestCode) {
-            IMAGE_PICKER_REQUEST -> handleImagePickerResult(data)
-            PLACE_PICKER_REQUEST -> handlePlacePickerResult(data)
+        placePicker.handleActivityResult(requestCode, data, viewModel.location::setValue)
+        imagePicker.handleActivityResult(requestCode, data, viewModel.picturePath::setValue) {
+            Toast.makeText(context, R.string.something_went_wrong, Toast.LENGTH_LONG).show()
+            Timber.e(it)
         }
 
         super.onActivityResult(requestCode, resultCode, data)
-    }
-
-    private fun handleImagePickerResult(data: Intent) {
-        ImagePicker.getFirstImageOrNull(data)?.also {
-            viewModel.picturePath.value = it.path
-        }
-    }
-
-    private fun handlePlacePickerResult(data: Intent) {
-        viewModel.location.value = PlacePicker.getPlace(context, data)?.run {
-            AppLocation(this.id,
-                    this.name.toString(),
-                    this.address.toString(),
-                    AppCoordinates(this.latLng.latitude, this.latLng.longitude)
-            )
-        } ?: AppLocation.empty()
     }
 
     private fun setLocationEnabled(enabled: Boolean) {
@@ -535,9 +497,6 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
     companion object : ExternallyNavigableController {
 
         private const val CONTROLLER_TAG = "inc.ahmedmourad.sherlock.view.controllers.tag.AddChildController"
-
-        private const val PLACE_PICKER_REQUEST = 7424
-        private const val IMAGE_PICKER_REQUEST = 4287
 
         private const val ARG_CHILD = "inc.ahmedmourad.sherlock.view.controllers.arg.CHILD"
 

@@ -10,7 +10,7 @@ import inc.ahmedmourad.sherlock.dagger.modules.factories.SectionsRecyclerAdapter
 import inc.ahmedmourad.sherlock.dagger.modules.factories.resultsRecyclerAdapterFactory
 import inc.ahmedmourad.sherlock.dagger.modules.factories.sectionsRecyclerAdapterFactory
 import inc.ahmedmourad.sherlock.domain.platform.DateManager
-import inc.ahmedmourad.sherlock.formatter.Formatter
+import inc.ahmedmourad.sherlock.utils.formatter.Formatter
 
 @Module
 internal object ResultsRecyclerAdapterModule {

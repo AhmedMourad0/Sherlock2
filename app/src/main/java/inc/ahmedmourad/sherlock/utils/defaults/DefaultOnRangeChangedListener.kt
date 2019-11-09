@@ -1,4 +1,4 @@
-package inc.ahmedmourad.sherlock.defaults
+package inc.ahmedmourad.sherlock.utils.defaults
 
 import com.jaygoo.widget.OnRangeChangedListener
 import com.jaygoo.widget.RangeSeekBar

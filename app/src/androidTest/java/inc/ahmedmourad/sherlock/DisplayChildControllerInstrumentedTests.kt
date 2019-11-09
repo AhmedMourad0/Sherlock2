@@ -14,7 +14,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
 import com.google.android.material.textfield.TextInputEditText
 import com.jaygoo.widget.RangeSeekBar
-import inc.ahmedmourad.sherlock.custom.ProperNumberPicker
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
@@ -22,6 +21,7 @@ import inc.ahmedmourad.sherlock.domain.constants.Skin
 import inc.ahmedmourad.sherlock.idling.toIdlingResource
 import inc.ahmedmourad.sherlock.model.*
 import inc.ahmedmourad.sherlock.utils.childAt
+import inc.ahmedmourad.sherlock.utils.custom.ProperNumberPicker
 import inc.ahmedmourad.sherlock.utils.nestedScrollTo
 import inc.ahmedmourad.sherlock.view.activity.MainActivity
 import org.junit.After

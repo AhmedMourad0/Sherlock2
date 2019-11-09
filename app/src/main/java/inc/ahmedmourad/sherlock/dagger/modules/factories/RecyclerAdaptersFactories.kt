@@ -6,8 +6,8 @@ import inc.ahmedmourad.sherlock.adapters.DynamicRecyclerAdapter
 import inc.ahmedmourad.sherlock.adapters.ResultsRecyclerAdapter
 import inc.ahmedmourad.sherlock.adapters.SectionsRecyclerAdapter
 import inc.ahmedmourad.sherlock.domain.platform.DateManager
-import inc.ahmedmourad.sherlock.formatter.Formatter
 import inc.ahmedmourad.sherlock.model.AppSimpleRetrievedChild
+import inc.ahmedmourad.sherlock.utils.formatter.Formatter
 import inc.ahmedmourad.sherlock.view.model.AppSection
 import inc.ahmedmourad.sherlock.view.model.TaggedController
 

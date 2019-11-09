@@ -7,6 +7,8 @@ import inc.ahmedmourad.sherlock.dagger.modules.*
 @Module(includes = [
     MainActivityModules::class,
     TextFormatterModule::class,
+    PlacePickerModule::class,
+    ImagePickerModule::class,
     ResultsRecyclerAdapterModule::class,
     SectionsRecyclerAdapterModule::class,
     SherlockServiceModule::class,
