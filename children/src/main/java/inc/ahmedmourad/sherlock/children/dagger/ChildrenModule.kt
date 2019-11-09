@@ -1,7 +1,7 @@
 package inc.ahmedmourad.sherlock.children.dagger
 
 import dagger.Module
-import inc.ahmedmourad.sherlock.children.dagger.modules.SherlockChildrenRepositoryModule
+import inc.ahmedmourad.sherlock.children.dagger.modules.ChildrenRepositoryModule
 
-@Module(includes = [SherlockChildrenRepositoryModule::class])
+@Module(includes = [ChildrenRepositoryModule::class])
 object ChildrenModule

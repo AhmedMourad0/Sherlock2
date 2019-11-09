@@ -4,8 +4,8 @@ import dagger.Lazy
 import inc.ahmedmourad.sherlock.domain.platform.ConnectivityManager
 import io.reactivex.Single
 
-internal class CheckInternetConnectivityInteractor(private val connectivityManager: Lazy<ConnectivityManager>) : Interactor<Single<Boolean>> {
-    override fun execute(): Single<Boolean> {
-        return connectivityManager.get().isInternetConnected()
-    }
+typealias CheckInternetConnectivityInteractor = () -> @JvmSuppressWildcards Single<Boolean>
+
+internal fun checkInternetConnectivity(connectivityManager: Lazy<ConnectivityManager>): Single<Boolean> {
+    return connectivityManager.get().isInternetConnected()
 }

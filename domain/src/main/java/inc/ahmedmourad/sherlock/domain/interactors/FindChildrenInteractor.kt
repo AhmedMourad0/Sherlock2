@@ -9,10 +9,13 @@ import inc.ahmedmourad.sherlock.domain.model.DomainSimpleRetrievedChild
 import inc.ahmedmourad.sherlock.domain.model.Either
 import io.reactivex.Flowable
 
-internal class FindChildrenInteractor(private val childrenRepository: Lazy<ChildrenRepository>,
-                                      private val rules: DomainChildCriteriaRules,
-                                      private val filter: Filter<DomainRetrievedChild>) : Interactor<Flowable<Either<List<Pair<DomainSimpleRetrievedChild, Int>>, Throwable>>> {
-    override fun execute(): Flowable<Either<List<Pair<DomainSimpleRetrievedChild, Int>>, Throwable>> {
-        return childrenRepository.get().findAll(rules, filter)
-    }
+typealias FindChildrenInteractor =
+        (@JvmSuppressWildcards DomainChildCriteriaRules, @JvmSuppressWildcards Filter<DomainRetrievedChild>) -> @JvmSuppressWildcards Flowable<Either<List<Pair<DomainSimpleRetrievedChild, Int>>, Throwable>>
+
+internal fun findChildren(
+        childrenRepository: Lazy<ChildrenRepository>,
+        rules: DomainChildCriteriaRules,
+        filter: Filter<DomainRetrievedChild>
+): Flowable<Either<List<Pair<DomainSimpleRetrievedChild, Int>>, Throwable>> {
+    return childrenRepository.get().findAll(rules, filter)
 }

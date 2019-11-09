@@ -6,9 +6,9 @@ import inc.ahmedmourad.sherlock.domain.model.DomainPublishedChild
 import inc.ahmedmourad.sherlock.domain.model.DomainRetrievedChild
 import io.reactivex.Single
 
-internal class AddChildInteractor(private val childrenRepository: Lazy<ChildrenRepository>,
-                                  private val child: DomainPublishedChild) : Interactor<Single<DomainRetrievedChild>> {
-    override fun execute(): Single<DomainRetrievedChild> {
-        return childrenRepository.get().publish(child)
-    }
+typealias AddChildInteractor =
+        (@JvmSuppressWildcards DomainPublishedChild) -> @JvmSuppressWildcards Single<DomainRetrievedChild>
+
+internal fun addChild(childrenRepository: Lazy<ChildrenRepository>, child: DomainPublishedChild): Single<DomainRetrievedChild> {
+    return childrenRepository.get().publish(child)
 }

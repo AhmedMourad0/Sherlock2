@@ -3,15 +3,15 @@ package inc.ahmedmourad.sherlock.viewmodel.controllers
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import dagger.Lazy
-import inc.ahmedmourad.sherlock.dagger.modules.factories.SherlockServiceAbstractFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.SherlockServiceIntentFactory
 import inc.ahmedmourad.sherlock.domain.bus.Bus
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
-import inc.ahmedmourad.sherlock.domain.dagger.modules.factories.CheckInternetConnectivityInteractorAbstractFactory
-import inc.ahmedmourad.sherlock.domain.dagger.modules.factories.CheckPublishingStateInteractorAbstractFactory
-import inc.ahmedmourad.sherlock.domain.dagger.modules.factories.ObserveInternetConnectivityInteractorAbstractFactory
-import inc.ahmedmourad.sherlock.domain.dagger.modules.factories.ObservePublishingStateInteractorAbstractFactory
+import inc.ahmedmourad.sherlock.domain.interactors.CheckInternetConnectivityInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.CheckPublishingStateInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.ObserveInternetConnectivityInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.ObservePublishingStateInteractor
 import inc.ahmedmourad.sherlock.domain.model.Optional
 import inc.ahmedmourad.sherlock.model.*
 import inc.ahmedmourad.sherlock.viewmodel.model.DefaultLiveData
@@ -22,11 +22,11 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import splitties.init.appCtx
 
 internal class AddChildViewModel(
-        private val serviceFactory: Lazy<SherlockServiceAbstractFactory>,
-        observeInternetConnectivityInteractor: ObserveInternetConnectivityInteractorAbstractFactory,
-        checkInternetConnectivityInteractor: CheckInternetConnectivityInteractorAbstractFactory,
-        observePublishingStateInteractor: ObservePublishingStateInteractorAbstractFactory,
-        checkPublishingStateInteractor: CheckPublishingStateInteractorAbstractFactory
+        private val serviceFactory: Lazy<SherlockServiceIntentFactory>,
+        observeInternetConnectivityInteractor: ObserveInternetConnectivityInteractor,
+        checkInternetConnectivityInteractor: CheckInternetConnectivityInteractor,
+        observePublishingStateInteractor: ObservePublishingStateInteractor,
+        checkPublishingStateInteractor: CheckPublishingStateInteractor
 ) : ViewModel() {
 
     val firstName by lazy { DefaultLiveData("") }
@@ -48,26 +48,22 @@ internal class AddChildViewModel(
 
     val picturePath by lazy { DefaultLiveData("") }
 
-    val internetConnectivityObserver: Flowable<Boolean> = observeInternetConnectivityInteractor.create()
-            .execute()
+    val internetConnectivityObserver: Flowable<Boolean> = observeInternetConnectivityInteractor()
             .retry()
             .observeOn(AndroidSchedulers.mainThread())
 
-    val internetConnectivitySingle: Single<Boolean> = checkInternetConnectivityInteractor.create()
-            .execute()
+    val internetConnectivitySingle: Single<Boolean> = checkInternetConnectivityInteractor()
             .observeOn(AndroidSchedulers.mainThread())
 
-    val publishingStateObserver: Flowable<Bus.PublishingState<*>> = observePublishingStateInteractor.create()
-            .execute()
+    val publishingStateObserver: Flowable<Bus.PublishingState<*>> = observePublishingStateInteractor()
             .retry()
             .observeOn(AndroidSchedulers.mainThread())
 
-    val publishingStateSingle: Single<Optional<Bus.PublishingState<*>>> = checkPublishingStateInteractor.create()
-            .execute()
+    val publishingStateSingle: Single<Optional<Bus.PublishingState<*>>> = checkPublishingStateInteractor()
             .observeOn(AndroidSchedulers.mainThread())
 
     fun onPublish() {
-        ContextCompat.startForegroundService(appCtx, serviceFactory.get().createIntent(toAppPublishedChild()))
+        ContextCompat.startForegroundService(appCtx, serviceFactory.get()(toAppPublishedChild()))
     }
 
     fun take(child: AppPublishedChild) {

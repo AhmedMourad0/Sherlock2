@@ -3,17 +3,19 @@ package inc.ahmedmourad.sherlock.dagger.modules
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
-import inc.ahmedmourad.sherlock.dagger.modules.factories.ResultsRemoteViewsFactoryAbstractFactory
 import inc.ahmedmourad.sherlock.dagger.modules.factories.ResultsRemoteViewsFactoryFactory
-import inc.ahmedmourad.sherlock.dagger.modules.factories.ResultsRemoteViewsServiceAbstractFactory
-import inc.ahmedmourad.sherlock.dagger.modules.factories.ResultsRemoteViewsServiceFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.ResultsRemoteViewsServiceIntentFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.resultsRemoteViewsFactoryFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.resultsRemoteViewsServiceIntentFactory
 
 @Module
 internal object ResultsRemoteViewsServiceModule {
     @Provides
     @Reusable
     @JvmStatic
-    fun provideResultsRemoteViewsService(): ResultsRemoteViewsServiceAbstractFactory = ResultsRemoteViewsServiceFactory()
+    fun provideResultsRemoteViewsService(): ResultsRemoteViewsServiceIntentFactory {
+        return ::resultsRemoteViewsServiceIntentFactory
+    }
 }
 
 @Module
@@ -21,5 +23,7 @@ internal object ResultsRemoteViewsFactoryModule {
     @Provides
     @Reusable
     @JvmStatic
-    fun provideResultsRemoteViewsFactory(): ResultsRemoteViewsFactoryAbstractFactory = ResultsRemoteViewsFactoryFactory()
+    fun provideResultsRemoteViewsFactory(): ResultsRemoteViewsFactoryFactory {
+        return ::resultsRemoteViewsFactoryFactory
+    }
 }

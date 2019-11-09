@@ -1,8 +1,8 @@
 package inc.ahmedmourad.sherlock.viewmodel.controllers
 
 import androidx.lifecycle.ViewModel
-import inc.ahmedmourad.sherlock.domain.dagger.modules.factories.FilterAbstractFactory
-import inc.ahmedmourad.sherlock.domain.dagger.modules.factories.FindChildrenInteractorAbstractFactory
+import inc.ahmedmourad.sherlock.domain.dagger.modules.factories.ChildrenFilterFactory
+import inc.ahmedmourad.sherlock.domain.interactors.FindChildrenInteractor
 import inc.ahmedmourad.sherlock.domain.model.Either
 import inc.ahmedmourad.sherlock.mapper.toAppSimpleChild
 import inc.ahmedmourad.sherlock.model.AppChildCriteriaRules
@@ -13,9 +13,9 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.subjects.PublishSubject
 
 internal class SearchResultsViewModel(
-        rules: AppChildCriteriaRules,
-        interactor: FindChildrenInteractorAbstractFactory,
-        filterFactory: FilterAbstractFactory
+        interactor: FindChildrenInteractor,
+        filterFactory: ChildrenFilterFactory,
+        rules: AppChildCriteriaRules
 ) : ViewModel() {
 
     private val refreshSubject = PublishSubject.create<Unit>()
@@ -26,8 +26,7 @@ internal class SearchResultsViewModel(
 
         val domainRules = rules.toDomainChildCriteriaRules()
 
-        searchResults = interactor.create(domainRules, filterFactory.create(domainRules))
-                .execute()
+        searchResults = interactor(domainRules, filterFactory(domainRules))
                 .map { either ->
                     either.map {
                         it.map { (child, score) ->

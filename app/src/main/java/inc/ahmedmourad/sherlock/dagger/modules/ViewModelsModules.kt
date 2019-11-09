@@ -1,6 +1,8 @@
 package inc.ahmedmourad.sherlock.dagger.modules
 
 import androidx.lifecycle.ViewModelProvider
+import arrow.syntax.function.curried
+import arrow.syntax.function.partially1
 import dagger.Lazy
 import dagger.Module
 import dagger.Provides
@@ -9,7 +11,9 @@ import inc.ahmedmourad.sherlock.dagger.modules.factories.*
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.AddChildViewModelQualifier
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.FindChildrenViewModelQualifier
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.MainActivityViewModelQualifier
-import inc.ahmedmourad.sherlock.domain.dagger.modules.factories.*
+import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.SherlockServiceIntentQualifier
+import inc.ahmedmourad.sherlock.domain.dagger.modules.factories.ChildrenFilterFactory
+import inc.ahmedmourad.sherlock.domain.interactors.*
 
 @Module
 internal object MainActivityViewModelModule {
@@ -18,8 +22,10 @@ internal object MainActivityViewModelModule {
     @MainActivityViewModelQualifier
     @JvmStatic
     fun provideMainActivityViewModel(
-            observeInternetConnectivityInteractor: ObserveInternetConnectivityInteractorAbstractFactory
-    ): ViewModelProvider.NewInstanceFactory = MainActivityViewModelFactory(observeInternetConnectivityInteractor)
+            observeInternetConnectivityInteractor: ObserveInternetConnectivityInteractor
+    ): ViewModelProvider.NewInstanceFactory {
+        return MainActivityViewModelFactory(observeInternetConnectivityInteractor)
+    }
 }
 
 @Module
@@ -29,18 +35,20 @@ internal object AddChildViewModelModule {
     @AddChildViewModelQualifier
     @JvmStatic
     fun provideAddChildViewModel(
-            serviceFactory: Lazy<SherlockServiceAbstractFactory>,
-            observeInternetConnectivityInteractor: ObserveInternetConnectivityInteractorAbstractFactory,
-            checkInternetConnectivityInteractor: CheckInternetConnectivityInteractorAbstractFactory,
-            observePublishingStateInteractor: ObservePublishingStateInteractorAbstractFactory,
-            checkPublishingStateInteractor: CheckPublishingStateInteractorAbstractFactory
-    ): ViewModelProvider.NewInstanceFactory = AddChildViewModelFactory(
-            serviceFactory,
-            observeInternetConnectivityInteractor,
-            checkInternetConnectivityInteractor,
-            observePublishingStateInteractor,
-            checkPublishingStateInteractor
-    )
+            @SherlockServiceIntentQualifier serviceFactory: Lazy<SherlockServiceIntentFactory>,
+            observeInternetConnectivityInteractor: ObserveInternetConnectivityInteractor,
+            checkInternetConnectivityInteractor: CheckInternetConnectivityInteractor,
+            observePublishingStateInteractor: ObservePublishingStateInteractor,
+            checkPublishingStateInteractor: CheckPublishingStateInteractor
+    ): ViewModelProvider.NewInstanceFactory {
+        return AddChildViewModelFactory(
+                serviceFactory,
+                observeInternetConnectivityInteractor,
+                checkInternetConnectivityInteractor,
+                observePublishingStateInteractor,
+                checkPublishingStateInteractor
+        )
+    }
 }
 
 @Module
@@ -50,10 +58,12 @@ internal object FindChildrenViewModelModule {
     @FindChildrenViewModelQualifier
     @JvmStatic
     fun provideFindChildrenViewModel(
-            observeInternetConnectivityInteractor: ObserveInternetConnectivityInteractorAbstractFactory
-    ): ViewModelProvider.NewInstanceFactory = FindChildrenViewModelFactory(
-            observeInternetConnectivityInteractor
-    )
+            observeInternetConnectivityInteractor: ObserveInternetConnectivityInteractor
+    ): ViewModelProvider.NewInstanceFactory {
+        return FindChildrenViewModelFactory(
+                observeInternetConnectivityInteractor
+        )
+    }
 }
 
 @Module
@@ -62,9 +72,11 @@ internal object SearchResultsViewModelModule {
     @Reusable
     @JvmStatic
     fun provideSearchResultViewModel(
-            interactor: FindChildrenInteractorAbstractFactory,
-            filterFactory: FilterAbstractFactory
-    ): SearchResultsViewModelFactoryAbstractFactory = SearchResultsViewModelFactoryFactory(interactor, filterFactory)
+            interactor: FindChildrenInteractor,
+            filterFactory: ChildrenFilterFactory
+    ): SearchResultsViewModelFactoryFactory {
+        return ::searchResultsViewModelFactoryFactory.curried()(interactor)(filterFactory)
+    }
 }
 
 @Module
@@ -72,5 +84,7 @@ internal object DisplayChildViewModelModule {
     @Provides
     @Reusable
     @JvmStatic
-    fun provideDisplayChildViewModel(interactor: FindChildInteractorAbstractFactory): DisplayChildViewModelFactoryAbstractFactory = DisplayChildViewModelFactoryFactory(interactor)
+    fun provideDisplayChildViewModel(interactor: FindChildInteractor): DisplayChildViewModelFactoryFactory {
+        return ::displayChildViewModelFactoryFactory.partially1(interactor)
+    }
 }

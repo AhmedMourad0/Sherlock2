@@ -8,9 +8,9 @@ import dagger.Lazy
 
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
-import inc.ahmedmourad.sherlock.dagger.modules.factories.ResultsRemoteViewsServiceAbstractFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.ResultsRemoteViewsServiceIntentFactory
 import inc.ahmedmourad.sherlock.domain.bus.Bus
-import inc.ahmedmourad.sherlock.domain.dagger.modules.factories.FindLastSearchResultsInteractorAbstractFactory
+import inc.ahmedmourad.sherlock.domain.interactors.FindLastSearchResultsInteractor
 import inc.ahmedmourad.sherlock.mapper.toAppSimpleChild
 import inc.ahmedmourad.sherlock.utils.DisposablesSparseArray
 import io.reactivex.Flowable
@@ -22,13 +22,13 @@ import javax.inject.Inject
 internal class AppWidget : AppWidgetProvider() {
 
     @Inject
-    lateinit var interactor: FindLastSearchResultsInteractorAbstractFactory
+    lateinit var interactor: FindLastSearchResultsInteractor
 
     @Inject
     lateinit var bus: Lazy<Bus>
 
     @Inject
-    lateinit var resultsRemoteViewsServiceFactory: Lazy<ResultsRemoteViewsServiceAbstractFactory>
+    lateinit var resultsRemoteViewsServiceFactory: Lazy<ResultsRemoteViewsServiceIntentFactory>
 
     private val disposables = DisposablesSparseArray()
 
@@ -50,8 +50,7 @@ internal class AppWidget : AppWidgetProvider() {
      * @param appWidgetId      The appWidgetIds for which an update is needed.
      */
     private fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int): Disposable {
-        return interactor.create()
-                .execute()
+        return interactor()
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .flatMap {
@@ -69,7 +68,7 @@ internal class AppWidget : AppWidgetProvider() {
                     views.setEmptyView(R.id.widget_list_view, R.id.widget_empty_view)
 
                     views.setRemoteAdapter(R.id.widget_list_view,
-                            resultsRemoteViewsServiceFactory.get().createIntent(appWidgetId, it)
+                            resultsRemoteViewsServiceFactory.get()(appWidgetId, it)
                     )
 
                     appWidgetManager.updateAppWidget(appWidgetId, views)

@@ -7,22 +7,17 @@ import inc.ahmedmourad.sherlock.model.AppSimpleRetrievedChild
 import inc.ahmedmourad.sherlock.widget.adapter.ResultsRemoteViewsFactory
 import inc.ahmedmourad.sherlock.widget.adapter.ResultsRemoteViewsService
 
-internal interface ResultsRemoteViewsServiceAbstractFactory {
-    fun createIntent(appWidgetId: Int, results: List<Pair<AppSimpleRetrievedChild, Int>>): Intent
+internal typealias ResultsRemoteViewsServiceIntentFactory = (Int, List<Pair<AppSimpleRetrievedChild, Int>>) -> Intent
+
+internal fun resultsRemoteViewsServiceIntentFactory(appWidgetId: Int, results: List<Pair<AppSimpleRetrievedChild, Int>>): Intent {
+    return ResultsRemoteViewsService.create(appWidgetId, results)
 }
 
-internal class ResultsRemoteViewsServiceFactory : ResultsRemoteViewsServiceAbstractFactory {
-    override fun createIntent(appWidgetId: Int, results: List<Pair<AppSimpleRetrievedChild, Int>>): Intent {
-        return ResultsRemoteViewsService.create(appWidgetId, results)
-    }
-}
+internal typealias ResultsRemoteViewsFactoryFactory = (Context, List<Pair<AppSimpleRetrievedChild, Int>>) -> RemoteViewsService.RemoteViewsFactory
 
-internal interface ResultsRemoteViewsFactoryAbstractFactory {
-    fun create(context: Context, results: List<Pair<AppSimpleRetrievedChild, Int>>): RemoteViewsService.RemoteViewsFactory
-}
-
-internal class ResultsRemoteViewsFactoryFactory : ResultsRemoteViewsFactoryAbstractFactory {
-    override fun create(context: Context, results: List<Pair<AppSimpleRetrievedChild, Int>>): RemoteViewsService.RemoteViewsFactory {
-        return ResultsRemoteViewsFactory(context, results)
-    }
+internal fun resultsRemoteViewsFactoryFactory(
+        context: Context,
+        results: List<Pair<AppSimpleRetrievedChild, Int>>
+): RemoteViewsService.RemoteViewsFactory {
+    return ResultsRemoteViewsFactory(context, results)
 }

@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
-import inc.ahmedmourad.sherlock.domain.dagger.modules.factories.ObserveInternetConnectivityInteractorAbstractFactory
+import inc.ahmedmourad.sherlock.domain.interactors.ObserveInternetConnectivityInteractor
 import inc.ahmedmourad.sherlock.model.AppChildCriteriaRules
 import inc.ahmedmourad.sherlock.model.AppExactAppearance
 import inc.ahmedmourad.sherlock.model.AppLocation
@@ -14,7 +14,7 @@ import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 
 internal class FindChildrenViewModel(
-        observeInternetConnectivityInteractor: ObserveInternetConnectivityInteractorAbstractFactory
+        observeInternetConnectivityInteractor: ObserveInternetConnectivityInteractor
 ) : ViewModel() {
 
     val firstName by lazy { DefaultLiveData("") }
@@ -30,8 +30,7 @@ internal class FindChildrenViewModel(
     val age by lazy { DefaultLiveData(15) }
     val height by lazy { DefaultLiveData(120) }
 
-    val internetConnectivityObserver: Flowable<Boolean> = observeInternetConnectivityInteractor.create()
-            .execute()
+    val internetConnectivityObserver: Flowable<Boolean> = observeInternetConnectivityInteractor()
             .retry()
             .observeOn(AndroidSchedulers.mainThread())
 

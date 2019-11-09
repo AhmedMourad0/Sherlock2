@@ -18,8 +18,8 @@ import com.bluelinelabs.conductor.RouterTransaction
 import com.bluelinelabs.conductor.archlifecycle.LifecycleController
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
-import inc.ahmedmourad.sherlock.dagger.modules.factories.DisplayChildViewModelFactoryAbstractFactory
-import inc.ahmedmourad.sherlock.dagger.modules.factories.MainActivityAbstractFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.DisplayChildViewModelFactoryFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.MainActivityIntentFactory
 import inc.ahmedmourad.sherlock.domain.model.Either
 import inc.ahmedmourad.sherlock.domain.model.disposable
 import inc.ahmedmourad.sherlock.formatter.Formatter
@@ -70,7 +70,7 @@ internal class DisplayChildController(args: Bundle) : LifecycleController(args) 
     lateinit var formatter: Formatter
 
     @Inject
-    lateinit var viewModelFactoryFactory: DisplayChildViewModelFactoryAbstractFactory
+    lateinit var viewModelFactoryFactory: DisplayChildViewModelFactoryFactory
 
     private lateinit var viewModel: DisplayChildViewModel
 
@@ -94,7 +94,7 @@ internal class DisplayChildController(args: Bundle) : LifecycleController(args) 
 
         val child = requireNotNull(args.getParcelable<AppSimpleRetrievedChild>(ARG_CHILD))
 
-        viewModel = viewModelProvider(viewModelFactoryFactory.create(child))[DisplayChildViewModel::class.java]
+        viewModel = viewModelProvider(viewModelFactoryFactory(child))[DisplayChildViewModel::class.java]
 
         return view
     }
@@ -173,8 +173,8 @@ internal class DisplayChildController(args: Bundle) : LifecycleController(args) 
             putParcelable(ARG_CHILD, child)
         }), CONTROLLER_TAG)
 
-        fun createIntent(activityFactory: MainActivityAbstractFactory, child: AppSimpleRetrievedChild): Intent {
-            return activityFactory.createIntent(DESTINATION_ID).apply {
+        fun createIntent(activityFactory: MainActivityIntentFactory, child: AppSimpleRetrievedChild): Intent {
+            return activityFactory(DESTINATION_ID).apply {
                 putExtra(EXTRA_CHILD, child)
             }
         }

@@ -30,8 +30,8 @@ import dagger.Lazy
 import de.hdodenhof.circleimageview.CircleImageView
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
-import inc.ahmedmourad.sherlock.dagger.modules.factories.DisplayChildControllerAbstractFactory
-import inc.ahmedmourad.sherlock.dagger.modules.factories.MainActivityAbstractFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.DisplayChildControllerFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.MainActivityIntentFactory
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.AddChildViewModelQualifier
 import inc.ahmedmourad.sherlock.defaults.DefaultOnRangeChangedListener
 import inc.ahmedmourad.sherlock.defaults.DefaultTextWatcher
@@ -119,7 +119,7 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
     lateinit var viewModelFactory: ViewModelProvider.NewInstanceFactory
 
     @Inject
-    lateinit var displayChildControllerFactory: Lazy<DisplayChildControllerAbstractFactory>
+    lateinit var displayChildControllerFactory: Lazy<DisplayChildControllerFactory>
 
     private lateinit var skinColorSelector: ColorSelector<Skin>
     private lateinit var hairColorSelector: ColorSelector<Hair>
@@ -252,7 +252,7 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
 
     private fun onPublishedSuccessfully(child: AppRetrievedChild) {
         publishingDisposable?.dispose()
-        val taggedController = displayChildControllerFactory.get().create(child.simplify())
+        val taggedController = displayChildControllerFactory.get()(child.simplify())
         router.popCurrentController()
         router.pushController(RouterTransaction.with(taggedController.controller).tag(taggedController.tag))
     }
@@ -551,8 +551,8 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
             putParcelable(ARG_CHILD, child)
         }), CONTROLLER_TAG)
 
-        fun createIntent(activityFactory: MainActivityAbstractFactory, child: AppPublishedChild): Intent {
-            return activityFactory.createIntent(DESTINATION_ID).apply {
+        fun createIntent(activityFactory: MainActivityIntentFactory, child: AppPublishedChild): Intent {
+            return activityFactory(DESTINATION_ID).apply {
                 putExtra(EXTRA_CHILD, child)
             }
         }

@@ -5,8 +5,8 @@ import inc.ahmedmourad.sherlock.domain.data.ChildrenRepository
 import inc.ahmedmourad.sherlock.domain.model.DomainSimpleRetrievedChild
 import io.reactivex.Flowable
 
-internal class FindLastSearchResultsInteractor(private val childrenRepository: Lazy<ChildrenRepository>) : Interactor<Flowable<List<Pair<DomainSimpleRetrievedChild, Int>>>> {
-    override fun execute(): Flowable<List<Pair<DomainSimpleRetrievedChild, Int>>> {
-        return childrenRepository.get().findLastSearchResults()
-    }
+typealias FindLastSearchResultsInteractor = () -> @JvmSuppressWildcards Flowable<List<Pair<DomainSimpleRetrievedChild, Int>>>
+
+internal fun findLastSearchResults(childrenRepository: Lazy<ChildrenRepository>): Flowable<List<Pair<DomainSimpleRetrievedChild, Int>>> {
+    return childrenRepository.get().findLastSearchResults()
 }

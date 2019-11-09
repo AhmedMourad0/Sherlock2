@@ -22,26 +22,26 @@ import inc.ahmedmourad.sherlock.domain.data.ChildrenRepository
 import inc.ahmedmourad.sherlock.domain.platform.ConnectivityManager
 
 @Module(includes = [
-    ChildrenFirebaseFirestoreRemoteRepositoryModule::class,
-    ChildrenRoomLocalRepositoryModule::class
+    ChildrenRemoteRepositoryModule::class,
+    ChildrenLocalRepositoryModule::class
 ])
-internal object SherlockChildrenRepositoryModule {
+internal object ChildrenRepositoryModule {
     @Provides
     @Reusable
     @JvmStatic
-    fun provideChildrenSherlockRepository(
+    fun provideChildrenRepository(
             childrenLocalRepository: Lazy<ChildrenLocalRepository>,
             childrenRemoteRepository: Lazy<ChildrenRemoteRepository>,
             bus: Lazy<Bus>
     ): ChildrenRepository = SherlockChildrenRepository(childrenLocalRepository, childrenRemoteRepository, bus)
 }
 
-@Module(includes = [FirebaseFirestoreModule::class, ChildrenFirebaseStorageImageRepositoryModule::class])
-internal object ChildrenFirebaseFirestoreRemoteRepositoryModule {
+@Module(includes = [FirebaseFirestoreModule::class, ChildrenImageRepositoryModule::class])
+internal object ChildrenRemoteRepositoryModule {
     @Provides
     @Reusable
     @JvmStatic
-    fun provideChildrenFirebaseFirestoreRemoteRepository(
+    fun provideChildrenRemoteRepository(
             @ChildrenFirebaseFirestoreQualifier db: Lazy<FirebaseFirestore>,
             childrenImageRepository: Lazy<ChildrenImageRepository>,
             authEnforcer: Lazy<AuthManager.AuthEnforcer>,
@@ -55,19 +55,19 @@ internal object ChildrenFirebaseFirestoreRemoteRepositoryModule {
 }
 
 @Module(includes = [FirebaseStorageModule::class])
-internal object ChildrenFirebaseStorageImageRepositoryModule {
+internal object ChildrenImageRepositoryModule {
     @Provides
     @Reusable
     @JvmStatic
-    fun provideFirebaseStorageChildrenImageRepository(
+    fun provideChildrenImageRepository(
             @ChildrenFirebaseStorageQualifier storage: Lazy<FirebaseStorage>
     ): ChildrenImageRepository = ChildrenFirebaseStorageImageRepository(storage)
 }
 
 @Module(includes = [SherlockDatabaseModule::class])
-internal object ChildrenRoomLocalRepositoryModule {
+internal object ChildrenLocalRepositoryModule {
     @Provides
     @Reusable
     @JvmStatic
-    fun provideChildrenRoomLocalRepository(db: Lazy<SherlockDatabase>): ChildrenLocalRepository = ChildrenRoomLocalRepository(db)
+    fun provideChildrenLocalRepository(db: Lazy<SherlockDatabase>): ChildrenLocalRepository = ChildrenRoomLocalRepository(db)
 }

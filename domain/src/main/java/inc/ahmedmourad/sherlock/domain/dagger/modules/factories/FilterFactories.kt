@@ -6,23 +6,25 @@ import inc.ahmedmourad.sherlock.domain.filter.ResultsFilter
 import inc.ahmedmourad.sherlock.domain.filter.criteria.Criteria
 import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
 import inc.ahmedmourad.sherlock.domain.filter.criteria.LooseCriteria
-import inc.ahmedmourad.sherlock.domain.model.DomainChild
+import inc.ahmedmourad.sherlock.domain.model.DomainRetrievedChild
 import inc.ahmedmourad.sherlock.domain.platform.LocationManager
 
-interface FilterAbstractFactory {
-    fun <C : DomainChild> create(rules: DomainChildCriteriaRules): Filter<C>
+typealias ChildrenFilterFactory =
+        (@JvmSuppressWildcards DomainChildCriteriaRules) -> @JvmSuppressWildcards Filter<DomainRetrievedChild>
+
+internal fun childrenFilterFactory(
+        criteriaFactory: ChildrenCriteriaFactory,
+        rules: DomainChildCriteriaRules
+): Filter<DomainRetrievedChild> {
+    return ResultsFilter(criteriaFactory(rules))
 }
 
-internal class ResultsFilterFactory(private val criteriaFactory: CriteriaAbstractFactory) : FilterAbstractFactory {
-    override fun <C : DomainChild> create(rules: DomainChildCriteriaRules): Filter<C> =
-            ResultsFilter(criteriaFactory.create(rules))
+typealias ChildrenCriteriaFactory =
+        (@JvmSuppressWildcards DomainChildCriteriaRules) -> @JvmSuppressWildcards Criteria<DomainRetrievedChild>
 
-}
-
-interface CriteriaAbstractFactory {
-    fun <C : DomainChild> create(rules: DomainChildCriteriaRules): Criteria<C>
-}
-
-internal class LooseCriteriaFactory(private val locationManager: Lazy<LocationManager>) : CriteriaAbstractFactory {
-    override fun <C : DomainChild> create(rules: DomainChildCriteriaRules): Criteria<C> = LooseCriteria(rules, locationManager)
+internal fun childrenLooseCriteriaFactory(
+        locationManager: Lazy<LocationManager>,
+        rules: DomainChildCriteriaRules
+): Criteria<DomainRetrievedChild> {
+    return LooseCriteria(rules, locationManager)
 }

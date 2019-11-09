@@ -5,31 +5,30 @@ import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
 import com.bluelinelabs.conductor.*
+import com.google.android.material.snackbar.Snackbar
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.HomeControllerQualifier
-import inc.ahmedmourad.sherlock.domain.bus.Bus
-import inc.ahmedmourad.sherlock.view.model.TaggedController
-import splitties.init.appCtx
-import javax.inject.Inject
-import inc.ahmedmourad.sherlock.model.Connectivity
-import android.widget.TextView
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
-import com.google.android.material.snackbar.Snackbar
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.MainActivityViewModelQualifier
+import inc.ahmedmourad.sherlock.domain.bus.Bus
 import inc.ahmedmourad.sherlock.domain.model.disposable
-import inc.ahmedmourad.sherlock.view.controllers.AddChildController
+import inc.ahmedmourad.sherlock.model.Connectivity
 import inc.ahmedmourad.sherlock.view.dialog.ConductorBottomSheetDialog
+import inc.ahmedmourad.sherlock.view.model.TaggedController
 import inc.ahmedmourad.sherlock.viewmodel.activity.MainActivityViewModel
+import splitties.init.appCtx
 import timber.log.Timber
+import javax.inject.Inject
 
 //TODO: use Anko's Dsl for all of our layouts
 //TODO: use Kotlin's extensions instead of ButterKnife
@@ -44,7 +43,7 @@ internal class MainActivity : AppCompatActivity() {
 
     @Inject
     @field:HomeControllerQualifier
-    lateinit var homeController: Lazy<TaggedController<Controller>>
+    lateinit var homeController: Lazy<TaggedController>
 
     @Inject
     lateinit var bus: Bus

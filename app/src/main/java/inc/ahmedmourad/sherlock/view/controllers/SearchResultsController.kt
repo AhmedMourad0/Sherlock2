@@ -16,16 +16,17 @@ import com.bluelinelabs.conductor.RouterTransaction
 import com.bluelinelabs.conductor.archlifecycle.LifecycleController
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
-import inc.ahmedmourad.sherlock.adapters.ResultsRecyclerAdapter
+import inc.ahmedmourad.sherlock.adapters.DynamicRecyclerAdapter
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
-import inc.ahmedmourad.sherlock.dagger.modules.factories.DisplayChildControllerAbstractFactory
-import inc.ahmedmourad.sherlock.dagger.modules.factories.ResultsRecyclerAdapterAbstractFactory
-import inc.ahmedmourad.sherlock.dagger.modules.factories.SearchResultsViewModelFactoryAbstractFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.DisplayChildControllerFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.ResultsRecyclerAdapterFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.SearchResultsViewModelFactoryFactory
 import inc.ahmedmourad.sherlock.domain.model.Either
 import inc.ahmedmourad.sherlock.domain.model.disposable
 import inc.ahmedmourad.sherlock.domain.platform.DateManager
 import inc.ahmedmourad.sherlock.formatter.Formatter
 import inc.ahmedmourad.sherlock.model.AppChildCriteriaRules
+import inc.ahmedmourad.sherlock.model.AppSimpleRetrievedChild
 import inc.ahmedmourad.sherlock.utils.setSupportActionBar
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
 import inc.ahmedmourad.sherlock.view.model.TaggedController
@@ -49,20 +50,20 @@ internal class SearchResultsController(args: Bundle) : LifecycleController(args)
     lateinit var formatter: Lazy<Formatter>
 
     @Inject
-    lateinit var adapterFactory: ResultsRecyclerAdapterAbstractFactory
+    lateinit var adapterFactory: ResultsRecyclerAdapterFactory
 
     @Inject
-    lateinit var displayChildControllerFactory: Lazy<DisplayChildControllerAbstractFactory>
+    lateinit var displayChildControllerFactory: Lazy<DisplayChildControllerFactory>
 
     @Inject
-    lateinit var viewModelFactoryFactory: SearchResultsViewModelFactoryAbstractFactory
+    lateinit var viewModelFactoryFactory: SearchResultsViewModelFactoryFactory
 
     private lateinit var context: Context
 
     private lateinit var rules: AppChildCriteriaRules
 
     //TODO: create an interface instead
-    private lateinit var adapter: ResultsRecyclerAdapter
+    private lateinit var adapter: DynamicRecyclerAdapter<List<Pair<AppSimpleRetrievedChild, Int>>, *>
 
     private lateinit var viewModel: SearchResultsViewModel
 
@@ -88,7 +89,7 @@ internal class SearchResultsController(args: Bundle) : LifecycleController(args)
 
         initializeRecyclerView()
 
-        viewModel = viewModelProvider(viewModelFactoryFactory.create(rules))[SearchResultsViewModel::class.java]
+        viewModel = viewModelProvider(viewModelFactoryFactory(rules))[SearchResultsViewModel::class.java]
 
         return view
     }
@@ -102,7 +103,7 @@ internal class SearchResultsController(args: Bundle) : LifecycleController(args)
 
             when (it) {
 
-                is Either.Value -> adapter.updateList(it.value)
+                is Either.Value -> adapter.update(it.value)
 
                 is Either.Error -> {
                     Timber.e(it.error)
@@ -120,8 +121,8 @@ internal class SearchResultsController(args: Bundle) : LifecycleController(args)
 
     private fun initializeRecyclerView() {
 
-        adapter = adapterFactory.create {
-            val taggedController = displayChildControllerFactory.get().create(it.first)
+        adapter = adapterFactory {
+            val taggedController = displayChildControllerFactory.get()(it.first)
             router.pushController(RouterTransaction.with(taggedController.controller).tag(taggedController.tag))
         }
 

@@ -22,7 +22,7 @@ internal class ResultsRecyclerAdapter(
         private val dateManager: Lazy<DateManager>,
         private val formatter: Lazy<Formatter>,
         private val onResultSelectedListener: (Pair<AppSimpleRetrievedChild, Int>) -> Unit
-) : RecyclerView.Adapter<ResultsRecyclerAdapter.ViewHolder>() {
+) : DynamicRecyclerAdapter<List<Pair<AppSimpleRetrievedChild, Int>>, ResultsRecyclerAdapter.ViewHolder>() {
 
     private val resultsList = ArrayList<Pair<AppSimpleRetrievedChild, Int>>()
 
@@ -32,9 +32,9 @@ internal class ResultsRecyclerAdapter(
 
     override fun getItemCount() = resultsList.size
 
-    fun updateList(list: List<Pair<AppSimpleRetrievedChild, Int>>) {
+    override fun update(items: List<Pair<AppSimpleRetrievedChild, Int>>) {
         resultsList.clear()
-        resultsList.addAll(list)
+        resultsList.addAll(items)
         notifyDataSetChanged()
     }
 

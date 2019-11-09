@@ -4,8 +4,8 @@ import dagger.Lazy
 import inc.ahmedmourad.sherlock.domain.platform.ConnectivityManager
 import io.reactivex.Flowable
 
-internal class ObserveInternetConnectivityInteractor(private val connectivityManager: Lazy<ConnectivityManager>) : Interactor<Flowable<Boolean>> {
-    override fun execute(): Flowable<Boolean> {
-        return connectivityManager.get().observeInternetConnectivity()
-    }
+typealias ObserveInternetConnectivityInteractor = () -> @JvmSuppressWildcards Flowable<Boolean>
+
+internal fun observeInternetConnectivity(connectivityManager: Lazy<ConnectivityManager>): Flowable<Boolean> {
+    return connectivityManager.get().observeInternetConnectivity()
 }

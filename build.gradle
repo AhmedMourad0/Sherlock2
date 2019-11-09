@@ -26,6 +26,7 @@ allprojects {
         splittiesVersion = "2.1.0"
         timberVersion = "4.7.1"
         spek_version = "2.0.1"
+        arrow_version = "0.10.2"
     }
 }
 

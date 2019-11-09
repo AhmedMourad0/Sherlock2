@@ -12,10 +12,11 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
-import inc.ahmedmourad.sherlock.dagger.modules.factories.AddChildControllerAbstractFactory
-import inc.ahmedmourad.sherlock.dagger.modules.factories.DisplayChildControllerAbstractFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.AddChildControllerIntentFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.DisplayChildControllerIntentFactory
+import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.AddChildControllerIntentQualifier
 import inc.ahmedmourad.sherlock.domain.bus.Bus
-import inc.ahmedmourad.sherlock.domain.dagger.modules.factories.AddChildInteractorAbstractFactory
+import inc.ahmedmourad.sherlock.domain.interactors.AddChildInteractor
 import inc.ahmedmourad.sherlock.domain.model.DomainRetrievedChild
 import inc.ahmedmourad.sherlock.domain.model.disposable
 import inc.ahmedmourad.sherlock.mapper.toAppChild
@@ -34,13 +35,14 @@ internal class SherlockService : Service() {
     lateinit var bus: Bus
 
     @Inject
-    lateinit var addChildInteractor: AddChildInteractorAbstractFactory
+    lateinit var addChildInteractor: AddChildInteractor
 
     @Inject
-    lateinit var addChildControllerFactory: AddChildControllerAbstractFactory
+    @field:AddChildControllerIntentQualifier
+    lateinit var addChildControllerFactory: AddChildControllerIntentFactory
 
     @Inject
-    lateinit var displayChildControllerFactory: DisplayChildControllerAbstractFactory
+    lateinit var displayChildControllerFactory: DisplayChildControllerIntentFactory
 
     private var addChildDisposable by disposable()
 
@@ -65,8 +67,7 @@ internal class SherlockService : Service() {
 
         startForeground(NOTIFICATION_ID_PUBLISH_CHILD, createPublishingNotification(child))
 
-        addChildDisposable = addChildInteractor.create(child.toDomainChild())
-                .execute()
+        addChildDisposable = addChildInteractor(child.toDomainChild())
                 .map(DomainRetrievedChild::toAppChild)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -85,7 +86,7 @@ internal class SherlockService : Service() {
 
     private fun createPublishingNotification(child: AppPublishedChild): Notification {
 
-        val pendingIntent = addChildControllerFactory.createIntent(child).let {
+        val pendingIntent = addChildControllerFactory(child).let {
             PendingIntent.getActivity(applicationContext, REQUEST_CODE_PUBLISH_CHILD, it, PendingIntent.FLAG_UPDATE_CURRENT)
         }
 
@@ -108,7 +109,7 @@ internal class SherlockService : Service() {
 
     private fun showPublishedSuccessfullyNotification(child: AppSimpleRetrievedChild) {
 
-        val pendingIntent = displayChildControllerFactory.createIntent(child).let {
+        val pendingIntent = displayChildControllerFactory(child).let {
             PendingIntent.getActivity(applicationContext, REQUEST_CODE_PUBLISHED_SUCCESSFULLY, it, PendingIntent.FLAG_UPDATE_CURRENT)
         }
 

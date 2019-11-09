@@ -1,7 +1,6 @@
 package inc.ahmedmourad.sherlock.dagger.modules.factories
 
 import android.content.Intent
-import com.bluelinelabs.conductor.Controller
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.model.AppChildCriteriaRules
 import inc.ahmedmourad.sherlock.model.AppPublishedChild
@@ -11,30 +10,36 @@ import inc.ahmedmourad.sherlock.view.controllers.DisplayChildController
 import inc.ahmedmourad.sherlock.view.controllers.SearchResultsController
 import inc.ahmedmourad.sherlock.view.model.TaggedController
 
-internal interface AddChildControllerAbstractFactory {
-    fun create(): Lazy<TaggedController<Controller>>
-    fun createIntent(child: AppPublishedChild): Intent
+internal typealias AddChildControllerFactory = () -> @JvmSuppressWildcards Lazy<TaggedController>
+
+internal fun addChildControllerFactory(): Lazy<TaggedController> {
+    return Lazy { AddChildController.newInstance() }
 }
 
-internal class AddChildControllerFactory(private val activityFactory: MainActivityAbstractFactory) : AddChildControllerAbstractFactory {
-    override fun create() = Lazy<TaggedController<Controller>> { AddChildController.newInstance() }
-    override fun createIntent(child: AppPublishedChild) = AddChildController.createIntent(activityFactory, child)
+internal typealias AddChildControllerIntentFactory =
+        (@JvmSuppressWildcards AppPublishedChild) -> @JvmSuppressWildcards Intent
+
+internal fun addChildControllerIntentFactory(activityFactory: MainActivityIntentFactory, child: AppPublishedChild): Intent {
+    return AddChildController.createIntent(activityFactory, child)
 }
 
-internal interface DisplayChildControllerAbstractFactory {
-    fun create(child: AppSimpleRetrievedChild): TaggedController<Controller>
-    fun createIntent(child: AppSimpleRetrievedChild): Intent
+internal typealias DisplayChildControllerFactory =
+        (@JvmSuppressWildcards AppSimpleRetrievedChild) -> @JvmSuppressWildcards TaggedController
+
+internal fun displayChildControllerFactory(child: AppSimpleRetrievedChild): TaggedController {
+    return DisplayChildController.newInstance(child)
 }
 
-internal class DisplayChildControllerFactory(private val activityFactory: MainActivityAbstractFactory) : DisplayChildControllerAbstractFactory {
-    override fun create(child: AppSimpleRetrievedChild) = DisplayChildController.newInstance(child)
-    override fun createIntent(child: AppSimpleRetrievedChild) = DisplayChildController.createIntent(activityFactory, child)
+internal typealias DisplayChildControllerIntentFactory =
+        (@JvmSuppressWildcards AppSimpleRetrievedChild) -> @JvmSuppressWildcards Intent
+
+internal fun displayChildControllerIntentFactory(activityFactory: MainActivityIntentFactory, child: AppSimpleRetrievedChild): Intent {
+    return DisplayChildController.createIntent(activityFactory, child)
 }
 
-internal interface SearchResultsControllerAbstractFactory {
-    fun create(rules: AppChildCriteriaRules): TaggedController<Controller>
-}
+internal typealias SearchResultsControllerFactory =
+        (@JvmSuppressWildcards AppChildCriteriaRules) -> @JvmSuppressWildcards TaggedController
 
-internal class SearchResultsControllerFactory : SearchResultsControllerAbstractFactory {
-    override fun create(rules: AppChildCriteriaRules) = SearchResultsController.newInstance(rules)
+internal fun searchResultsControllerFactory(rules: AppChildCriteriaRules): TaggedController {
+    return SearchResultsController.newInstance(rules)
 }

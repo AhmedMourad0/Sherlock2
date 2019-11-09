@@ -13,41 +13,41 @@ import inc.ahmedmourad.sherlock.platform.managers.AndroidLocationManager
 import inc.ahmedmourad.sherlock.platform.managers.AndroidTextManager
 
 @Module
-internal object AndroidDateManagerModule {
+internal object DateManagerModule {
     @Provides
     @Reusable
     @JvmStatic
-    fun provideAndroidDateManager(): DateManager = AndroidDateManager()
+    fun provideDateManager(): DateManager = AndroidDateManager()
 }
 
 @Module
-internal object AndroidLocationManagerModule {
+internal object LocationManagerModule {
     @Provides
     @Reusable
     @JvmStatic
-    fun provideAndroidLocationManager(): LocationManager = AndroidLocationManager()
+    fun provideLocationManager(): LocationManager = AndroidLocationManager()
 }
 
 @Module
-internal object AndroidTextManagerModule {
+internal object TextManagerModule {
     @Provides
     @Reusable
     @JvmStatic
-    fun provideAndroidTextManager(): TextManager = AndroidTextManager()
+    fun provideTextManager(): TextManager = AndroidTextManager()
 }
 
 @Module
-internal object AndroidConnectivityManagerModule {
+internal object ConnectivityManagerModule {
     @Provides
     @Reusable
     @JvmStatic
-    fun provideAndroidConnectivityManager(): ConnectivityManager = AndroidConnectivityManager()
+    fun provideConnectivityManager(): ConnectivityManager = AndroidConnectivityManager()
 }
 
 @Module
-internal object AndroidConnectivityEnforcerModule {
+internal object ConnectivityEnforcerModule {
     @Provides
     @Reusable
     @JvmStatic
-    fun provideAndroidConnectivityEnforcer(): ConnectivityManager.ConnectivityEnforcer = AndroidConnectivityManager.AndroidConnectivityEnforcer()
+    fun provideConnectivityEnforcer(): ConnectivityManager.ConnectivityEnforcer = AndroidConnectivityManager.AndroidConnectivityEnforcer()
 }

@@ -20,38 +20,38 @@ import inc.ahmedmourad.sherlock.domain.data.AuthManager
 import inc.ahmedmourad.sherlock.domain.platform.ConnectivityManager
 
 @Module(includes = [
-    AuthFirebaseAuthenticatorModule::class,
-    AuthFirebaseFirestoreRemoteRepositoryModule::class,
-    FirebaseAuthEnforcerModule::class
+    AuthAuthenticatorModule::class,
+    AuthRemoteRepositoryModule::class,
+    AuthEnforcerModule::class
 ])
-internal object FirebaseAuthManagerModule {
+internal object AuthManagerModule {
     @Provides
     @Reusable
     @JvmStatic
-    fun provideFirebaseAuthManager(
+    fun provideAuthManager(
             authenticator: Lazy<AuthAuthenticator>,
             usersRepository: Lazy<AuthRemoteRepository>,
             connectivityEnforcer: Lazy<ConnectivityManager.ConnectivityEnforcer>
     ): AuthManager = SherlockAuthManager(authenticator, usersRepository, connectivityEnforcer)
 }
 
-@Module(includes = [AuthFirebaseAuthenticatorModule::class])
-internal object FirebaseAuthEnforcerModule {
+@Module(includes = [AuthAuthenticatorModule::class])
+internal object AuthEnforcerModule {
     @Provides
     @Reusable
     @JvmStatic
-    fun provideFirebaseAuthEnforcer(
+    fun provideAuthEnforcer(
             connectivityEnforcer: Lazy<ConnectivityManager.ConnectivityEnforcer>,
             authenticator: Lazy<AuthAuthenticator>
     ): AuthManager.AuthEnforcer = SherlockAuthManager.SherlockAuthEnforcer(connectivityEnforcer, authenticator)
 }
 
 @Module(includes = [FirebaseAuthModule::class])
-internal object AuthFirebaseAuthenticatorModule {
+internal object AuthAuthenticatorModule {
     @Provides
     @Reusable
     @JvmStatic
-    fun provideAuthFirebaseAuthenticator(
+    fun provideAuthAuthenticator(
             auth: Lazy<FirebaseAuth>,
             connectivityEnforcer: Lazy<ConnectivityManager.ConnectivityEnforcer>
     ): AuthAuthenticator = AuthFirebaseAuthenticator(auth, connectivityEnforcer)
@@ -59,14 +59,14 @@ internal object AuthFirebaseAuthenticatorModule {
 
 @Module(includes = [
     FirebaseFirestoreModule::class,
-    AuthFirebaseStorageImageRepositoryModule::class,
-    FirebaseAuthEnforcerModule::class
+    AuthImageRepositoryModule::class,
+    AuthEnforcerModule::class
 ])
-internal object AuthFirebaseFirestoreRemoteRepositoryModule {
+internal object AuthRemoteRepositoryModule {
     @Provides
     @Reusable
     @JvmStatic
-    fun provideAuthFirebaseFirestoreRemoteRepository(
+    fun provideAuthRemoteRepository(
             @AuthFirebaseFirestoreQualifier db: Lazy<FirebaseFirestore>,
             authImageRepository: Lazy<AuthImageRepository>,
             connectivityEnforcer: Lazy<ConnectivityManager.ConnectivityEnforcer>,
@@ -80,11 +80,11 @@ internal object AuthFirebaseFirestoreRemoteRepositoryModule {
 }
 
 @Module(includes = [FirebaseStorageModule::class])
-internal object AuthFirebaseStorageImageRepositoryModule {
+internal object AuthImageRepositoryModule {
     @Provides
     @Reusable
     @JvmStatic
-    fun provideAuthFirebaseStorageImageRepository(
+    fun provideAuthImageRepository(
             @AuthFirebaseStorageQualifier storage: Lazy<FirebaseStorage>
     ): AuthImageRepository = AuthFirebaseStorageImageRepository(storage)
 }

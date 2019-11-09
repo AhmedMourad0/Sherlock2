@@ -27,6 +27,10 @@ dependencies {
 
     implementation "nl.littlerobots.rxlint:rxlint:1.7.1"
 
+    api "io.arrow-kt:arrow-core:$arrow_version"
+    api "io.arrow-kt:arrow-syntax:$arrow_version"
+    kapt "io.arrow-kt:arrow-meta:$arrow_version"
+
     implementation "me.xdrop:fuzzywuzzy:1.2.0"
 
     implementation "com.google.dagger:dagger:$daggerVersion"

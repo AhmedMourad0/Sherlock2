@@ -16,8 +16,8 @@ import com.bluelinelabs.conductor.RouterTransaction
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
-import inc.ahmedmourad.sherlock.dagger.modules.factories.AddChildControllerAbstractFactory
-import inc.ahmedmourad.sherlock.dagger.modules.factories.SectionsRecyclerAdapterAbstractFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.AddChildControllerFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.SectionsRecyclerAdapterFactory
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.FindChildrenControllerQualifier
 import inc.ahmedmourad.sherlock.utils.setSupportActionBar
 import inc.ahmedmourad.sherlock.view.activity.MainActivity
@@ -36,14 +36,14 @@ internal class HomeController : Controller() {
     internal lateinit var recyclerView: RecyclerView
 
     @Inject
-    lateinit var adapterFactory: SectionsRecyclerAdapterAbstractFactory
+    lateinit var adapterFactory: SectionsRecyclerAdapterFactory
 
     @Inject
-    lateinit var addChildControllerFactory: Lazy<AddChildControllerAbstractFactory>
+    lateinit var addChildControllerFactory: Lazy<AddChildControllerFactory>
 
     @Inject
     @field:FindChildrenControllerQualifier
-    lateinit var findChildrenController: Lazy<TaggedController<Controller>>
+    lateinit var findChildrenController: Lazy<TaggedController>
 
     private lateinit var context: Context
     private lateinit var unbinder: Unbinder
@@ -84,7 +84,7 @@ internal class HomeController : Controller() {
     }
 
     private fun initializeRecyclerView() {
-        recyclerView.adapter = adapterFactory.create(createSectionsList()) {
+        recyclerView.adapter = adapterFactory(createSectionsList()) {
             if (it == null)
                 Toast.makeText(context.applicationContext, R.string.coming_soon, Toast.LENGTH_LONG).show()
             else
@@ -95,7 +95,7 @@ internal class HomeController : Controller() {
     }
 
     private fun createSectionsList() = ArrayList<AppSection>(4).apply {
-        add(AppSection(context.getString(R.string.found_a_child), R.drawable.found_a_child, addChildControllerFactory.get().create()))
+        add(AppSection(context.getString(R.string.found_a_child), R.drawable.found_a_child, addChildControllerFactory.get()()))
         add(AppSection(context.getString(R.string.search), R.drawable.search_child, findChildrenController))
         add(AppSection(context.getString(R.string.coming_soon), R.drawable.coming_soon, null))
         add(AppSection(context.getString(R.string.coming_soon), R.drawable.coming_soon, null))

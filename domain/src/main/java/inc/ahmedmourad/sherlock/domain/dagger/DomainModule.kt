@@ -4,8 +4,8 @@ import dagger.Module
 import inc.ahmedmourad.sherlock.domain.dagger.modules.*
 
 @Module(includes = [
-    ResultsFilterModule::class,
-    RxBusModule::class,
+    FilterModule::class,
+    BusModule::class,
     AddChildInteractorModule::class,
     FindChildrenInteractorModule::class,
     FindChildInteractorModule::class,

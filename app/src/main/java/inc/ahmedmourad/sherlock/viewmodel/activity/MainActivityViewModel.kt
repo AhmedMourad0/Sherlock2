@@ -1,20 +1,19 @@
 package inc.ahmedmourad.sherlock.viewmodel.activity
 
 import androidx.lifecycle.ViewModel
-import inc.ahmedmourad.sherlock.domain.dagger.modules.factories.ObserveInternetConnectivityInteractorAbstractFactory
+import inc.ahmedmourad.sherlock.domain.interactors.ObserveInternetConnectivityInteractor
 import inc.ahmedmourad.sherlock.model.Connectivity
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 
 internal class MainActivityViewModel(
-        observeInternetConnectivityInteractor: ObserveInternetConnectivityInteractorAbstractFactory
+        observeInternetConnectivityInteractor: ObserveInternetConnectivityInteractor
 ) : ViewModel() {
 
     val internetConnectivityObserver: Flowable<Connectivity>
 
     init {
-        internetConnectivityObserver = observeInternetConnectivityInteractor.create()
-                .execute()
+        internetConnectivityObserver = observeInternetConnectivityInteractor()
                 .map(this::getConnectivity)
                 .retry()
                 .observeOn(AndroidSchedulers.mainThread())

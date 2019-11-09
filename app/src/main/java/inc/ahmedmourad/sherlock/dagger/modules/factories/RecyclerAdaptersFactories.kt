@@ -1,8 +1,8 @@
 package inc.ahmedmourad.sherlock.dagger.modules.factories
 
 import androidx.recyclerview.widget.RecyclerView
-import com.bluelinelabs.conductor.Controller
 import dagger.Lazy
+import inc.ahmedmourad.sherlock.adapters.DynamicRecyclerAdapter
 import inc.ahmedmourad.sherlock.adapters.ResultsRecyclerAdapter
 import inc.ahmedmourad.sherlock.adapters.SectionsRecyclerAdapter
 import inc.ahmedmourad.sherlock.domain.platform.DateManager
@@ -11,31 +11,25 @@ import inc.ahmedmourad.sherlock.model.AppSimpleRetrievedChild
 import inc.ahmedmourad.sherlock.view.model.AppSection
 import inc.ahmedmourad.sherlock.view.model.TaggedController
 
-internal interface ResultsRecyclerAdapterAbstractFactory {
-    fun <T : RecyclerView.Adapter<*>> create(onResultSelectedListener: (Pair<AppSimpleRetrievedChild, Int>) -> Unit): T
+private typealias OnResultClickListener = (Pair<AppSimpleRetrievedChild, Int>) -> Unit
+internal typealias ResultsRecyclerAdapterFactory =
+        (@JvmSuppressWildcards OnResultClickListener) -> @JvmSuppressWildcards DynamicRecyclerAdapter<List<Pair<AppSimpleRetrievedChild, Int>>, *>
+
+internal fun resultsRecyclerAdapterFactory(
+        dateManager: Lazy<DateManager>,
+        formatter: Lazy<Formatter>,
+        onResultSelectedListener: (Pair<AppSimpleRetrievedChild, Int>) -> Unit
+): DynamicRecyclerAdapter<List<Pair<AppSimpleRetrievedChild, Int>>, *> {
+    return ResultsRecyclerAdapter(dateManager, formatter, onResultSelectedListener)
 }
 
-internal class ResultsRecyclerAdapterFactory(
-        private val dateManager: Lazy<DateManager>,
-        private val formatter: Lazy<Formatter>
-) : ResultsRecyclerAdapterAbstractFactory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : RecyclerView.Adapter<*>> create(
-            onResultSelectedListener: (Pair<AppSimpleRetrievedChild, Int>) -> Unit
-    ): T = ResultsRecyclerAdapter(dateManager, formatter, onResultSelectedListener) as T
-}
+private typealias OnSectionClickListener = (Lazy<out TaggedController>?) -> Unit
+internal typealias SectionsRecyclerAdapterFactory =
+        (@JvmSuppressWildcards List<AppSection>, @JvmSuppressWildcards OnSectionClickListener) -> @JvmSuppressWildcards RecyclerView.Adapter<*>
 
-internal interface SectionsRecyclerAdapterAbstractFactory {
-    fun <T : RecyclerView.Adapter<*>> create(
-            sectionsList: List<AppSection>,
-            onSectionSelectedListener: (Lazy<out TaggedController<Controller>>?) -> Unit
-    ): T
-}
-
-internal class SectionsRecyclerAdapterFactory : SectionsRecyclerAdapterAbstractFactory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : RecyclerView.Adapter<*>> create(
-            sectionsList: List<AppSection>,
-            onSectionSelectedListener: (Lazy<out TaggedController<Controller>>?) -> Unit
-    ) = SectionsRecyclerAdapter(sectionsList, onSectionSelectedListener) as T
+internal fun sectionsRecyclerAdapterFactory(
+        sectionsList: List<AppSection>,
+        onSectionSelectedListener: (Lazy<out TaggedController>?) -> Unit
+): RecyclerView.Adapter<*> {
+    return SectionsRecyclerAdapter(sectionsList, onSectionSelectedListener)
 }

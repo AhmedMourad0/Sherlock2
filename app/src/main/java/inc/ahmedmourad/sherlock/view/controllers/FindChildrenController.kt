@@ -23,7 +23,7 @@ import com.google.android.material.textfield.TextInputEditText
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
-import inc.ahmedmourad.sherlock.dagger.modules.factories.SearchResultsControllerAbstractFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.SearchResultsControllerFactory
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.FindChildrenViewModelQualifier
 import inc.ahmedmourad.sherlock.defaults.DefaultTextWatcher
 import inc.ahmedmourad.sherlock.domain.constants.Gender
@@ -92,7 +92,7 @@ internal class FindChildrenController : LifecycleController(), View.OnClickListe
     lateinit var viewModelFactory: ViewModelProvider.NewInstanceFactory
 
     @Inject
-    lateinit var searchResultsControllerFactory: Lazy<SearchResultsControllerAbstractFactory>
+    lateinit var searchResultsControllerFactory: Lazy<SearchResultsControllerFactory>
 
     private lateinit var skinColorSelector: ColorSelector<Skin>
     private lateinit var hairColorSelector: ColorSelector<Hair>
@@ -241,7 +241,7 @@ internal class FindChildrenController : LifecycleController(), View.OnClickListe
     }
 
     private fun search() {
-        val taggedController = searchResultsControllerFactory.get().create(viewModel.toAppChildCriteriaRules())
+        val taggedController = searchResultsControllerFactory.get()(viewModel.toAppChildCriteriaRules())
         router.pushController(RouterTransaction.with(taggedController.controller).tag(taggedController.tag))
     }
 

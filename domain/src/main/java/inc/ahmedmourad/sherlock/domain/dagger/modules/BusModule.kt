@@ -7,9 +7,9 @@ import inc.ahmedmourad.sherlock.domain.bus.RxBus
 import javax.inject.Singleton
 
 @Module
-internal object RxBusModule {
+internal object BusModule {
     @Provides
     @Singleton
     @JvmStatic
-    fun provideRxBus(): Bus = RxBus()
+    fun provideBus(): Bus = RxBus()
 }

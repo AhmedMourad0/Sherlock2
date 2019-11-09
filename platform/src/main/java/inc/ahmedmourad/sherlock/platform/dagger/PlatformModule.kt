@@ -4,10 +4,10 @@ import dagger.Module
 import inc.ahmedmourad.sherlock.platform.dagger.modules.*
 
 @Module(includes = [
-    AndroidDateManagerModule::class,
-    AndroidLocationManagerModule::class,
-    AndroidTextManagerModule::class,
-    AndroidConnectivityManagerModule::class,
-    AndroidConnectivityEnforcerModule::class
+    DateManagerModule::class,
+    LocationManagerModule::class,
+    TextManagerModule::class,
+    ConnectivityManagerModule::class,
+    ConnectivityEnforcerModule::class
 ])
 object PlatformModule

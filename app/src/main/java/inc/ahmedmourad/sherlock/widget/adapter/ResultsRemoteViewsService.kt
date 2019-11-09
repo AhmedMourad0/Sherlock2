@@ -7,7 +7,7 @@ import android.os.Bundle
 import android.widget.RemoteViewsService
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
-import inc.ahmedmourad.sherlock.dagger.modules.factories.ResultsRemoteViewsFactoryAbstractFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.ResultsRemoteViewsFactoryFactory
 import inc.ahmedmourad.sherlock.model.AppSimpleRetrievedChild
 import splitties.init.appCtx
 import java.util.*
@@ -17,7 +17,7 @@ import kotlin.collections.ArrayList
 internal class ResultsRemoteViewsService : RemoteViewsService() {
 
     @Inject
-    lateinit var resultsRemoteViewsFactoryFactory: Lazy<ResultsRemoteViewsFactoryAbstractFactory>
+    lateinit var resultsRemoteViewsFactoryFactory: Lazy<ResultsRemoteViewsFactoryFactory>
 
     override fun onCreate() {
         super.onCreate()
@@ -34,7 +34,7 @@ internal class ResultsRemoteViewsService : RemoteViewsService() {
 
         require(children.size == scores.size)
 
-        return resultsRemoteViewsFactoryFactory.get().create(applicationContext, children.zip(scores))
+        return resultsRemoteViewsFactoryFactory.get()(applicationContext, children.zip(scores))
     }
 
     override fun onDestroy() {
