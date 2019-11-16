@@ -1,5 +1,6 @@
 package inc.ahmedmourad.sherlock.children.local.repository
 
+import arrow.core.Tuple2
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.children.local.database.SherlockDatabase
 import inc.ahmedmourad.sherlock.children.local.mapper.toDomainSimpleChild
@@ -13,7 +14,9 @@ import io.reactivex.schedulers.Schedulers
 
 internal class ChildrenRoomLocalRepository(private val db: Lazy<SherlockDatabase>) : ChildrenLocalRepository {
 
-    override fun updateIfExists(child: DomainRetrievedChild): Maybe<Pair<DomainRetrievedChild, Int>> {
+    override fun updateIfExists(
+            child: DomainRetrievedChild
+    ): Maybe<Tuple2<DomainRetrievedChild, Int>> {
         return db.get()
                 .resultsDao()
                 .updateIfExists(child.toRoomChildEntity(-1))
@@ -22,7 +25,7 @@ internal class ChildrenRoomLocalRepository(private val db: Lazy<SherlockDatabase
                 .map(RoomChildEntity::toDomainRetrievedChild)
     }
 
-    override fun findAll(): Flowable<List<Pair<DomainSimpleRetrievedChild, Int>>> {
+    override fun findAll(): Flowable<List<Tuple2<DomainSimpleRetrievedChild, Int>>> {
         return db.get()
                 .resultsDao()
                 .findAll()
@@ -37,10 +40,12 @@ internal class ChildrenRoomLocalRepository(private val db: Lazy<SherlockDatabase
                 }
     }
 
-    override fun replaceAll(results: List<Pair<DomainRetrievedChild, Int>>): Single<List<Pair<DomainSimpleRetrievedChild, Int>>> {
+    override fun replaceAll(
+            results: List<Tuple2<DomainRetrievedChild, Int>>
+    ): Single<List<Tuple2<DomainSimpleRetrievedChild, Int>>> {
         return db.get()
                 .resultsDao()
-                .replaceAll(results.map(Pair<DomainRetrievedChild, Int>::toRoomChildEntity))
+                .replaceAll(results.map(Tuple2<DomainRetrievedChild, Int>::toRoomChildEntity))
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .toSingleDefault(results)

@@ -1,5 +1,6 @@
 package inc.ahmedmourad.sherlock.children
 
+import arrow.core.Tuple2
 import com.nhaarman.mockitokotlin2.*
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.children.repository.SherlockChildrenRepository
@@ -95,7 +96,7 @@ object SherlockRepositoryUnitTests : Spek({
             it("should call findAll on remote repository with the same parameters and return its results") {
 
                 val filter = mock<Filter<DomainRetrievedChild>>()
-                val list = listOf<Pair<DomainRetrievedChild, Int>>()
+                val list = listOf<Tuple2<DomainRetrievedChild, Int>>()
                 val rules = DomainChildCriteriaRules(
                         DomainName("", ""),
                         DomainLocation("", "", "", DomainCoordinates(50.0, 40.0)),

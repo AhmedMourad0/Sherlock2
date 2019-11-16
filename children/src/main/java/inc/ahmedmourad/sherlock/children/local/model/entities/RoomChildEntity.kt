@@ -3,6 +3,8 @@ package inc.ahmedmourad.sherlock.children.local.model.entities
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import arrow.core.Tuple2
+import arrow.core.toT
 import inc.ahmedmourad.sherlock.children.local.contract.Contract.ChildrenEntry
 import inc.ahmedmourad.sherlock.children.local.model.RoomLocation
 import inc.ahmedmourad.sherlock.children.local.model.RoomName
@@ -64,17 +66,19 @@ internal data class RoomChildEntity(
         @ColumnInfo(name = ChildrenEntry.COLUMN_SCORE)
         val score: Int = -1) {
 
-    fun toDomainRetrievedChild() = DomainRetrievedChild(
-            id,
-            publicationDate,
-            extractDomainName(),
-            notes,
-            RoomLocation.parse(location).toDomainLocation(),
-            extractDomainEstimatedAppearance(),
-            pictureUrl
-    ) to score
+    fun toDomainRetrievedChild(): Tuple2<DomainRetrievedChild, Int> {
+        return DomainRetrievedChild(
+                id,
+                publicationDate,
+                extractDomainName(),
+                notes,
+                RoomLocation.parse(location).toDomainLocation(),
+                extractDomainEstimatedAppearance(),
+                pictureUrl
+        ) toT score
+    }
 
-    fun simplify(): Pair<RoomSimpleChild, Int> {
+    fun simplify(): Tuple2<RoomSimpleChild, Int> {
 
         val roomLocation = RoomLocation.parse(location)
 
@@ -86,7 +90,7 @@ internal data class RoomChildEntity(
                 roomLocation.name,
                 roomLocation.address,
                 pictureUrl
-        ) to score
+        ) toT score
     }
 
     private fun extractRoomName() = RoomName(firstName, lastName)

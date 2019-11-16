@@ -4,6 +4,7 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.widget.RemoteViews
+import arrow.core.extensions.tuple2.bifunctor.mapLeft
 import dagger.Lazy
 
 import inc.ahmedmourad.sherlock.R
@@ -11,6 +12,7 @@ import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.factories.ResultsRemoteViewsServiceIntentFactory
 import inc.ahmedmourad.sherlock.domain.bus.Bus
 import inc.ahmedmourad.sherlock.domain.interactors.FindLastSearchResultsInteractor
+import inc.ahmedmourad.sherlock.domain.model.DomainSimpleRetrievedChild
 import inc.ahmedmourad.sherlock.mapper.toAppSimpleChild
 import inc.ahmedmourad.sherlock.utils.DisposablesSparseArray
 import io.reactivex.Flowable
@@ -53,10 +55,10 @@ internal class AppWidget : AppWidgetProvider() {
         return interactor()
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .flatMap {
-                    Flowable.fromIterable(it)
-                            .map { (child, score) ->
-                                child.toAppSimpleChild() to score
+                .flatMap { resultsList ->
+                    Flowable.fromIterable(resultsList)
+                            .map { resultTuple ->
+                                resultTuple.mapLeft(DomainSimpleRetrievedChild::toAppSimpleChild)
                             }.toList()
                             .toFlowable()
                 }.subscribe({

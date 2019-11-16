@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
+import arrow.core.Tuple2
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
@@ -20,9 +21,8 @@ import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.factories.DisplayChildViewModelFactoryFactory
 import inc.ahmedmourad.sherlock.dagger.modules.factories.MainActivityIntentFactory
-import inc.ahmedmourad.sherlock.domain.model.Either
 import inc.ahmedmourad.sherlock.domain.model.disposable
-import inc.ahmedmourad.sherlock.model.AppChild
+import inc.ahmedmourad.sherlock.model.AppRetrievedChild
 import inc.ahmedmourad.sherlock.model.AppSimpleRetrievedChild
 import inc.ahmedmourad.sherlock.utils.formatter.Formatter
 import inc.ahmedmourad.sherlock.utils.setSupportActionBar
@@ -103,19 +103,21 @@ internal class DisplayChildController(args: Bundle) : LifecycleController(args) 
         super.onAttach(view)
 
         //TODO: notify the user when the data is updated
-        findChildDisposable = viewModel.result.subscribe({
-
-            when (it) {
-
-                is Either.Value -> populateUi(it.value)
-
-                is Either.Error -> {
-                    Timber.e(it.error)
-                    Toast.makeText(context, it.error.localizedMessage, Toast.LENGTH_LONG).show()
-                }
-            }
-
-        }, Timber::e)
+        findChildDisposable = viewModel.result.subscribe({ resultEither ->
+            resultEither.fold(ifLeft = {
+                Timber.e(it)
+                Toast.makeText(context, it.localizedMessage, Toast.LENGTH_LONG).show()
+                router.popCurrentController()
+            }, ifRight = { resultOption ->
+                resultOption.fold(ifEmpty = {
+                    Toast.makeText(context, context.getString(R.string.child_data_deleted), Toast.LENGTH_LONG).show()
+                    router.popCurrentController()
+                }, ifSome = this@DisplayChildController::populateUi)
+            })
+        }, {
+            Timber.e(it)
+            Toast.makeText(context, it.localizedMessage, Toast.LENGTH_LONG).show()
+        })
     }
 
     override fun onDetach(view: View) {
@@ -123,33 +125,28 @@ internal class DisplayChildController(args: Bundle) : LifecycleController(args) 
         super.onDetach(view)
     }
 
-    private fun populateUi(result: Pair<AppChild, Int>?) {
-
-        if (result == null) {
-            Toast.makeText(context, context.getString(R.string.child_data_deleted), Toast.LENGTH_LONG).show()
-            return
-        }
+    private fun populateUi(result: Tuple2<AppRetrievedChild, Int>) {
 
         //TODO: should we inject picasso/glide?
-        result.first.loadImage(pictureImageView)
+        result.a.loadImage(pictureImageView)
 
-        val name = formatter.formatName(result.first.name)
+        val name = formatter.formatName(result.a.name)
         toolbar.title = name
         nameTextView.text = name
 
-        ageTextView.text = formatter.formatAge(result.first.appearance.age)
+        ageTextView.text = formatter.formatAge(result.a.appearance.age)
 
-        genderTextView.text = formatter.formatGender(result.first.appearance.gender)
+        genderTextView.text = formatter.formatGender(result.a.appearance.gender)
 
-        heightTextView.text = formatter.formatHeight(result.first.appearance.height)
+        heightTextView.text = formatter.formatHeight(result.a.appearance.height)
 
-        skinTextView.text = formatter.formatSkin(result.first.appearance.skin)
+        skinTextView.text = formatter.formatSkin(result.a.appearance.skin)
 
-        hairTextView.text = formatter.formatHair(result.first.appearance.hair)
+        hairTextView.text = formatter.formatHair(result.a.appearance.hair)
 
-        locationTextView.text = formatter.formatLocation(result.first.location)
+        locationTextView.text = formatter.formatLocation(result.a.location)
 
-        notesTextView.text = formatter.formatNotes(result.first.notes)
+        notesTextView.text = formatter.formatNotes(result.a.notes)
     }
 
     override fun onDestroy() {

@@ -1,11 +1,13 @@
 package inc.ahmedmourad.sherlock.domain.filter
 
+import arrow.core.Tuple2
 import inc.ahmedmourad.sherlock.domain.filter.criteria.Criteria
-import inc.ahmedmourad.sherlock.domain.model.DomainChild
 
-internal class ResultsFilter<T : DomainChild>(override val criteria: Criteria<T>) : Filter<T> {
-    override fun filter(items: List<T>) = ArrayList(items).map { criteria.apply(it) }
-            .filter { (_, score) -> score.passes() }
-            .map { (result, score) -> result to score.calculate().coerceAtLeast(0) }
-            .sortedByDescending { it.second }
+internal class ResultsFilter<T>(override val criteria: Criteria<T>) : Filter<T> {
+    override fun filter(items: List<T>): List<Tuple2<T, Int>> {
+        return ArrayList(items).map { criteria.apply(it) }
+                .filter { (_, score) -> score.passes() }
+                .map { result -> result.map { it.calculate().coerceAtLeast(0) } }
+                .sortedByDescending { it.b }
+    }
 }

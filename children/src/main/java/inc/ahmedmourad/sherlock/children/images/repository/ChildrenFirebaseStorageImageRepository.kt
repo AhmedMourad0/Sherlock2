@@ -1,6 +1,9 @@
 package inc.ahmedmourad.sherlock.children.images.repository
 
 import android.net.Uri
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.UploadTask
@@ -12,25 +15,33 @@ import io.reactivex.schedulers.Schedulers
 
 internal class ChildrenFirebaseStorageImageRepository(private val storage: Lazy<FirebaseStorage>) : ChildrenImageRepository {
 
-    override fun storeChildPicture(id: String, picture: ByteArray): Single<String> {
+    override fun storeChildPicture(id: String, picture: ByteArray): Single<Either<Throwable, String>> {
         return storePicture(Contract.Children.PATH, id, picture)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .flatMap(this::fetchPictureUrl)
+                .flatMap { filePath ->
+                    filePath.fold(ifLeft = {
+                        Single.just(it.left())
+                    }, ifRight = {
+                        fetchPictureUrl(it)
+                    })
+                }
     }
 
-    private fun storePicture(path: String, id: String, picture: ByteArray): Single<StorageReference> {
+    private fun storePicture(path: String, id: String, picture: ByteArray): Single<Either<Throwable, StorageReference>> {
 
         val filePath = storage.get().getReference(path)
                 .child("$id.${Contract.FILE_FORMAT}")
 
-        return Single.create<StorageReference> { emitter ->
+        return Single.create<Either<Throwable, StorageReference>> { emitter ->
 
             val successListener = { _: UploadTask.TaskSnapshot ->
-                emitter.onSuccess(filePath)
+                emitter.onSuccess(filePath.right())
             }
 
-            val failureListener = emitter::onError
+            val failureListener = { throwable: Throwable ->
+                emitter.onSuccess(throwable.left())
+            }
 
             filePath.putBytes(picture)
                     .addOnSuccessListener(successListener)
@@ -39,15 +50,17 @@ internal class ChildrenFirebaseStorageImageRepository(private val storage: Lazy<
         }.subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
     }
 
-    private fun fetchPictureUrl(filePath: StorageReference): Single<String> {
+    private fun fetchPictureUrl(filePath: StorageReference): Single<Either<Throwable, String>> {
 
-        return Single.create<String> { emitter ->
+        return Single.create<Either<Throwable, String>> { emitter ->
 
             val successListener = { uri: Uri ->
-                emitter.onSuccess(uri.toString())
+                emitter.onSuccess(uri.toString().right())
             }
 
-            val failureListener = emitter::onError
+            val failureListener = { throwable: Throwable ->
+                emitter.onSuccess(throwable.left())
+            }
 
             filePath.downloadUrl
                     .addOnSuccessListener(successListener)

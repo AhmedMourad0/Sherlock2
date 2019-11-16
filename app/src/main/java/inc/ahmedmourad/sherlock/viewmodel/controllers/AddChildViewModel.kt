@@ -2,6 +2,7 @@ package inc.ahmedmourad.sherlock.viewmodel.controllers
 
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
+import arrow.core.*
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.dagger.modules.factories.SherlockServiceIntentFactory
 import inc.ahmedmourad.sherlock.domain.bus.Bus
@@ -12,7 +13,6 @@ import inc.ahmedmourad.sherlock.domain.interactors.CheckInternetConnectivityInte
 import inc.ahmedmourad.sherlock.domain.interactors.CheckPublishingStateInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.ObserveInternetConnectivityInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.ObservePublishingStateInteractor
-import inc.ahmedmourad.sherlock.domain.model.Optional
 import inc.ahmedmourad.sherlock.model.*
 import inc.ahmedmourad.sherlock.viewmodel.model.DefaultLiveData
 import io.reactivex.Flowable
@@ -37,7 +37,7 @@ internal class AddChildViewModel(
 
     val gender by lazy { DefaultLiveData(Gender.MALE) }
 
-    val location by lazy { DefaultLiveData(AppLocation.empty()) }
+    val location by lazy { DefaultLiveData(none<AppLocation>()) }
 
     val startAge by lazy { DefaultLiveData(0) }
     val endAge by lazy { DefaultLiveData(30) }
@@ -48,14 +48,15 @@ internal class AddChildViewModel(
 
     val picturePath by lazy { DefaultLiveData("") }
 
-    val internetConnectivityObserver: Flowable<Pair<Boolean, Optional<Bus.PublishingState<*>>>> = observeInternetConnectivityInteractor()
-            .retry()
-            .observeOn(AndroidSchedulers.mainThread())
-            .flatMapSingle { isConnected ->
-                checkPublishingStateInteractor()
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .map { isConnected to it }
-            }
+    val internetConnectivityObserver: Flowable<Tuple2<Boolean, Option<Bus.PublishingState<*>>>> =
+            observeInternetConnectivityInteractor()
+                    .retry()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .flatMapSingle { isConnected ->
+                        checkPublishingStateInteractor()
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .map { isConnected toT it }
+                    }
 
     val internetConnectivitySingle: Single<Boolean> = checkInternetConnectivityInteractor()
             .observeOn(AndroidSchedulers.mainThread())
@@ -74,7 +75,7 @@ internal class AddChildViewModel(
         skin.value = child.appearance.skin
         hair.value = child.appearance.hair
         gender.value = child.appearance.gender
-        location.value = child.location
+        location.value = child.location.toOption()
         startAge.value = child.appearance.age.from
         endAge.value = child.appearance.age.to
         startHeight.value = child.appearance.height.from
@@ -86,7 +87,7 @@ internal class AddChildViewModel(
     private fun toAppPublishedChild() = AppPublishedChild(
             name = AppName(firstName.value.trim(), lastName.value.trim()),
             notes = notes.value.trim(),
-            location = location.value,
+            location = location.value.getOrElse { AppLocation.invalid() },
             appearance = AppEstimatedAppearance(
                     gender.value,
                     skin.value,

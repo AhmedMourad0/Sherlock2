@@ -1,32 +1,25 @@
 package inc.ahmedmourad.sherlock.children.remote.model
 
 import inc.ahmedmourad.sherlock.children.remote.contract.Contract
-import inc.ahmedmourad.sherlock.domain.model.DomainPublishedChild
 
 internal data class FirebasePublishedChild(
-        override val name: FirebaseName,
-        override val notes: String,
-        override val location: FirebaseLocation,
-        override val appearance: FirebaseEstimatedAppearance,
-        val picture: ByteArray) : FirebaseChild {
+        val name: FirebaseName,
+        val notes: String,
+        val location: FirebaseLocation,
+        val appearance: FirebaseEstimatedAppearance,
+        val picture: ByteArray) {
 
-    override fun toDomainChild() = DomainPublishedChild(
-            name.toDomainName(),
-            notes,
-            location.toDomainLocation(),
-            appearance.toDomainAppearance(),
-            picture
-    )
-
-    fun toFirebaseRetrievedChild(id: String, publicationDate: Long, pictureUrl: String) = FirebaseRetrievedChild(
-            id,
-            publicationDate,
-            name,
-            notes,
-            location,
-            appearance,
-            pictureUrl
-    )
+    fun toFirebaseRetrievedChild(id: String, publicationDate: Long, pictureUrl: String): FirebaseRetrievedChild {
+        return FirebaseRetrievedChild(
+                id,
+                publicationDate,
+                name,
+                notes,
+                location,
+                appearance,
+                pictureUrl
+        )
+    }
 
     fun toMap(publicationDate: Long, pictureUrl: String): Map<String, Any> = hashMapOf(
             Contract.Database.Children.PUBLICATION_DATE to publicationDate,

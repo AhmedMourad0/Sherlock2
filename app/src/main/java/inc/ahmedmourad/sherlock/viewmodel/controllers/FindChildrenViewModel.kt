@@ -1,6 +1,8 @@
 package inc.ahmedmourad.sherlock.viewmodel.controllers
 
 import androidx.lifecycle.ViewModel
+import arrow.core.getOrElse
+import arrow.core.none
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
@@ -25,7 +27,7 @@ internal class FindChildrenViewModel(
 
     val gender by lazy { DefaultLiveData(Gender.MALE) }
 
-    val location by lazy { DefaultLiveData(AppLocation.empty()) }
+    val location by lazy { DefaultLiveData(none<AppLocation>()) }
 
     val age by lazy { DefaultLiveData(15) }
     val height by lazy { DefaultLiveData(120) }
@@ -36,7 +38,7 @@ internal class FindChildrenViewModel(
 
     fun toAppChildCriteriaRules() = AppChildCriteriaRules(
             AppName(firstName.value.trim(), lastName.value.trim()),
-            location.value,
+            location.value.getOrElse { AppLocation.invalid() },
             AppExactAppearance(
                     gender.value,
                     skin.value,

@@ -28,12 +28,14 @@ internal fun DomainChildCriteriaRules.toFirebaseChildCriteriaRules() = FirebaseC
         appearance.toFirebaseExactAppearance()
 )
 
-private fun DomainLocation.toFirebaseLocation() = FirebaseLocation(
-        id,
-        name,
-        address,
-        coordinates.toFirebaseCoordinates()
-)
+private fun DomainLocation.toFirebaseLocation(): FirebaseLocation {
+    return FirebaseLocation(
+            id,
+            name,
+            address,
+            coordinates.toFirebaseCoordinates()
+    )
+}
 
 private fun DomainCoordinates.toFirebaseCoordinates() = FirebaseCoordinates(latitude, longitude)
 

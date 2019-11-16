@@ -44,13 +44,13 @@ internal object ChildrenRemoteRepositoryModule {
     fun provideChildrenRemoteRepository(
             @ChildrenFirebaseFirestoreQualifier db: Lazy<FirebaseFirestore>,
             childrenImageRepository: Lazy<ChildrenImageRepository>,
-            authEnforcer: Lazy<AuthManager.AuthEnforcer>,
-            connectivityEnforcer: Lazy<ConnectivityManager.ConnectivityEnforcer>
+            authManager: Lazy<AuthManager>,
+            connectivityManager: Lazy<ConnectivityManager>
     ): ChildrenRemoteRepository = ChildrenFirebaseFirestoreRemoteRepository(
             db,
             childrenImageRepository,
-            authEnforcer,
-            connectivityEnforcer
+            authManager,
+            connectivityManager
     )
 }
 

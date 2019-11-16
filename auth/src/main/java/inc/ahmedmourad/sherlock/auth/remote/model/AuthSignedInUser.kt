@@ -6,12 +6,12 @@ data class AuthSignedInUser(
         val id: String,
         val registrationDate: Long,
         val lastLoginDate: Long,
-        override val email: String,
-        override val name: String,
-        override val phoneNumber: String,
+        val email: String,
+        val name: String,
+        val phoneNumber: String,
         val pictureUrl: String
-) : AuthUser {
-    override fun toDomainUser() = DomainSignedInUser(
+) {
+    fun toDomainUser() = DomainSignedInUser(
             id,
             registrationDate,
             lastLoginDate,

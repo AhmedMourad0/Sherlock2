@@ -5,6 +5,9 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.RemoteViewsService
+import arrow.core.Tuple2
+import arrow.core.toMap
+import arrow.core.toTuple2
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.factories.ResultsRemoteViewsFactoryFactory
@@ -34,7 +37,10 @@ internal class ResultsRemoteViewsService : RemoteViewsService() {
 
         require(children.size == scores.size)
 
-        return resultsRemoteViewsFactoryFactory.get()(applicationContext, children.zip(scores))
+        return resultsRemoteViewsFactoryFactory.get()(
+                applicationContext,
+                children.zip(scores).map(Pair<AppSimpleRetrievedChild, Int>::toTuple2)
+        )
     }
 
     override fun onDestroy() {
@@ -49,13 +55,14 @@ internal class ResultsRemoteViewsService : RemoteViewsService() {
         const val EXTRA_CHILDREN = "inc.ahmedmourad.sherlock.external.adapter.extra.CHILDREN"
         const val EXTRA_SCORES = "inc.ahmedmourad.sherlock.external.adapter.extra.SCORES"
 
-        fun create(appWidgetId: Int, results: List<Pair<AppSimpleRetrievedChild, Int>>): Intent {
+        fun create(appWidgetId: Int, results: List<Tuple2<AppSimpleRetrievedChild, Int>>): Intent {
+            val resultsMap = results.toMap()
             return Intent(appCtx, ResultsRemoteViewsService::class.java).also { intent ->
                 intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                 intent.data = getUniqueDataUri(appWidgetId)
                 intent.putExtra(EXTRA_HACK_BUNDLE, Bundle(2).apply {
-                    putParcelableArrayList(EXTRA_CHILDREN, ArrayList(results.map { it.first }))
-                    putIntegerArrayList(EXTRA_SCORES, ArrayList(results.map { it.second }))
+                    putParcelableArrayList(EXTRA_CHILDREN, ArrayList(resultsMap.keys))
+                    putIntegerArrayList(EXTRA_SCORES, ArrayList(resultsMap.values))
                 })
             }
         }

@@ -3,6 +3,8 @@ package inc.ahmedmourad.sherlock.auth.authenticator.activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import arrow.core.left
+import arrow.core.right
 import com.facebook.CallbackManager
 import com.facebook.FacebookCallback
 import com.facebook.FacebookException
@@ -20,8 +22,6 @@ import inc.ahmedmourad.sherlock.auth.R
 import inc.ahmedmourad.sherlock.auth.authenticator.AuthActivityFactory
 import inc.ahmedmourad.sherlock.auth.authenticator.bus.AuthenticatorBus
 import inc.ahmedmourad.sherlock.domain.exceptions.SignInCancelledException
-import inc.ahmedmourad.sherlock.domain.model.Either
-import inc.ahmedmourad.sherlock.domain.model.asEither
 import inc.ahmedmourad.sherlock.domain.model.disposable
 import splitties.init.appCtx
 import timber.log.Timber
@@ -88,13 +88,11 @@ internal class AuthSignInActivity : AppCompatActivity() {
                 val task = GoogleSignIn.getSignedInAccountFromIntent(data)
 
                 try {
-                    AuthenticatorBus.signInCompletion.accept(Either.Value(
-                            GoogleAuthProvider.getCredential(
-                                    task.getResult(ApiException::class.java)?.idToken, null
-                            )
-                    ))
+                    AuthenticatorBus.signInCompletion.accept(GoogleAuthProvider.getCredential(
+                            task.getResult(ApiException::class.java)?.idToken, null
+                    ).right())
                 } catch (e: ApiException) {
-                    AuthenticatorBus.signInCompletion.accept(e.asEither())
+                    AuthenticatorBus.signInCompletion.accept(e.left())
                 } finally {
                     finishAffinity()
                 }
@@ -112,19 +110,19 @@ internal class AuthSignInActivity : AppCompatActivity() {
             loginManager.registerCallback(callbackManager, object : FacebookCallback<LoginResult> {
 
                 override fun onSuccess(loginResult: LoginResult) {
-                    AuthenticatorBus.signInCompletion.accept(Either.Value(
-                            FacebookAuthProvider.getCredential(loginResult.accessToken.token)
-                    ))
+                    AuthenticatorBus.signInCompletion.accept(FacebookAuthProvider.getCredential(
+                            loginResult.accessToken.token
+                    ).right())
                     finishAffinity()
                 }
 
                 override fun onCancel() {
-                    AuthenticatorBus.signInCompletion.accept(SignInCancelledException().asEither())
+                    AuthenticatorBus.signInCompletion.accept(SignInCancelledException().left())
                     finishAffinity()
                 }
 
                 override fun onError(exception: FacebookException) {
-                    AuthenticatorBus.signInCompletion.accept(exception.asEither())
+                    AuthenticatorBus.signInCompletion.accept(exception.left())
                     finishAffinity()
                 }
             })
@@ -157,17 +155,15 @@ internal class AuthSignInActivity : AppCompatActivity() {
             authClient.authorize(this@AuthSignInActivity, object : Callback<TwitterSession>() {
 
                 override fun success(result: Result<TwitterSession>) {
-                    AuthenticatorBus.signInCompletion.accept(Either.Value(
-                            TwitterAuthProvider.getCredential(
-                                    result.data.authToken.token,
-                                    result.data.authToken.secret
-                            )
-                    ))
+                    AuthenticatorBus.signInCompletion.accept(TwitterAuthProvider.getCredential(
+                            result.data.authToken.token,
+                            result.data.authToken.secret
+                    ).right())
                     finishAffinity()
                 }
 
                 override fun failure(exception: TwitterException) {
-                    AuthenticatorBus.signInCompletion.accept(exception.asEither())
+                    AuthenticatorBus.signInCompletion.accept(exception.left())
                     finishAffinity()
                 }
             })

@@ -1,15 +1,20 @@
 package inc.ahmedmourad.sherlock.domain.filter.criteria
 
+import arrow.core.Tuple2
+import arrow.core.toT
 import dagger.Lazy
-import inc.ahmedmourad.sherlock.domain.model.DomainChild
+import inc.ahmedmourad.sherlock.domain.model.DomainRetrievedChild
 import inc.ahmedmourad.sherlock.domain.platform.LocationManager
 import me.xdrop.fuzzywuzzy.FuzzySearch
 
 //TODO: date of losing and finding the child matters
-internal class LooseCriteria<C : DomainChild>(private val rules: DomainChildCriteriaRules, private val locationManager: Lazy<LocationManager>) : Criteria<C> {
+internal class LooseCriteria(
+        private val rules: DomainChildCriteriaRules,
+        private val locationManager: Lazy<LocationManager>
+) : Criteria<DomainRetrievedChild> {
 
-    override fun apply(result: C): Pair<C, Criteria.Score> {
-        return result to Score(getFirstNameRatio(result),
+    override fun apply(result: DomainRetrievedChild): Tuple2<DomainRetrievedChild, Criteria.Score> {
+        return result toT Score(getFirstNameRatio(result),
                 getLastNameRatio(result),
                 getDistance(result),
                 isSameGender(result),
@@ -20,17 +25,21 @@ internal class LooseCriteria<C : DomainChild>(private val rules: DomainChildCrit
         )
     }
 
-    private fun getFirstNameRatio(child: C) = if (rules.name.first.isBlank() || child.name.first.isBlank())
-        50
-    else
-        FuzzySearch.ratio(rules.name.first, child.name.first)
+    private fun getFirstNameRatio(child: DomainRetrievedChild): Int {
+        return if (rules.name.first.isBlank() || child.name.first.isBlank())
+            50
+        else
+            FuzzySearch.ratio(rules.name.first, child.name.first)
+    }
 
-    private fun getLastNameRatio(child: C) = if (rules.name.last.isBlank() || child.name.last.isBlank())
-        50
-    else
-        FuzzySearch.ratio(rules.name.last, child.name.last)
+    private fun getLastNameRatio(child: DomainRetrievedChild): Int {
+        return if (rules.name.last.isBlank() || child.name.last.isBlank())
+            50
+        else
+            FuzzySearch.ratio(rules.name.last, child.name.last)
+    }
 
-    private fun getDistance(child: C): Long {
+    private fun getDistance(child: DomainRetrievedChild): Long {
 
         if (!rules.location.coordinates.isValid())
             return MAX_DISTANCE.value / 2
@@ -45,14 +54,20 @@ internal class LooseCriteria<C : DomainChild>(private val rules: DomainChildCrit
         )
     }
 
-    private fun isSameGender(child: C) = rules.appearance.gender == child.appearance.gender
+    private fun isSameGender(child: DomainRetrievedChild): Boolean {
+        return rules.appearance.gender == child.appearance.gender
+    }
 
-    private fun isSameSkin(child: C) = rules.appearance.skin == child.appearance.skin
+    private fun isSameSkin(child: DomainRetrievedChild): Boolean {
+        return rules.appearance.skin == child.appearance.skin
+    }
 
-    private fun isSameHair(child: C) = rules.appearance.hair == child.appearance.hair
+    private fun isSameHair(child: DomainRetrievedChild): Boolean {
+        return rules.appearance.hair == child.appearance.hair
+    }
 
     // the two-years padding is applied to account for user error when estimating age
-    private fun getAgeError(child: C): Int {
+    private fun getAgeError(child: DomainRetrievedChild): Int {
 
         val min = child.appearance.age.from - 2
         val max = child.appearance.age.to + 2
@@ -65,7 +80,7 @@ internal class LooseCriteria<C : DomainChild>(private val rules: DomainChildCrit
     }
 
     // the 15 cm padding is applied to account for user error when estimating height
-    private fun getHeightError(child: C): Int {
+    private fun getHeightError(child: DomainRetrievedChild): Int {
 
         val min = child.appearance.height.from - 15
         val max = child.appearance.height.to + 15
@@ -92,13 +107,26 @@ internal class LooseCriteria<C : DomainChild>(private val rules: DomainChildCrit
 
         override fun passes() = true
 
-        override fun calculate(): Int = getFirstNameRank() + getLastNameRank() + getDistanceRank() + getGenderRank() + getHairRank() + getSkinRank() + getAgeRank() + getHeightRank()
+        override fun calculate(): Int {
+            return getFirstNameRank() +
+                    getLastNameRank() +
+                    getDistanceRank() +
+                    getGenderRank() +
+                    getHairRank() +
+                    getSkinRank() +
+                    getAgeRank() +
+                    getHeightRank()
+        }
 
         private fun getFirstNameRank() = firstNameRatio
 
         private fun getLastNameRank() = lastNameRatio
 
-        private fun getDistanceRank() = if (distance <= MAX_DISTANCE.value) 100 else (100 - ((distance - MAX_DISTANCE.value) / MAX_DISTANCE.factor)).toInt().coerceAtLeast(0)
+        private fun getDistanceRank(): Int {
+            return if (distance <= MAX_DISTANCE.value)
+                100 else
+                (100 - ((distance - MAX_DISTANCE.value) / MAX_DISTANCE.factor)).toInt().coerceAtLeast(0)
+        }
 
         private fun getGenderRank() = if (isSameGender) 100 else 0
 

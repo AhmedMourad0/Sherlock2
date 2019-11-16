@@ -3,11 +3,11 @@ package inc.ahmedmourad.sherlock.domain.model
 data class DomainRetrievedChild(
         val id: String,
         val publicationDate: Long,
-        override val name: DomainName,
-        override val notes: String,
-        override val location: DomainLocation,
-        override val appearance: DomainEstimatedAppearance,
-        val pictureUrl: String) : DomainChild {
+        val name: DomainName,
+        val notes: String,
+        val location: DomainLocation,
+        val appearance: DomainEstimatedAppearance,
+        val pictureUrl: String) {
     fun simplify() = DomainSimpleRetrievedChild(
             id,
             publicationDate,

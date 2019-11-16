@@ -13,6 +13,7 @@ import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.FindChildrenViewModelQ
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.MainActivityViewModelQualifier
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.SherlockServiceIntentQualifier
 import inc.ahmedmourad.sherlock.domain.dagger.modules.factories.ChildrenFilterFactory
+import inc.ahmedmourad.sherlock.domain.dagger.modules.qualifiers.CheckInternetConnectivityInteractorQualifier
 import inc.ahmedmourad.sherlock.domain.interactors.*
 
 @Module
@@ -37,7 +38,7 @@ internal object AddChildViewModelModule {
     fun provideAddChildViewModel(
             @SherlockServiceIntentQualifier serviceFactory: Lazy<SherlockServiceIntentFactory>,
             observeInternetConnectivityInteractor: ObserveInternetConnectivityInteractor,
-            checkInternetConnectivityInteractor: CheckInternetConnectivityInteractor,
+            @CheckInternetConnectivityInteractorQualifier checkInternetConnectivityInteractor: CheckInternetConnectivityInteractor,
             observePublishingStateInteractor: ObservePublishingStateInteractor,
             checkPublishingStateInteractor: CheckPublishingStateInteractor
     ): ViewModelProvider.NewInstanceFactory {

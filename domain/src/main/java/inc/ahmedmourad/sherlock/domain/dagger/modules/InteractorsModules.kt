@@ -6,10 +6,9 @@ import dagger.Module
 import dagger.Provides
 import dagger.Reusable
 import inc.ahmedmourad.sherlock.domain.bus.Bus
+import inc.ahmedmourad.sherlock.domain.dagger.modules.qualifiers.CheckInternetConnectivityInteractorQualifier
 import inc.ahmedmourad.sherlock.domain.data.ChildrenRepository
 import inc.ahmedmourad.sherlock.domain.interactors.*
-import inc.ahmedmourad.sherlock.domain.interactors.addChild
-import inc.ahmedmourad.sherlock.domain.interactors.findChildren
 import inc.ahmedmourad.sherlock.domain.platform.ConnectivityManager
 
 @Module
@@ -66,6 +65,7 @@ internal object ObserveInternetConnectivityInteractorModule {
 internal object CheckInternetConnectivityInteractorModule {
     @Provides
     @Reusable
+    @CheckInternetConnectivityInteractorQualifier
     @JvmStatic
     fun provideCheckInternetConnectivityInteractor(connectivityManager: Lazy<ConnectivityManager>): CheckInternetConnectivityInteractor {
         return ::checkInternetConnectivity.partially1(connectivityManager)

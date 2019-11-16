@@ -1,5 +1,7 @@
 package inc.ahmedmourad.sherlock.domain
 
+import arrow.core.Tuple2
+import arrow.core.right
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
@@ -74,7 +76,7 @@ object InteractorsUnitTests : Spek({
             it("should call findAll on repository when execute is called") {
 
                 val filter = mock<Filter<DomainRetrievedChild>>()
-                val result = Flowable.empty<List<Pair<DomainSimpleRetrievedChild, Int>>>()
+                val result = Flowable.empty<List<Tuple2<DomainSimpleRetrievedChild, Int>>>()
                 val rules = DomainChildCriteriaRules(
                         DomainName("", ""),
                         DomainLocation("", "", "", DomainCoordinates(50.0, 40.0)),
@@ -87,7 +89,7 @@ object InteractorsUnitTests : Spek({
                         )
                 )
 
-                whenever(repository.findAll(rules, filter)).thenReturn(result.map { Either.Value(it) })
+                whenever(repository.findAll(rules, filter)).thenReturn(result.map { it.right() })
 
                 assertSame(
                         FindChildrenInteractor(Lazy { repository }, rules, filter).execute(),
@@ -102,8 +104,8 @@ object InteractorsUnitTests : Spek({
 
             it("should call findLastSearchResults on repository when execute is called") {
 
-                val list1 = listOf<Pair<DomainSimpleRetrievedChild, Int>>()
-                val list2 = listOf<Pair<DomainSimpleRetrievedChild, Int>>()
+                val list1 = listOf<Tuple2<DomainSimpleRetrievedChild, Int>>()
+                val list2 = listOf<Tuple2<DomainSimpleRetrievedChild, Int>>()
 
                 whenever(repository.findLastSearchResults()).thenReturn(Flowable.just(list1, list2))
 

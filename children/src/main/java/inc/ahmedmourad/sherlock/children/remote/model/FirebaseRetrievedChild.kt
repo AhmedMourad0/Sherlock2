@@ -5,12 +5,12 @@ import inc.ahmedmourad.sherlock.domain.model.DomainRetrievedChild
 internal data class FirebaseRetrievedChild(
         val id: String,
         val publicationDate: Long,
-        override val name: FirebaseName,
-        override val notes: String,
-        override val location: FirebaseLocation,
-        override val appearance: FirebaseEstimatedAppearance,
-        val pictureUrl: String) : FirebaseChild {
-    override fun toDomainChild() = DomainRetrievedChild(
+        val name: FirebaseName,
+        val notes: String,
+        val location: FirebaseLocation,
+        val appearance: FirebaseEstimatedAppearance,
+        val pictureUrl: String) {
+    fun toDomainChild() = DomainRetrievedChild(
             id,
             publicationDate,
             name.toDomainName(),

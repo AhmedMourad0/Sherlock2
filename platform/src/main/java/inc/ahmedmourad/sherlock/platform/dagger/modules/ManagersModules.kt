@@ -43,11 +43,3 @@ internal object ConnectivityManagerModule {
     @JvmStatic
     fun provideConnectivityManager(): ConnectivityManager = AndroidConnectivityManager()
 }
-
-@Module
-internal object ConnectivityEnforcerModule {
-    @Provides
-    @Reusable
-    @JvmStatic
-    fun provideConnectivityEnforcer(): ConnectivityManager.ConnectivityEnforcer = AndroidConnectivityManager.AndroidConnectivityEnforcer()
-}

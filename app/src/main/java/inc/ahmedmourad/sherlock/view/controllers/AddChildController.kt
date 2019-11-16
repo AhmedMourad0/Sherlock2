@@ -206,20 +206,15 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
         // we only handle connection (enabling and disabling internet-dependant
         // views) if publishing isn't underway
         internetConnectionDisposable = viewModel.internetConnectivityObserver
-                .subscribe({ (isConnected, publishingState) ->
+                .subscribe({ (isConnected, publishingStateOption) ->
 
-                    val (state) = publishingState
-
-                    if (state != null) {
-                        handlePublishingStateValue(state)
-                    } else {
+                    publishingStateOption.fold(ifEmpty = {
                         setEnabledAndIdle(true)
                         handleConnectionStateChange(isConnected)
-                    }
+                    }, ifSome = this@AddChildController::handlePublishingStateValue)
 
                 }, Timber::e)
     }
-
 
     private fun publish() {
 
@@ -290,9 +285,8 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
         // we disable internet-dependant views if no longer publishing and there's no internet connection
         internetConnectivitySingleDisposable = viewModel.internetConnectivitySingle
                 .map { enabled && !it }
-                .subscribe({
-                    if (it) handleConnectionStateChange(false)
-                }, Timber::e)
+                .filter { it }
+                .subscribe({ handleConnectionStateChange(false) }, Timber::e)
     }
 
     private fun handleConnectionStateChange(connected: Boolean) {
@@ -395,13 +389,14 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
     }
 
     private fun initializeLocationTextView() {
-        viewModel.location.observe(this, Observer { location ->
-            with(location.name) {
-                if (this.isNotBlank())
-                    locationTextView.text = this
-                else
-                    locationTextView.setText(R.string.no_location_specified)
-            }
+        viewModel.location.observe(this, Observer { locationOption ->
+            locationOption.filter {
+                it.name.isNotBlank()
+            }.fold(ifEmpty = {
+                locationTextView.setText(R.string.no_location_specified)
+            }, ifSome = {
+                locationTextView.text = it.name
+            })
         })
     }
 

@@ -4,7 +4,6 @@ import android.os.Parcelable
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import inc.ahmedmourad.sherlock.R
-import inc.ahmedmourad.sherlock.domain.model.DomainRetrievedChild
 import inc.ahmedmourad.sherlock.domain.model.DomainSimpleRetrievedChild
 import kotlinx.android.parcel.Parcelize
 import splitties.init.appCtx
@@ -13,29 +12,20 @@ import splitties.init.appCtx
 internal data class AppRetrievedChild(
         val id: String,
         val publicationDate: Long,
-        override val name: AppName,
-        override val notes: String,
-        override val location: AppLocation,
-        override val appearance: AppEstimatedAppearance,
-        val pictureUrl: String) : AppChild, Parcelable {
+        val name: AppName,
+        val notes: String,
+        val location: AppLocation,
+        val appearance: AppEstimatedAppearance,
+        val pictureUrl: String
+) : Parcelable {
 
-    override fun loadImage(imageView: ImageView) {
+    fun loadImage(imageView: ImageView) {
         Glide.with(appCtx)
                 .load(pictureUrl)
                 .placeholder(R.drawable.placeholder)
                 .error(R.drawable.placeholder)
                 .into(imageView)
     }
-
-    override fun toDomainChild() = DomainRetrievedChild(
-            id,
-            publicationDate,
-            name.toDomainName(),
-            notes,
-            location.toDomainLocation(),
-            appearance.toDomainAppearance(),
-            pictureUrl
-    )
 
     fun simplify() = AppSimpleRetrievedChild(
             id,

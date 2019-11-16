@@ -1,5 +1,6 @@
 package inc.ahmedmourad.sherlock.children.repository
 
+import arrow.core.*
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.children.repository.dependencies.ChildrenLocalRepository
 import inc.ahmedmourad.sherlock.children.repository.dependencies.ChildrenRemoteRepository
@@ -7,8 +8,9 @@ import inc.ahmedmourad.sherlock.domain.bus.Bus
 import inc.ahmedmourad.sherlock.domain.data.ChildrenRepository
 import inc.ahmedmourad.sherlock.domain.filter.Filter
 import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
-import inc.ahmedmourad.sherlock.domain.model.*
-import io.reactivex.Completable
+import inc.ahmedmourad.sherlock.domain.model.DomainPublishedChild
+import inc.ahmedmourad.sherlock.domain.model.DomainRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.DomainSimpleRetrievedChild
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -23,59 +25,74 @@ internal class SherlockChildrenRepository(
 
     private val tester by lazy { SherlockTester(childrenRemoteRepository, childrenLocalRepository) }
 
-    override fun publish(child: DomainPublishedChild): Single<DomainRetrievedChild> {
+    override fun publish(child: DomainPublishedChild): Single<Either<Throwable, DomainRetrievedChild>> {
         return childrenRemoteRepository.get()
                 .publish(child)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .doOnSuccess { bus.get().childPublishingState.accept(Bus.PublishingState.Success(it)) }
-                .doOnSubscribe { bus.get().childPublishingState.accept(Bus.PublishingState.Ongoing(child)) }
+                .doOnSuccess { childEither ->
+                    childEither.fold(ifLeft = {
+                        bus.get().childPublishingState.accept(Bus.PublishingState.Failure(child))
+                    }, ifRight = {
+                        bus.get().childPublishingState.accept(Bus.PublishingState.Success(it))
+                    })
+                }.doOnSubscribe { bus.get().childPublishingState.accept(Bus.PublishingState.Ongoing(child)) }
                 .doOnError { bus.get().childPublishingState.accept(Bus.PublishingState.Failure(child)) }
     }
 
-    override fun find(child: DomainSimpleRetrievedChild): Flowable<Either<Pair<DomainRetrievedChild, Int>?, Throwable>> {
+    override fun find(
+            child: DomainSimpleRetrievedChild
+    ): Flowable<Either<Throwable, Option<Tuple2<DomainRetrievedChild, Int>>>> {
         return childrenRemoteRepository.get()
                 .find(child)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .flatMapEither { retrievedChild ->
-
-                    if (retrievedChild == null)
-                        Flowable.just(Either.NULL)
-                    else
-                        childrenLocalRepository.get()
-                                .updateIfExists(retrievedChild)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(Schedulers.io())
-                                .map { Either.Value(it) }
-                                .toSingle(Either.Value(retrievedChild to -1))
-                                .toFlowable()
-
+                .flatMap { childEither ->
+                    childEither.fold(ifLeft = {
+                        Flowable.just(it.left())
+                    }, ifRight = { childOption ->
+                        childOption.fold(ifEmpty = {
+                            Flowable.just(none<Tuple2<DomainRetrievedChild, Int>>().right())
+                        }, ifSome = { child ->
+                            childrenLocalRepository.get()
+                                    .updateIfExists(child)
+                                    .subscribeOn(Schedulers.io())
+                                    .observeOn(Schedulers.io())
+                                    .map { it.some().right() }
+                                    .toSingle((child toT -1).some().right())
+                                    .toFlowable()
+                        })
+                    })
                 }.doOnSubscribe { bus.get().childFindingState.accept(Bus.BackgroundState.ONGOING) }
                 .doOnNext { bus.get().childFindingState.accept(Bus.BackgroundState.SUCCESS) }
                 .doOnError { bus.get().childFindingState.accept(Bus.BackgroundState.FAILURE) }
     }
 
-    override fun findAll(rules: DomainChildCriteriaRules, filter: Filter<DomainRetrievedChild>): Flowable<Either<List<Pair<DomainSimpleRetrievedChild, Int>>, Throwable>> {
+    override fun findAll(
+            rules: DomainChildCriteriaRules,
+            filter: Filter<DomainRetrievedChild>
+    ): Flowable<Either<Throwable, List<Tuple2<DomainSimpleRetrievedChild, Int>>>> {
         return childrenRemoteRepository.get()
                 .findAll(rules, filter)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .flatMapEither { results ->
-
-                    childrenLocalRepository.get()
-                            .replaceAll(results)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(Schedulers.io())
-                            .map { Either.Value(it) }
-                            .toFlowable()
-
+                .flatMap { resultsEither ->
+                    resultsEither.fold(ifLeft = {
+                        Flowable.just(it.left())
+                    }, ifRight = { results ->
+                        childrenLocalRepository.get()
+                                .replaceAll(results)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(Schedulers.io())
+                                .map { it.right() }
+                                .toFlowable()
+                    })
                 }.doOnSubscribe { bus.get().childrenFindingState.accept(Bus.BackgroundState.ONGOING) }
                 .doOnNext { bus.get().childrenFindingState.accept(Bus.BackgroundState.SUCCESS) }
                 .doOnError { bus.get().childrenFindingState.accept(Bus.BackgroundState.FAILURE) }
     }
 
-    override fun findLastSearchResults(): Flowable<List<Pair<DomainSimpleRetrievedChild, Int>>> {
+    override fun findLastSearchResults(): Flowable<List<Tuple2<DomainSimpleRetrievedChild, Int>>> {
         return childrenLocalRepository.get()
                 .findAll()
                 .subscribeOn(Schedulers.io())
@@ -90,12 +107,20 @@ internal class SherlockChildrenRepository(
             private val childrenRemoteRepository: Lazy<ChildrenRemoteRepository>,
             private val childrenLocalRepository: Lazy<ChildrenLocalRepository>
     ) : ChildrenRepository.Tester {
-        override fun clear(): Completable {
+        override fun clear(): Single<Either<Throwable, Unit>> {
             return childrenRemoteRepository.get()
                     .clear()
                     .subscribeOn(Schedulers.io())
                     .observeOn(Schedulers.io())
-                    .andThen(childrenLocalRepository.get().clear())
+                    .flatMap { either ->
+                        either.fold(ifLeft = {
+                            Single.just(it.left())
+                        }, ifRight = {
+                            childrenLocalRepository.get()
+                                    .clear()
+                                    .andThen(Single.just(Unit.right()))
+                        })
+                    }
         }
     }
 }

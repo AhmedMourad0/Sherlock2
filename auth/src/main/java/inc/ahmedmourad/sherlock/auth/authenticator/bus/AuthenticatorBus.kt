@@ -1,10 +1,10 @@
 package inc.ahmedmourad.sherlock.auth.authenticator.bus
 
+import arrow.core.Either
 import com.google.firebase.auth.AuthCredential
 import com.jakewharton.rxrelay2.PublishRelay
-import inc.ahmedmourad.sherlock.domain.model.Either
 
 internal object AuthenticatorBus {
-    val signInCompletion = PublishRelay.create<Either<AuthCredential, Throwable>>()
+    val signInCompletion = PublishRelay.create<Either<Throwable, AuthCredential>>()
     val signInCancellation = PublishRelay.create<Unit>()
 }

@@ -1,34 +1,28 @@
 package inc.ahmedmourad.sherlock.auth.manager.dependencies
 
-import inc.ahmedmourad.sherlock.domain.exceptions.NoSignedInUserException
+import arrow.core.Either
+import arrow.core.Option
 import inc.ahmedmourad.sherlock.domain.model.DomainSignUpUser
 import inc.ahmedmourad.sherlock.domain.model.DomainUserData
-import inc.ahmedmourad.sherlock.domain.model.Either
-import inc.ahmedmourad.sherlock.domain.model.Optional
-import io.reactivex.Completable
 import io.reactivex.Single
 
 internal interface AuthAuthenticator {
 
     fun isUserSignedIn(): Single<Boolean>
 
-    fun getCurrentUserId(): Single<Optional<String>>
+    fun getCurrentUserId(): Single<Either<Throwable, Option<String>>>
 
-    fun signIn(email: String, password: String): Single<String>
+    fun signIn(email: String, password: String): Single<Either<Throwable, String>>
 
-    fun signUp(user: DomainSignUpUser): Single<DomainUserData>
+    fun signUp(user: DomainSignUpUser): Single<Either<Throwable, DomainUserData>>
 
-    fun requireUserSignedIn(): Completable
+    fun signInWithGoogle(): Single<Either<Throwable, String>>
 
-    fun requireUserSignedInEither(): Single<Either<Nothing?, NoSignedInUserException>>
+    fun signInWithFacebook(): Single<Either<Throwable, String>>
 
-    fun signInWithGoogle(): Single<String>
+    fun signInWithTwitter(): Single<Either<Throwable, String>>
 
-    fun signInWithFacebook(): Single<String>
+    fun sendPasswordResetEmail(email: String): Single<Either<Throwable, Unit>>
 
-    fun signInWithTwitter(): Single<String>
-
-    fun sendPasswordResetEmail(email: String): Completable
-
-    fun signOut(): Single<Optional<String>>
+    fun signOut(): Single<Either<Throwable, Option<String>>>
 }

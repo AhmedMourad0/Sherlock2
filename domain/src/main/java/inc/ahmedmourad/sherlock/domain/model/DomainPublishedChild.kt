@@ -1,11 +1,12 @@
 package inc.ahmedmourad.sherlock.domain.model
 
 data class DomainPublishedChild(
-        override val name: DomainName,
-        override val notes: String,
-        override val location: DomainLocation,
-        override val appearance: DomainEstimatedAppearance,
-        val picture: ByteArray) : DomainChild {
+        val name: DomainName,
+        val notes: String,
+        val location: DomainLocation,
+        val appearance: DomainEstimatedAppearance,
+        val picture: ByteArray
+) {
 
     override fun equals(other: Any?): Boolean {
 

@@ -1,9 +1,12 @@
 package inc.ahmedmourad.sherlock.viewmodel.controllers
 
 import androidx.lifecycle.ViewModel
+import arrow.core.Either
+import arrow.core.Tuple2
+import arrow.core.extensions.tuple2.bifunctor.mapLeft
 import inc.ahmedmourad.sherlock.domain.dagger.modules.factories.ChildrenFilterFactory
 import inc.ahmedmourad.sherlock.domain.interactors.FindChildrenInteractor
-import inc.ahmedmourad.sherlock.domain.model.Either
+import inc.ahmedmourad.sherlock.domain.model.DomainSimpleRetrievedChild
 import inc.ahmedmourad.sherlock.mapper.toAppSimpleChild
 import inc.ahmedmourad.sherlock.model.AppChildCriteriaRules
 import inc.ahmedmourad.sherlock.model.AppSimpleRetrievedChild
@@ -20,7 +23,7 @@ internal class SearchResultsViewModel(
 
     private val refreshSubject = PublishSubject.create<Unit>()
 
-    val searchResults: Flowable<Either<List<Pair<AppSimpleRetrievedChild, Int>>, Throwable>>
+    val searchResults: Flowable<Either<Throwable, List<Tuple2<AppSimpleRetrievedChild, Int>>>>
 
     init {
 
@@ -29,8 +32,8 @@ internal class SearchResultsViewModel(
         searchResults = interactor(domainRules, filterFactory(domainRules))
                 .map { either ->
                     either.map {
-                        it.map { (child, score) ->
-                            child.toAppSimpleChild() to score
+                        it.map { resultTuple ->
+                            resultTuple.mapLeft(DomainSimpleRetrievedChild::toAppSimpleChild)
                         }
                     }
                 }.retryWhen { refreshSubject.toFlowable(BackpressureStrategy.LATEST) }

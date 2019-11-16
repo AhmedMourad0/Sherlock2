@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import arrow.core.Tuple2
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
@@ -21,7 +22,6 @@ import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.factories.DisplayChildControllerFactory
 import inc.ahmedmourad.sherlock.dagger.modules.factories.ResultsRecyclerAdapterFactory
 import inc.ahmedmourad.sherlock.dagger.modules.factories.SearchResultsViewModelFactoryFactory
-import inc.ahmedmourad.sherlock.domain.model.Either
 import inc.ahmedmourad.sherlock.domain.model.disposable
 import inc.ahmedmourad.sherlock.domain.platform.DateManager
 import inc.ahmedmourad.sherlock.model.AppChildCriteriaRules
@@ -63,7 +63,7 @@ internal class SearchResultsController(args: Bundle) : LifecycleController(args)
     private lateinit var rules: AppChildCriteriaRules
 
     //TODO: create an interface instead
-    private lateinit var adapter: DynamicRecyclerAdapter<List<Pair<AppSimpleRetrievedChild, Int>>, *>
+    private lateinit var adapter: DynamicRecyclerAdapter<List<Tuple2<AppSimpleRetrievedChild, Int>>, *>
 
     private lateinit var viewModel: SearchResultsViewModel
 
@@ -99,19 +99,15 @@ internal class SearchResultsController(args: Bundle) : LifecycleController(args)
 
         //TODO: either give the option to update or not, or onPublish new values to the bottom
         //TODO: paginate
-        findAllResultsDisposable = viewModel.searchResults.subscribe({
-
-            when (it) {
-
-                is Either.Value -> adapter.update(it.value)
-
-                is Either.Error -> {
-                    Timber.e(it.error)
-                    Toast.makeText(context, it.error.localizedMessage, Toast.LENGTH_LONG).show()
-                }
-            }
-
-        }, Timber::e)
+        findAllResultsDisposable = viewModel.searchResults.subscribe({ resultsEither ->
+            resultsEither.fold(ifLeft = {
+                Timber.e(it)
+                Toast.makeText(context, it.localizedMessage, Toast.LENGTH_LONG).show()
+            }, ifRight = adapter::update)
+        }, {
+            Timber.e(it)
+            Toast.makeText(context, it.localizedMessage, Toast.LENGTH_LONG).show()
+        })
     }
 
     override fun onDetach(view: View) {
@@ -122,7 +118,7 @@ internal class SearchResultsController(args: Bundle) : LifecycleController(args)
     private fun initializeRecyclerView() {
 
         adapter = adapterFactory {
-            val taggedController = displayChildControllerFactory.get()(it.first)
+            val taggedController = displayChildControllerFactory.get()(it.a)
             router.pushController(RouterTransaction.with(taggedController.controller).tag(taggedController.tag))
         }
 

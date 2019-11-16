@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
+import arrow.core.Tuple2
 import com.bumptech.glide.Glide
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
@@ -15,7 +16,10 @@ import splitties.init.appCtx
 import timber.log.Timber
 import javax.inject.Inject
 
-internal class ResultsRemoteViewsFactory(private val context: Context, private val results: List<Pair<AppSimpleRetrievedChild, Int>>) : RemoteViewsService.RemoteViewsFactory {
+internal class ResultsRemoteViewsFactory(
+        private val context: Context,
+        private val results: List<Tuple2<AppSimpleRetrievedChild, Int>>
+) : RemoteViewsService.RemoteViewsFactory {
 
     @Inject
     lateinit var formatter: Lazy<Formatter>
@@ -45,23 +49,23 @@ internal class ResultsRemoteViewsFactory(private val context: Context, private v
         //TODO: needs to change over time
         views.setTextViewText(
                 R.id.widget_result_date,
-                dateManager.get().getRelativeDateTimeString(result.first.publicationDate)
+                dateManager.get().getRelativeDateTimeString(result.a.publicationDate)
         )
 
         views.setTextViewText(
                 R.id.widget_result_notes,
-                result.first.notes
+                result.a.notes
         )
 
         views.setTextViewText(
                 R.id.widget_result_location,
                 formatter.get().formatLocation(
-                        result.first.locationName,
-                        result.first.locationAddress
+                        result.a.locationName,
+                        result.a.locationAddress
                 )
         )
 
-        setPicture(views, result.first.pictureUrl)
+        setPicture(views, result.a.pictureUrl)
 
         return views
     }

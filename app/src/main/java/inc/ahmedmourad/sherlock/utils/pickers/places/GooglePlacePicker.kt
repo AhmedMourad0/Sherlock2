@@ -2,6 +2,7 @@ package inc.ahmedmourad.sherlock.utils.pickers.places
 
 import android.app.Activity
 import android.content.Intent
+import arrow.core.toOption
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException
 import com.google.android.gms.common.GooglePlayServicesRepairableException
 import inc.ahmedmourad.sherlock.model.AppCoordinates
@@ -34,7 +35,7 @@ internal class GooglePlacePicker : PlacePicker {
                                 this.address.toString(),
                                 AppCoordinates(this.latLng.latitude, this.latLng.longitude)
                         )
-                    } ?: AppLocation.empty()
+                    }.toOption()
             )
         }
     }

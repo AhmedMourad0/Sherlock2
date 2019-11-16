@@ -68,7 +68,7 @@ internal class SherlockService : Service() {
         startForeground(NOTIFICATION_ID_PUBLISH_CHILD, createPublishingNotification(child))
 
         addChildDisposable = addChildInteractor(child.toDomainChild())
-                .map(DomainRetrievedChild::toAppChild)
+                .map { it.map(DomainRetrievedChild::toAppChild) }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSuccess {
@@ -78,10 +78,17 @@ internal class SherlockService : Service() {
                 }.doFinally {
                     stopForeground(true)
                     stopSelf()
-                }.subscribe({ this.showPublishedSuccessfullyNotification(it.simplify()) }) {
+                }.subscribe({ childEither ->
+                    childEither.fold(ifLeft = {
+                        Timber.e(it)
+                        showPublishingFailedNotification(it, child)
+                    }, ifRight = {
+                        this.showPublishedSuccessfullyNotification(it.simplify())
+                    })
+                }, {
                     Timber.e(it)
                     showPublishingFailedNotification(it, child)
-                }
+                })
     }
 
     private fun createPublishingNotification(child: AppPublishedChild): Notification {
