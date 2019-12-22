@@ -6,65 +6,74 @@ import androidx.room.PrimaryKey
 import arrow.core.Tuple2
 import arrow.core.toT
 import inc.ahmedmourad.sherlock.children.local.contract.Contract.ChildrenEntry
-import inc.ahmedmourad.sherlock.children.local.model.RoomLocation
 import inc.ahmedmourad.sherlock.children.local.model.RoomName
 import inc.ahmedmourad.sherlock.children.local.model.RoomSimpleChild
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
 import inc.ahmedmourad.sherlock.domain.constants.findEnum
-import inc.ahmedmourad.sherlock.domain.model.DomainEstimatedAppearance
-import inc.ahmedmourad.sherlock.domain.model.DomainName
-import inc.ahmedmourad.sherlock.domain.model.DomainRange
-import inc.ahmedmourad.sherlock.domain.model.DomainRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.*
 
 @Entity(tableName = ChildrenEntry.TABLE_NAME)
 internal data class RoomChildEntity(
         @PrimaryKey
         @ColumnInfo(name = ChildrenEntry.COLUMN_ID)
-        val id: String = "",
+        val id: String,
 
         @ColumnInfo(name = ChildrenEntry.COLUMN_PUBLICATION_DATE)
-        val publicationDate: Long = 0,
+        val publicationDate: Long,
 
         @ColumnInfo(name = ChildrenEntry.COLUMN_FIRST_NAME)
-        val firstName: String = "",
+        val firstName: String,
 
         @ColumnInfo(name = ChildrenEntry.COLUMN_LAST_NAME)
-        val lastName: String = "",
+        val lastName: String,
 
-        @ColumnInfo(name = ChildrenEntry.COLUMN_LOCATION)
-        val location: String = "",
+        @ColumnInfo(name = ChildrenEntry.COLUMN_LOCATION_ID)
+        val locationId: String,
+
+        @ColumnInfo(name = ChildrenEntry.COLUMN_LOCATION_NAME)
+        val locationName: String,
+
+        @ColumnInfo(name = ChildrenEntry.COLUMN_LOCATION_ADDRESS)
+        val locationAddress: String,
+
+        @ColumnInfo(name = ChildrenEntry.COLUMN_LOCATION_LATITUDE)
+        val locationLatitude: Double,
+
+        @ColumnInfo(name = ChildrenEntry.COLUMN_LOCATION_LONGITUDE)
+        val locationLongitude: Double,
 
         @ColumnInfo(name = ChildrenEntry.COLUMN_NOTES)
-        val notes: String = "",
+        val notes: String,
 
         @ColumnInfo(name = ChildrenEntry.COLUMN_GENDER)
-        val gender: Int = 0,
+        val gender: Int,
 
         @ColumnInfo(name = ChildrenEntry.COLUMN_SKIN)
-        val skin: Int = 0,
+        val skin: Int,
 
         @ColumnInfo(name = ChildrenEntry.COLUMN_HAIR)
-        val hair: Int = 0,
+        val hair: Int,
 
         @ColumnInfo(name = ChildrenEntry.COLUMN_START_AGE)
-        val startAge: Int = 0,
+        val startAge: Int,
 
         @ColumnInfo(name = ChildrenEntry.COLUMN_END_AGE)
-        val endAge: Int = 0,
+        val endAge: Int,
 
         @ColumnInfo(name = ChildrenEntry.COLUMN_START_HEIGHT)
-        val startHeight: Int = 0,
+        val startHeight: Int,
 
         @ColumnInfo(name = ChildrenEntry.COLUMN_END_HEIGHT)
-        val endHeight: Int = 0,
+        val endHeight: Int,
 
         @ColumnInfo(name = ChildrenEntry.COLUMN_PICTURE_URL)
-        val pictureUrl: String = "",
+        val pictureUrl: String,
 
         @ColumnInfo(name = ChildrenEntry.COLUMN_SCORE)
-        val score: Int = -1) {
+        val score: Int
+) {
 
     fun toDomainRetrievedChild(): Tuple2<DomainRetrievedChild, Int> {
         return DomainRetrievedChild(
@@ -72,7 +81,7 @@ internal data class RoomChildEntity(
                 publicationDate,
                 extractDomainName(),
                 notes,
-                RoomLocation.parse(location).toDomainLocation(),
+                extractDomainLocation(),
                 extractDomainEstimatedAppearance(),
                 pictureUrl
         ) toT score
@@ -80,15 +89,13 @@ internal data class RoomChildEntity(
 
     fun simplify(): Tuple2<RoomSimpleChild, Int> {
 
-        val roomLocation = RoomLocation.parse(location)
-
         return RoomSimpleChild(
                 id,
                 publicationDate,
                 extractRoomName(),
                 notes,
-                roomLocation.name,
-                roomLocation.address,
+                locationName,
+                locationAddress,
                 pictureUrl
         ) toT score
     }
@@ -108,4 +115,11 @@ internal data class RoomChildEntity(
     private fun extractDomainAge() = DomainRange(startAge, endAge)
 
     private fun extractDomainHeight() = DomainRange(startHeight, endHeight)
+
+    private fun extractDomainLocation() = DomainLocation(
+            locationId,
+            locationName,
+            locationAddress,
+            DomainCoordinates(locationLatitude, locationLongitude)
+    )
 }

@@ -6,7 +6,7 @@
 	android:orientation="horizontal"
 	android:paddingBottom="@dimen/genderPaddingBottom">
 	
-	<TextView
+	<com.google.android.material.textview.MaterialTextView
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:paddingEnd="@dimen/genderLabelPaddingEnd"
@@ -23,7 +23,7 @@
 		android:checkedButton="@id/male_radio_button"
 		android:orientation="horizontal">
 		
-		<RadioButton
+		<com.google.android.material.radiobutton.MaterialRadioButton
 			android:id="@+id/male_radio_button"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -32,7 +32,7 @@
 			android:text="@string/male"
 			android:textSize="@dimen/genderTextSize" />
 		
-		<RadioButton
+		<com.google.android.material.radiobutton.MaterialRadioButton
 			android:id="@+id/female_radio_button"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"

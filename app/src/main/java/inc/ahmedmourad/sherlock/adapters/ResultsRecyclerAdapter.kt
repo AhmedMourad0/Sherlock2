@@ -4,13 +4,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import arrow.core.Tuple2
 import butterknife.BindView
 import butterknife.ButterKnife
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
+import com.google.android.material.textview.MaterialTextView
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.domain.platform.DateManager
@@ -42,16 +42,16 @@ internal class ResultsRecyclerAdapter(
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
         @BindView(R.id.result_date)
-        internal lateinit var dateTextView: TextView
+        internal lateinit var dateTextView: MaterialTextView
 
         @BindView(R.id.result_picture)
         internal lateinit var pictureImageView: ImageView
 
         @BindView(R.id.result_notes)
-        internal lateinit var notesTextView: TextView
+        internal lateinit var notesTextView: MaterialTextView
 
         @BindView(R.id.result_location)
-        internal lateinit var locationTextView: TextView
+        internal lateinit var locationTextView: MaterialTextView
 
         private val glide: RequestManager
 

@@ -57,9 +57,17 @@ internal class SherlockApplication : MultiDexApplication() {
 *
 * * * * replace all printStackTrace with Timber.e
 *
-* Add user authentication system (look Delta app)
+* * * * Add user authentication system (look Delta app)
 *
 * Work on the ui (the 3 retry options too, the (AddChildController, DisplayChildController, SearchResultsController) progress, no items in lists, place picker, maybe separate it into separate object as well), coordinator layout for the connection indicator
+*
+* Use Timber to its full potential (Crashlytics)
+*
+* SavedStateViewModel
+*
+* DDD
+*
+* ServerTimeStamp
 *
 *  / ** Done ** /
 *
@@ -68,8 +76,6 @@ internal class SherlockApplication : MultiDexApplication() {
 * ConstraintLayout
 *
 * Kotlin Flows and Coroutines
-*
-* Anko's Dsl
 *
 * Kotlin Multiplatform
 *

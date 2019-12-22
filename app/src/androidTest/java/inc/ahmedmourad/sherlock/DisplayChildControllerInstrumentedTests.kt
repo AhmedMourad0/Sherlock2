@@ -21,9 +21,9 @@ import inc.ahmedmourad.sherlock.domain.constants.Skin
 import inc.ahmedmourad.sherlock.idling.toIdlingResource
 import inc.ahmedmourad.sherlock.model.*
 import inc.ahmedmourad.sherlock.utils.childAt
-import inc.ahmedmourad.sherlock.utils.custom.ProperNumberPicker
 import inc.ahmedmourad.sherlock.utils.nestedScrollTo
 import inc.ahmedmourad.sherlock.view.activity.MainActivity
+import inc.ahmedmourad.sherlock.view.views.ProperNumberPicker
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule

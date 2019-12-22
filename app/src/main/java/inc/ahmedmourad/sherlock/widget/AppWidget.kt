@@ -6,11 +6,9 @@ import android.content.Context
 import android.widget.RemoteViews
 import arrow.core.extensions.tuple2.bifunctor.mapLeft
 import dagger.Lazy
-
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.factories.ResultsRemoteViewsServiceIntentFactory
-import inc.ahmedmourad.sherlock.domain.bus.Bus
 import inc.ahmedmourad.sherlock.domain.interactors.FindLastSearchResultsInteractor
 import inc.ahmedmourad.sherlock.domain.model.DomainSimpleRetrievedChild
 import inc.ahmedmourad.sherlock.mapper.toAppSimpleChild
@@ -25,9 +23,6 @@ internal class AppWidget : AppWidgetProvider() {
 
     @Inject
     lateinit var interactor: FindLastSearchResultsInteractor
-
-    @Inject
-    lateinit var bus: Lazy<Bus>
 
     @Inject
     lateinit var resultsRemoteViewsServiceFactory: Lazy<ResultsRemoteViewsServiceIntentFactory>

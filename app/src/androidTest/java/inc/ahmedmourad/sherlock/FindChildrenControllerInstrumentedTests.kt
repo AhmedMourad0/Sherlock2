@@ -10,8 +10,8 @@ import androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.rule.ActivityTestRule
-import inc.ahmedmourad.sherlock.utils.custom.ProperNumberPicker
 import inc.ahmedmourad.sherlock.view.activity.MainActivity
+import inc.ahmedmourad.sherlock.view.views.ProperNumberPicker
 import org.hamcrest.Matchers.not
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -41,7 +41,7 @@ class FindChildrenControllerInstrumentedTests {
     @Test
     fun findChildrenController_hasAllCorrectElements() {
 
-        onView(withId(R.id.toolbar))
+        onView(withId(R.id.main_toolbar))
                 .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
                 .check(matches(hasDescendant(withText(R.string.search))))
 

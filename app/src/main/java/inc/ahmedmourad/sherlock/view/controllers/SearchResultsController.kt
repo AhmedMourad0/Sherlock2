@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import arrow.core.Tuple2
@@ -15,6 +14,7 @@ import butterknife.ButterKnife
 import butterknife.Unbinder
 import com.bluelinelabs.conductor.RouterTransaction
 import com.bluelinelabs.conductor.archlifecycle.LifecycleController
+import com.google.android.material.appbar.MaterialToolbar
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.adapters.DynamicRecyclerAdapter
@@ -37,8 +37,8 @@ import javax.inject.Inject
 //TODO: needs a better name, maybe?
 internal class SearchResultsController(args: Bundle) : LifecycleController(args) {
 
-    @BindView(R.id.toolbar)
-    internal lateinit var toolbar: Toolbar
+    @BindView(R.id.main_toolbar)
+    internal lateinit var toolbar: MaterialToolbar
 
     @BindView(R.id.search_results_recycler)
     internal lateinit var recyclerView: RecyclerView

@@ -25,7 +25,11 @@ internal data class FirebasePublishedChild(
             Contract.Database.Children.PUBLICATION_DATE to publicationDate,
             Contract.Database.Children.FIRST_NAME to name.first,
             Contract.Database.Children.LAST_NAME to name.last,
-            Contract.Database.Children.LOCATION to location.store(), //TODO: maybe not just store it as a string
+            Contract.Database.Children.LOCATION_ID to location.id,
+            Contract.Database.Children.LOCATION_NAME to location.name,
+            Contract.Database.Children.LOCATION_ADDRESS to location.address,
+            Contract.Database.Children.LOCATION_LATITUDE to location.coordinates.latitude,
+            Contract.Database.Children.LOCATION_LONGITUDE to location.coordinates.longitude,
             Contract.Database.Children.START_AGE to appearance.age.from,
             Contract.Database.Children.END_AGE to appearance.age.to,
             Contract.Database.Children.START_HEIGHT to appearance.height.from,

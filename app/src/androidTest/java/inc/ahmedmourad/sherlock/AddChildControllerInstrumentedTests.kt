@@ -41,7 +41,7 @@ class AddChildControllerInstrumentedTests {
     @Test
     fun addChildController_hasAllCorrectElements() {
 
-        onView(withId(R.id.toolbar))
+        onView(withId(R.id.main_toolbar))
                 .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
                 .check(matches(hasDescendant(withText(R.string.found_a_child))))
 

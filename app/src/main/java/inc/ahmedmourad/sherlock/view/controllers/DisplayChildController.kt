@@ -7,9 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.widget.Toolbar
 import arrow.core.Tuple2
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -17,6 +15,8 @@ import butterknife.Unbinder
 import com.bluelinelabs.conductor.Router
 import com.bluelinelabs.conductor.RouterTransaction
 import com.bluelinelabs.conductor.archlifecycle.LifecycleController
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.textview.MaterialTextView
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.factories.DisplayChildViewModelFactoryFactory
@@ -37,34 +37,34 @@ import javax.inject.Inject
 internal class DisplayChildController(args: Bundle) : LifecycleController(args) {
 
     @BindView(R.id.display_child_toolbar)
-    internal lateinit var toolbar: Toolbar
+    internal lateinit var toolbar: MaterialToolbar
 
     @BindView(R.id.display_child_picture)
     internal lateinit var pictureImageView: ImageView
 
     @BindView(R.id.display_child_name)
-    internal lateinit var nameTextView: TextView
+    internal lateinit var nameTextView: MaterialTextView
 
     @BindView(R.id.display_child_age)
-    internal lateinit var ageTextView: TextView
+    internal lateinit var ageTextView: MaterialTextView
 
     @BindView(R.id.display_child_gender)
-    internal lateinit var genderTextView: TextView
+    internal lateinit var genderTextView: MaterialTextView
 
     @BindView(R.id.display_child_height)
-    internal lateinit var heightTextView: TextView
+    internal lateinit var heightTextView: MaterialTextView
 
     @BindView(R.id.display_child_skin)
-    internal lateinit var skinTextView: TextView
+    internal lateinit var skinTextView: MaterialTextView
 
     @BindView(R.id.display_child_hair)
-    internal lateinit var hairTextView: TextView
+    internal lateinit var hairTextView: MaterialTextView
 
     @BindView(R.id.display_child_location)
-    internal lateinit var locationTextView: TextView
+    internal lateinit var locationTextView: MaterialTextView
 
     @BindView(R.id.display_child_notes)
-    internal lateinit var notesTextView: TextView
+    internal lateinit var notesTextView: MaterialTextView
 
     @Inject
     lateinit var formatter: Formatter

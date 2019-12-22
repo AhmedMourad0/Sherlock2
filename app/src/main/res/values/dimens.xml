@@ -4,10 +4,13 @@
 	<!-- It's a shame that something as simple as changing the snackbar padding would require such an ugly hack -->
 	<dimen name="design_snackbar_padding_vertical" tools:override="true">4dp</dimen>
 	
+	<dimen name="defaultAppBarElevation">4dp</dimen>
+	<dimen name="backdropTranslationY">36dp</dimen>
+	
 	<!-- HomeController -->
 	
-	<dimen name="homeRecyclerPaddingBottom">4dp</dimen>
-	<dimen name="homeRecyclerPaddingTop">4dp</dimen>
+	<dimen name="homeRecyclerVerticalPadding">20dp</dimen>
+	<dimen name="homeRecyclerHorizontalPadding">8dp</dimen>
 	
 	<!-- AddChildController -->
 	
@@ -33,7 +36,7 @@
 	
 	<dimen name="addChildHairPaddingBottom">32dp</dimen>
 	
-	<dimen name="addChildPicturePaddingBottom">16dp</dimen>
+	<dimen name="addChildPicturePaddingBottom">24dp</dimen>
 	<dimen name="addChildPictureWidth">84dp</dimen>
 	<dimen name="addChildPictureHeight">84dp</dimen>
 	<dimen name="addChildPictureTextPadding">16dp</dimen>

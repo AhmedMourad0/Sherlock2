@@ -67,5 +67,7 @@
 	<string name="connecting">Connecting</string>
 	<string name="back_online">Connected</string>
 	<string name="no_connection">No connection</string>
+	<string name="sign_in">Sign in</string>
+	<string name="sign_out">Sign out</string>
 
 </resources>

@@ -283,7 +283,7 @@ internal fun DocumentSnapshot.extractFirebaseRetrievedChild() = FirebaseRetrieve
         requireNotNull(this.getLong(Contract.Database.Children.PUBLICATION_DATE)),
         extractFirebaseName(this),
         requireNotNull(this.getString(Contract.Database.Children.NOTES)),
-        FirebaseLocation.parse(requireNotNull(this.getString(Contract.Database.Children.LOCATION))),
+        extractFirebaseLocation(this),
         extractFirebaseAppearance(this),
         requireNotNull(this.getString(Contract.Database.Children.PICTURE_URL))
 )
@@ -309,4 +309,16 @@ private fun extractFirebaseAge(snapshot: DocumentSnapshot) = FirebaseRange(
 private fun extractFirebaseHeight(snapshot: DocumentSnapshot) = FirebaseRange(
         requireNotNull(snapshot.getLong(Contract.Database.Children.START_HEIGHT)?.toInt()),
         requireNotNull(snapshot.getLong(Contract.Database.Children.END_HEIGHT)?.toInt())
+)
+
+private fun extractFirebaseLocation(snapshot: DocumentSnapshot) = FirebaseLocation(
+        requireNotNull(snapshot.getString(Contract.Database.Children.LOCATION_ID)),
+        requireNotNull(snapshot.getString(Contract.Database.Children.LOCATION_NAME)),
+        requireNotNull(snapshot.getString(Contract.Database.Children.LOCATION_ADDRESS)),
+        extractFirebaseCoordinates(snapshot)
+)
+
+private fun extractFirebaseCoordinates(snapshot: DocumentSnapshot) = FirebaseCoordinates(
+        requireNotNull(snapshot.getDouble(Contract.Database.Children.LOCATION_LATITUDE)),
+        requireNotNull(snapshot.getDouble(Contract.Database.Children.LOCATION_LONGITUDE))
 )

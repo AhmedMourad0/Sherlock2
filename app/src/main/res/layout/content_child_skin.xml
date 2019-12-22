@@ -6,7 +6,7 @@
 	android:orientation="horizontal"
 	android:paddingBottom="@dimen/skinPaddingBottom">
 	
-	<TextView
+	<com.google.android.material.textview.MaterialTextView
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:paddingEnd="@dimen/skinLabelPaddingEnd"

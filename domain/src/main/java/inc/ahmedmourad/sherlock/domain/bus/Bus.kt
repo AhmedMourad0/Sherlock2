@@ -4,6 +4,7 @@ import inc.ahmedmourad.sherlock.domain.model.DomainPublishedChild
 import inc.ahmedmourad.sherlock.domain.model.DomainRetrievedChild
 import io.reactivex.Observable
 
+//TODO: make internal and all interactions should happen through interactors
 interface Bus {
 
     val childPublishingState: Event<PublishingState<*>>

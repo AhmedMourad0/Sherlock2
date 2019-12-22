@@ -7,8 +7,10 @@ import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
-import androidx.appcompat.widget.Toolbar
+import android.widget.ImageView
+import android.widget.NumberPicker
+import android.widget.RadioGroup
+import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import butterknife.BindView
@@ -16,7 +18,10 @@ import butterknife.ButterKnife
 import butterknife.Unbinder
 import com.bluelinelabs.conductor.RouterTransaction
 import com.bluelinelabs.conductor.archlifecycle.LifecycleController
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textview.MaterialTextView
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
@@ -38,8 +43,8 @@ import javax.inject.Inject
 
 internal class FindChildrenController : LifecycleController(), View.OnClickListener {
 
-    @BindView(R.id.toolbar)
-    internal lateinit var toolbar: Toolbar
+    @BindView(R.id.main_toolbar)
+    internal lateinit var toolbar: MaterialToolbar
 
     @BindView(R.id.skin_white)
     internal lateinit var skinWhiteView: View
@@ -75,13 +80,13 @@ internal class FindChildrenController : LifecycleController(), View.OnClickListe
     internal lateinit var heightNumberPicker: NumberPicker
 
     @BindView(R.id.find_children_location_text_view)
-    internal lateinit var locationTextView: TextView
+    internal lateinit var locationTextView: MaterialTextView
 
     @BindView(R.id.find_children_location_image_view)
     internal lateinit var locationImageView: ImageView
 
     @BindView(R.id.find_children_search_button)
-    internal lateinit var searchButton: Button
+    internal lateinit var searchButton: MaterialButton
 
     @Inject
     @field:FindChildrenViewModelQualifier

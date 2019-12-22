@@ -13,7 +13,7 @@
 	android:orientation="vertical"
 	tools:ignore="UnusedAttribute">
 	
-	<TextView
+	<com.google.android.material.textview.MaterialTextView
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:ellipsize="end"
@@ -25,7 +25,7 @@
 		android:textSize="@dimen/widgetResultUserTextSize"
 		android:textStyle="bold" />
 	
-	<TextView
+	<com.google.android.material.textview.MaterialTextView
 		android:id="@+id/widget_result_date"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -45,7 +45,7 @@
 		android:contentDescription="@string/child"
 		tools:src="@drawable/placeholder" />
 	
-	<TextView
+	<com.google.android.material.textview.MaterialTextView
 		android:id="@+id/widget_result_notes"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -64,14 +64,14 @@
 		android:orientation="horizontal"
 		android:paddingTop="@dimen/widgetResultLocationPaddingTop">
 		
-		<TextView
+		<com.google.android.material.textview.MaterialTextView
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/location_label"
 			android:textColor="@android:color/black"
 			android:textSize="@dimen/widgetResultLocationTextSize" />
 		
-		<TextView
+		<com.google.android.material.textview.MaterialTextView
 			android:id="@+id/widget_result_location"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"

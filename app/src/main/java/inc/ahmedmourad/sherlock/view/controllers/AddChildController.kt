@@ -1,6 +1,5 @@
 package inc.ahmedmourad.sherlock.view.controllers
 
-//TODO: Thanks, Google!
 import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.content.Intent
@@ -9,8 +8,9 @@ import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
-import androidx.appcompat.widget.Toolbar
+import android.widget.ImageView
+import android.widget.RadioGroup
+import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import butterknife.BindView
@@ -19,7 +19,9 @@ import butterknife.Unbinder
 import com.bluelinelabs.conductor.Router
 import com.bluelinelabs.conductor.RouterTransaction
 import com.bluelinelabs.conductor.archlifecycle.LifecycleController
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textview.MaterialTextView
 import com.jaygoo.widget.RangeSeekBar
 import dagger.Lazy
 import de.hdodenhof.circleimageview.CircleImageView
@@ -42,7 +44,6 @@ import inc.ahmedmourad.sherlock.utils.getImageBitmap
 import inc.ahmedmourad.sherlock.utils.pickers.colors.ColorSelector
 import inc.ahmedmourad.sherlock.utils.pickers.images.ImagePicker
 import inc.ahmedmourad.sherlock.utils.pickers.places.PlacePicker
-import inc.ahmedmourad.sherlock.utils.setSupportActionBar
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
 import inc.ahmedmourad.sherlock.view.model.ExternallyNavigableController
 import inc.ahmedmourad.sherlock.view.model.TaggedController
@@ -55,8 +56,8 @@ import kotlin.math.roundToInt
 //TODO: try moving stuff to the view model, other controllers too
 internal class AddChildController(args: Bundle) : LifecycleController(args), View.OnClickListener {
 
-    @BindView(R.id.toolbar)
-    internal lateinit var toolbar: Toolbar
+//    @BindView(R.id.toolbar)
+//    internal lateinit var toolbar: MaterialToolbar
 
     @BindView(R.id.skin_white)
     internal lateinit var skinWhiteView: View
@@ -92,7 +93,7 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
     internal lateinit var heightSeekBar: RangeSeekBar
 
     @BindView(R.id.add_child_location_text_view)
-    internal lateinit var locationTextView: TextView
+    internal lateinit var locationTextView: MaterialTextView
 
     @BindView(R.id.add_child_location_image_view)
     internal lateinit var locationImageView: ImageView
@@ -101,13 +102,13 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
     internal lateinit var pictureImageView: CircleImageView
 
     @BindView(R.id.add_child_picture_text_view)
-    internal lateinit var pictureTextView: TextView
+    internal lateinit var pictureTextView: MaterialTextView
 
     @BindView(R.id.add_child_notes_edit_text)
     internal lateinit var notesEditText: TextInputEditText
 
     @BindView(R.id.add_child_publish_button)
-    internal lateinit var publishButton: Button
+    internal lateinit var publishButton: MaterialButton
 
     @Inject
     @field:AddChildViewModelQualifier
@@ -162,9 +163,9 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
                 Toast.LENGTH_LONG
         ).show()
 
-        setSupportActionBar(toolbar)
-
-        toolbar.title = view.context.getString(R.string.found_a_child)
+//        setSupportActionBar(toolbar)
+//
+//        toolbar.title = view.context.getString(R.string.found_a_child)
 
         viewModel = viewModelProvider(viewModelFactory)[AddChildViewModel::class.java]
 
@@ -229,6 +230,7 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
 
         viewModel.take(navigationChild)
 
+        //TODO: move all similar to this to view model
         publishingDisposable = viewModel.publishingStateObserver
                 .subscribe(this::handlePublishingStateValue) {
                     Toast.makeText(context, R.string.something_went_wrong, Toast.LENGTH_LONG).show()

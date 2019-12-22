@@ -40,7 +40,7 @@
 			
 			</FrameLayout>
 			
-			<androidx.appcompat.widget.Toolbar
+			<com.google.android.material.appbar.MaterialToolbar
 				android:id="@+id/display_child_toolbar"
 				android:layout_width="match_parent"
 				android:layout_height="?actionBarSize"
@@ -63,7 +63,7 @@
 			android:layout_height="wrap_content"
 			android:orientation="vertical">
 			
-			<TextView
+			<com.google.android.material.textview.MaterialTextView
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_marginBottom="@dimen/displayChildHeaderMarginBottom"
@@ -73,7 +73,7 @@
 				android:text="@string/description"
 				android:textColor="@color/colorFontSection" />
 			
-			<androidx.cardview.widget.CardView
+			<com.google.android.material.card.MaterialCardView
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginEnd="@dimen/displayChildCardMarginEnd"
@@ -89,7 +89,7 @@
 					android:paddingTop="@dimen/displayChildCardPaddingTop"
 					android:paddingBottom="@dimen/displayChildCardPaddingBottom">
 					
-					<TextView
+					<com.google.android.material.textview.MaterialTextView
 						android:id="@+id/display_child_name"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
@@ -110,7 +110,7 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content" />
 					
-					<TextView
+					<com.google.android.material.textview.MaterialTextView
 						android:id="@+id/display_child_age"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
@@ -132,7 +132,7 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content" />
 					
-					<TextView
+					<com.google.android.material.textview.MaterialTextView
 						android:id="@+id/display_child_gender"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
@@ -154,7 +154,7 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content" />
 					
-					<TextView
+					<com.google.android.material.textview.MaterialTextView
 						android:id="@+id/display_child_height"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
@@ -176,7 +176,7 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content" />
 					
-					<TextView
+					<com.google.android.material.textview.MaterialTextView
 						android:id="@+id/display_child_skin"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
@@ -198,7 +198,7 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content" />
 					
-					<TextView
+					<com.google.android.material.textview.MaterialTextView
 						android:id="@+id/display_child_hair"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
@@ -216,9 +216,9 @@
 				
 				</LinearLayout>
 			
-			</androidx.cardview.widget.CardView>
+			</com.google.android.material.card.MaterialCardView>
 			
-			<TextView
+			<com.google.android.material.textview.MaterialTextView
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_marginBottom="@dimen/displayChildHeaderMarginBottom"
@@ -228,7 +228,7 @@
 				android:text="@string/details"
 				android:textColor="@color/colorFontSection" />
 			
-			<androidx.cardview.widget.CardView
+			<com.google.android.material.card.MaterialCardView
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginBottom="@dimen/displayChildMarginBottom"
@@ -245,7 +245,7 @@
 					android:paddingTop="@dimen/displayChildCardPaddingTop"
 					android:paddingBottom="@dimen/displayChildCardPaddingBottom">
 					
-					<TextView
+					<com.google.android.material.textview.MaterialTextView
 						android:id="@+id/display_child_location"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
@@ -266,7 +266,7 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content" />
 					
-					<TextView
+					<com.google.android.material.textview.MaterialTextView
 						android:id="@+id/display_child_notes"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
@@ -284,7 +284,7 @@
 				
 				</LinearLayout>
 			
-			</androidx.cardview.widget.CardView>
+			</com.google.android.material.card.MaterialCardView>
 		
 		</LinearLayout>
 	

@@ -15,7 +15,6 @@ import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.factories.AddChildControllerIntentFactory
 import inc.ahmedmourad.sherlock.dagger.modules.factories.DisplayChildControllerIntentFactory
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.AddChildControllerIntentQualifier
-import inc.ahmedmourad.sherlock.domain.bus.Bus
 import inc.ahmedmourad.sherlock.domain.interactors.AddChildInteractor
 import inc.ahmedmourad.sherlock.domain.model.DomainRetrievedChild
 import inc.ahmedmourad.sherlock.domain.model.disposable
@@ -30,9 +29,6 @@ import timber.log.Timber
 import javax.inject.Inject
 
 internal class SherlockService : Service() {
-
-    @Inject
-    lateinit var bus: Bus
 
     @Inject
     lateinit var addChildInteractor: AddChildInteractor

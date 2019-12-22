@@ -39,7 +39,7 @@ class HomeControllerInstrumentedTests {
                 .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
                 .check(matches(hasChildCount(4)))
 
-        onView(withId(R.id.toolbar))
+        onView(withId(R.id.main_toolbar))
                 .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
                 .check(matches(hasDescendant(withText(R.string.app_name))))
 

@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import butterknife.BindView
@@ -19,7 +18,6 @@ import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.factories.AddChildControllerFactory
 import inc.ahmedmourad.sherlock.dagger.modules.factories.SectionsRecyclerAdapterFactory
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.FindChildrenControllerQualifier
-import inc.ahmedmourad.sherlock.utils.setSupportActionBar
 import inc.ahmedmourad.sherlock.view.activity.MainActivity
 import inc.ahmedmourad.sherlock.view.model.AppSection
 import inc.ahmedmourad.sherlock.view.model.TaggedController
@@ -29,8 +27,8 @@ import javax.inject.Inject
 
 internal class HomeController : Controller() {
 
-    @BindView(R.id.toolbar)
-    internal lateinit var toolbar: Toolbar
+//    @BindView(R.id.toolbar)
+//    internal lateinit var toolbar: MaterialToolbar
 
     @BindView(R.id.home_recycler)
     internal lateinit var recyclerView: RecyclerView
@@ -58,7 +56,7 @@ internal class HomeController : Controller() {
 
         context = view.context
 
-        setSupportActionBar(toolbar)
+//        setSupportActionBar(toolbar)
 
         initializeRecyclerView()
 
@@ -97,6 +95,10 @@ internal class HomeController : Controller() {
     private fun createSectionsList() = ArrayList<AppSection>(4).apply {
         add(AppSection(context.getString(R.string.found_a_child), R.drawable.found_a_child, addChildControllerFactory.get()()))
         add(AppSection(context.getString(R.string.search), R.drawable.search_child, findChildrenController))
+        add(AppSection(context.getString(R.string.coming_soon), R.drawable.coming_soon, null))
+        add(AppSection(context.getString(R.string.coming_soon), R.drawable.coming_soon, null))
+        add(AppSection(context.getString(R.string.coming_soon), R.drawable.coming_soon, null))
+        add(AppSection(context.getString(R.string.coming_soon), R.drawable.coming_soon, null))
         add(AppSection(context.getString(R.string.coming_soon), R.drawable.coming_soon, null))
         add(AppSection(context.getString(R.string.coming_soon), R.drawable.coming_soon, null))
     }
