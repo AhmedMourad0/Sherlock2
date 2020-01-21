@@ -1,5 +1,6 @@
 package inc.ahmedmourad.sherlock.children.remote.model
 
+import com.google.firebase.firestore.FieldValue
 import inc.ahmedmourad.sherlock.children.remote.contract.Contract
 
 internal data class FirebasePublishedChild(
@@ -21,8 +22,8 @@ internal data class FirebasePublishedChild(
         )
     }
 
-    fun toMap(publicationDate: Long, pictureUrl: String): Map<String, Any> = hashMapOf(
-            Contract.Database.Children.PUBLICATION_DATE to publicationDate,
+    fun toMap(pictureUrl: String): Map<String, Any> = hashMapOf(
+            Contract.Database.Children.PUBLICATION_DATE to FieldValue.serverTimestamp(),
             Contract.Database.Children.FIRST_NAME to name.first,
             Contract.Database.Children.LAST_NAME to name.last,
             Contract.Database.Children.LOCATION_ID to location.id,

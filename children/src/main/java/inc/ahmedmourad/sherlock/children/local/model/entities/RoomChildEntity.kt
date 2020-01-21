@@ -12,7 +12,7 @@ import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
 import inc.ahmedmourad.sherlock.domain.constants.findEnum
-import inc.ahmedmourad.sherlock.domain.model.*
+import inc.ahmedmourad.sherlock.domain.model.children.*
 
 @Entity(tableName = ChildrenEntry.TABLE_NAME)
 internal data class RoomChildEntity(

@@ -1,9 +1,9 @@
 package inc.ahmedmourad.sherlock.domain.filter.criteria
 
 import arrow.core.Tuple2
-import inc.ahmedmourad.sherlock.domain.model.DomainExactAppearance
-import inc.ahmedmourad.sherlock.domain.model.DomainLocation
-import inc.ahmedmourad.sherlock.domain.model.DomainName
+import inc.ahmedmourad.sherlock.domain.model.children.DomainExactAppearance
+import inc.ahmedmourad.sherlock.domain.model.children.DomainLocation
+import inc.ahmedmourad.sherlock.domain.model.children.DomainName
 
 interface Criteria<T> {
 

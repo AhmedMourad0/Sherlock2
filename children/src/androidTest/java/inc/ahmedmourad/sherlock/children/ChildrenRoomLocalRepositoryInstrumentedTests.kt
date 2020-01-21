@@ -5,14 +5,13 @@ import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.children.local.database.SherlockDatabase
-import inc.ahmedmourad.sherlock.children.local.mapper.toRoomChildEntity
 import inc.ahmedmourad.sherlock.children.local.model.entities.RoomChildEntity
 import inc.ahmedmourad.sherlock.children.local.repository.ChildrenRoomLocalRepository
 import inc.ahmedmourad.sherlock.children.repository.dependencies.ChildrenLocalRepository
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
-import inc.ahmedmourad.sherlock.domain.model.*
+import inc.ahmedmourad.sherlock.domain.model.children.*
 import io.reactivex.Flowable
 import org.junit.After
 import org.junit.Before

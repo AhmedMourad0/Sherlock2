@@ -4,13 +4,17 @@ import arrow.core.*
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.children.repository.dependencies.ChildrenLocalRepository
 import inc.ahmedmourad.sherlock.children.repository.dependencies.ChildrenRemoteRepository
-import inc.ahmedmourad.sherlock.domain.bus.Bus
+import inc.ahmedmourad.sherlock.domain.constants.BackgroundState
+import inc.ahmedmourad.sherlock.domain.constants.PublishingState
 import inc.ahmedmourad.sherlock.domain.data.ChildrenRepository
 import inc.ahmedmourad.sherlock.domain.filter.Filter
 import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
-import inc.ahmedmourad.sherlock.domain.model.DomainPublishedChild
-import inc.ahmedmourad.sherlock.domain.model.DomainRetrievedChild
-import inc.ahmedmourad.sherlock.domain.model.DomainSimpleRetrievedChild
+import inc.ahmedmourad.sherlock.domain.interactors.core.NotifyChildFindingStateChangeInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.core.NotifyChildPublishingStateChangeInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.core.NotifyChildrenFindingStateChangeInteractor
+import inc.ahmedmourad.sherlock.domain.model.children.DomainPublishedChild
+import inc.ahmedmourad.sherlock.domain.model.children.DomainRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.DomainSimpleRetrievedChild
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -20,7 +24,9 @@ import io.reactivex.schedulers.Schedulers
 internal class SherlockChildrenRepository(
         private val childrenLocalRepository: Lazy<ChildrenLocalRepository>,
         private val childrenRemoteRepository: Lazy<ChildrenRemoteRepository>,
-        private val bus: Lazy<Bus>
+        private val notifyChildPublishingStateChangeInteractor: NotifyChildPublishingStateChangeInteractor,
+        private val notifyChildFindingStateChangeInteractor: NotifyChildFindingStateChangeInteractor,
+        private val notifyChildrenFindingStateChangeInteractor: NotifyChildrenFindingStateChangeInteractor
 ) : ChildrenRepository {
 
     private val tester by lazy { SherlockTester(childrenRemoteRepository, childrenLocalRepository) }
@@ -32,12 +38,12 @@ internal class SherlockChildrenRepository(
                 .observeOn(Schedulers.io())
                 .doOnSuccess { childEither ->
                     childEither.fold(ifLeft = {
-                        bus.get().childPublishingState.accept(Bus.PublishingState.Failure(child))
+                        notifyChildPublishingStateChangeInteractor(PublishingState.Failure(child))
                     }, ifRight = {
-                        bus.get().childPublishingState.accept(Bus.PublishingState.Success(it))
+                        notifyChildPublishingStateChangeInteractor(PublishingState.Success(it))
                     })
-                }.doOnSubscribe { bus.get().childPublishingState.accept(Bus.PublishingState.Ongoing(child)) }
-                .doOnError { bus.get().childPublishingState.accept(Bus.PublishingState.Failure(child)) }
+                }.doOnSubscribe { notifyChildPublishingStateChangeInteractor(PublishingState.Ongoing(child)) }
+                .doOnError { notifyChildPublishingStateChangeInteractor(PublishingState.Failure(child)) }
     }
 
     override fun find(
@@ -63,9 +69,9 @@ internal class SherlockChildrenRepository(
                                     .toFlowable()
                         })
                     })
-                }.doOnSubscribe { bus.get().childFindingState.accept(Bus.BackgroundState.ONGOING) }
-                .doOnNext { bus.get().childFindingState.accept(Bus.BackgroundState.SUCCESS) }
-                .doOnError { bus.get().childFindingState.accept(Bus.BackgroundState.FAILURE) }
+                }.doOnSubscribe { notifyChildFindingStateChangeInteractor(BackgroundState.ONGOING) }
+                .doOnNext { notifyChildFindingStateChangeInteractor(BackgroundState.SUCCESS) }
+                .doOnError { notifyChildFindingStateChangeInteractor(BackgroundState.FAILURE) }
     }
 
     override fun findAll(
@@ -87,9 +93,9 @@ internal class SherlockChildrenRepository(
                                 .map { it.right() }
                                 .toFlowable()
                     })
-                }.doOnSubscribe { bus.get().childrenFindingState.accept(Bus.BackgroundState.ONGOING) }
-                .doOnNext { bus.get().childrenFindingState.accept(Bus.BackgroundState.SUCCESS) }
-                .doOnError { bus.get().childrenFindingState.accept(Bus.BackgroundState.FAILURE) }
+                }.doOnSubscribe { notifyChildrenFindingStateChangeInteractor(BackgroundState.ONGOING) }
+                .doOnNext { notifyChildrenFindingStateChangeInteractor(BackgroundState.SUCCESS) }
+                .doOnError { notifyChildrenFindingStateChangeInteractor(BackgroundState.FAILURE) }
     }
 
     override fun findLastSearchResults(): Flowable<List<Tuple2<DomainSimpleRetrievedChild, Int>>> {

@@ -5,8 +5,8 @@ import arrow.core.extensions.tuple2.bifunctor.mapLeft
 import arrow.core.toT
 import inc.ahmedmourad.sherlock.children.local.model.RoomSimpleChild
 import inc.ahmedmourad.sherlock.children.local.model.entities.RoomChildEntity
-import inc.ahmedmourad.sherlock.domain.model.DomainRetrievedChild
-import inc.ahmedmourad.sherlock.domain.model.DomainSimpleRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.DomainRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.DomainSimpleRetrievedChild
 
 internal fun Tuple2<RoomSimpleChild, Int>.toDomainSimpleChild(): Tuple2<DomainSimpleRetrievedChild, Int> {
     return this.mapLeft {

@@ -12,10 +12,10 @@ import inc.ahmedmourad.sherlock.domain.constants.Skin
 import inc.ahmedmourad.sherlock.domain.data.ChildrenRepository
 import inc.ahmedmourad.sherlock.domain.filter.Filter
 import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
-import inc.ahmedmourad.sherlock.domain.interactors.AddChildInteractor
-import inc.ahmedmourad.sherlock.domain.interactors.FindChildrenInteractor
-import inc.ahmedmourad.sherlock.domain.interactors.FindLastSearchResultsInteractor
-import inc.ahmedmourad.sherlock.domain.model.*
+import inc.ahmedmourad.sherlock.domain.interactors.children.AddChildInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.children.FindChildrenInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.children.FindLastSearchResultsInteractor
+import inc.ahmedmourad.sherlock.domain.model.children.*
 import io.reactivex.Flowable
 import io.reactivex.Single
 import junit.framework.TestCase.assertSame

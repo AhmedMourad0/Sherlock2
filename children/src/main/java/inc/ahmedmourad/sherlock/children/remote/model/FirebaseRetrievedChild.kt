@@ -1,6 +1,6 @@
 package inc.ahmedmourad.sherlock.children.remote.model
 
-import inc.ahmedmourad.sherlock.domain.model.DomainRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.DomainRetrievedChild
 
 internal data class FirebaseRetrievedChild(
         val id: String,

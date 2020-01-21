@@ -8,10 +8,9 @@ import android.widget.RemoteViewsService
 import arrow.core.Tuple2
 import arrow.core.toMap
 import arrow.core.toTuple2
-import dagger.Lazy
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.factories.ResultsRemoteViewsFactoryFactory
-import inc.ahmedmourad.sherlock.model.AppSimpleRetrievedChild
+import inc.ahmedmourad.sherlock.model.children.AppSimpleRetrievedChild
 import splitties.init.appCtx
 import java.util.*
 import javax.inject.Inject
@@ -20,7 +19,7 @@ import kotlin.collections.ArrayList
 internal class ResultsRemoteViewsService : RemoteViewsService() {
 
     @Inject
-    lateinit var resultsRemoteViewsFactoryFactory: Lazy<ResultsRemoteViewsFactoryFactory>
+    lateinit var resultsRemoteViewsFactoryFactory: ResultsRemoteViewsFactoryFactory
 
     override fun onCreate() {
         super.onCreate()
@@ -37,7 +36,7 @@ internal class ResultsRemoteViewsService : RemoteViewsService() {
 
         require(children.size == scores.size)
 
-        return resultsRemoteViewsFactoryFactory.get()(
+        return resultsRemoteViewsFactoryFactory(
                 applicationContext,
                 children.zip(scores).map(Pair<AppSimpleRetrievedChild, Int>::toTuple2)
         )

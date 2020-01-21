@@ -7,8 +7,8 @@ import inc.ahmedmourad.sherlock.children.local.mapper.toDomainSimpleChild
 import inc.ahmedmourad.sherlock.children.local.mapper.toRoomChildEntity
 import inc.ahmedmourad.sherlock.children.local.model.entities.RoomChildEntity
 import inc.ahmedmourad.sherlock.children.repository.dependencies.ChildrenLocalRepository
-import inc.ahmedmourad.sherlock.domain.model.DomainRetrievedChild
-import inc.ahmedmourad.sherlock.domain.model.DomainSimpleRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.DomainRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.DomainSimpleRetrievedChild
 import io.reactivex.*
 import io.reactivex.schedulers.Schedulers
 

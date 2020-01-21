@@ -7,9 +7,9 @@ import inc.ahmedmourad.sherlock.R
 import splitties.init.appCtx
 import com.esafirm.imagepicker.features.ImagePicker as DelegateImagePicker
 
-private const val IMAGE_PICKER_REQUEST = 4287
-
 internal class EsafirmImagePicker : ImagePicker {
+
+    private val requestCode = (0..Int.MAX_VALUE).random()
 
     override fun start(activity: Activity, onError: OnError) {
         try {
@@ -24,7 +24,7 @@ internal class EsafirmImagePicker : ImagePicker {
                     .imageDirectory(appCtx.getString(R.string.image_directory))
                     .theme(R.style.ImagePickerTheme)
                     .enableLog(true)
-                    .getIntent(appCtx), IMAGE_PICKER_REQUEST
+                    .getIntent(appCtx), requestCode
             )
         } catch (e: Exception) {
             onError(e)
@@ -32,7 +32,7 @@ internal class EsafirmImagePicker : ImagePicker {
     }
 
     override fun handleActivityResult(requestCode: Int, data: Intent, onSuccess: OnSuccess, onError: OnError) {
-        if (requestCode == IMAGE_PICKER_REQUEST) {
+        if (requestCode == this.requestCode) {
             DelegateImagePicker.getFirstImageOrNull(data)?.path?.let {
                 onSuccess(it)
             } ?: onError(IllegalStateException("No image is selected!"))

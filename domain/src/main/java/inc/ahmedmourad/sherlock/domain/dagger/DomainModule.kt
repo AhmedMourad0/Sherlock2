@@ -12,7 +12,20 @@ import inc.ahmedmourad.sherlock.domain.dagger.modules.*
     FindLastSearchResultsInteractorModule::class,
     ObserveInternetConnectivityInteractorModule::class,
     CheckInternetConnectivityInteractorModule::class,
-    ObservePublishingStateInteractorModule::class,
-    CheckPublishingStateInteractorModule::class
+    ObserveChildPublishingStateInteractorModule::class,
+    CheckChildPublishingStateInteractorModule::class,
+    NotifyChildPublishingStateChangeInteractorModule::class,
+    NotifyChildFindingStateChangeInteractorModule::class,
+    NotifyChildrenFindingStateChangeInteractorModule::class,
+    CheckIsUserSignedInInteractorModule::class,
+    FindSignedInUserInteractorModule::class,
+    SendPasswordResetEmailInteractorModule::class,
+    SignInInteractorModule::class,
+    SignInWithFacebookInteractorModule::class,
+    SignInWithGoogleInteractorModule::class,
+    SignInWithTwitterInteractorModule::class,
+    SignOutInteractorModule::class,
+    SignUpInteractorModule::class,
+    CompleteSignUpInteractorModule::class
 ])
 object DomainModule

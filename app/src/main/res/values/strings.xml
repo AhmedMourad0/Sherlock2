@@ -6,7 +6,7 @@
 	<string name="male">Male</string>
 	<string name="female">Female</string>
 	
-	<string name="not_available">Not available</string>
+	<string name="not_available">Not Available</string>
 	
 	<string name="years_range">%1$s years old</string>
 	<string name="height_range">%1$s to %2$s</string>
@@ -69,5 +69,27 @@
 	<string name="no_connection">No connection</string>
 	<string name="sign_in">Sign in</string>
 	<string name="sign_out">Sign out</string>
+	<string name="forgot_my_password">Forgot my password</string>
+	<string name="or_sign_up">Or sign up</string>
+	<string name="sign_in_with">Sign in with</string>
+	<string name="sign_in_with_google">Sign in with Google</string>
+	<string name="sign_in_with_facebook">Sign in with Facebook</string>
+	<string name="sign_in_with_twitter">Sign in with Twitter</string>
+	<string name="email_address">Email address</string>
+	<string name="password">Password</string>
+	<string name="your_name">Your name</string>
+	<string name="confirm_password">Confirm password</string>
+	<string name="sign_up">Sign up</string>
+	<string name="or_sign_in">Or sign in</string>
+	<string name="sign_up_with">Sign up with</string>
+	<string name="sign_up_with_facebook">Sign up with Facebook</string>
+	<string name="sign_up_with_google">Sign up with Google</string>
+	<string name="sign_up_with_twitter">Sign up with Twitter</string>
+	<string name="phone_number">Phone number</string>
+	<string name="upload_profile_picture">Upload profile picture</string>
+	<string name="change_profile_picture">Change profile picture</string>
+	<string name="complete">Complete</string>
+	<string name="send_email">Send email</string>
+	<string name="joined_on">Joined on</string>
 
 </resources>

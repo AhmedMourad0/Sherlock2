@@ -6,31 +6,59 @@ interface ValuedEnum<V> {
     val value: V
 }
 
-interface PresentableEnum {
-    fun getMessage(textManager: TextManager): String
+enum class Gender(override val value: Int) : ValuedEnum<Int> {
+    MALE(0) {
+        override fun getMessage(textManager: TextManager): String {
+            return textManager.male()
+        }
+    },
+    FEMALE(1) {
+        override fun getMessage(textManager: TextManager): String {
+            return textManager.female()
+        }
+    };
+
+    abstract fun getMessage(textManager: TextManager): String
 }
 
-enum class Gender(override val value: Int, private val getMessage: (TextManager) -> String) : ValuedEnum<Int>, PresentableEnum {
-    MALE(0, { it.male() }),
-    FEMALE(1, { it.female() });
+enum class Hair(override val value: Int) : ValuedEnum<Int> {
+    BLONDE(0) {
+        override fun getMessage(textManager: TextManager): String {
+            return textManager.blondeHair()
+        }
+    },
+    BROWN(1) {
+        override fun getMessage(textManager: TextManager): String {
+            return textManager.brownHair()
+        }
+    },
+    DARK(2) {
+        override fun getMessage(textManager: TextManager): String {
+            return textManager.darkHair()
+        }
+    };
 
-    override fun getMessage(textManager: TextManager) = getMessage.invoke(textManager)
+    abstract fun getMessage(textManager: TextManager): String
 }
 
-enum class Hair(override val value: Int, private val getMessage: (TextManager) -> String) : ValuedEnum<Int>, PresentableEnum {
-    BLONDE(0, { it.blondeHair() }),
-    BROWN(1, { it.brownHair() }),
-    DARK(2, { it.darkHair() });
+enum class Skin(override val value: Int) : ValuedEnum<Int> {
+    WHITE(0) {
+        override fun getMessage(textManager: TextManager): String {
+            return textManager.whiteSkin()
+        }
+    },
+    WHEAT(1) {
+        override fun getMessage(textManager: TextManager): String {
+            return textManager.wheatishSkin()
+        }
+    },
+    DARK(2) {
+        override fun getMessage(textManager: TextManager): String {
+            return textManager.darkSkin()
+        }
+    };
 
-    override fun getMessage(textManager: TextManager) = getMessage.invoke(textManager)
-}
-
-enum class Skin(override val value: Int, private val getMessage: (TextManager) -> String) : ValuedEnum<Int>, PresentableEnum {
-    WHITE(0, { it.whiteSkin() }),
-    WHEAT(1, { it.wheatishSkin() }),
-    DARK(2, { it.darkSkin() });
-
-    override fun getMessage(textManager: TextManager) = getMessage.invoke(textManager)
+    abstract fun getMessage(textManager: TextManager): String
 }
 
 inline fun <V, reified T : ValuedEnum<V>> findEnum(value: V, enumValues: Array<T>): T {

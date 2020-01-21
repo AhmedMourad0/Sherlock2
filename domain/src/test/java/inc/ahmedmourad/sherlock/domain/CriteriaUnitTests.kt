@@ -12,7 +12,7 @@ import inc.ahmedmourad.sherlock.domain.filter.ResultsFilter
 import inc.ahmedmourad.sherlock.domain.filter.criteria.Criteria
 import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
 import inc.ahmedmourad.sherlock.domain.filter.criteria.LooseCriteria
-import inc.ahmedmourad.sherlock.domain.model.*
+import inc.ahmedmourad.sherlock.domain.model.children.*
 import inc.ahmedmourad.sherlock.domain.platform.LocationManager
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue

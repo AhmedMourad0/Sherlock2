@@ -9,17 +9,41 @@ import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.UploadTask
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.auth.images.contract.Contract
+import inc.ahmedmourad.sherlock.auth.manager.IsUserSignedIn
 import inc.ahmedmourad.sherlock.auth.manager.dependencies.AuthImageRepository
+import inc.ahmedmourad.sherlock.domain.exceptions.NoInternetConnectionException
+import inc.ahmedmourad.sherlock.domain.exceptions.NoSignedInUserException
+import inc.ahmedmourad.sherlock.domain.platform.ConnectivityManager
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 
-internal class AuthFirebaseStorageImageRepository(private val storage: Lazy<FirebaseStorage>) : AuthImageRepository {
+internal class AuthFirebaseStorageImageRepository(
+        private val connectivityManager: Lazy<ConnectivityManager>,
+        private val isUserSignedIn: IsUserSignedIn,
+        private val storage: Lazy<FirebaseStorage>
+) : AuthImageRepository {
 
     override fun storeUserPicture(id: String, picture: ByteArray): Single<Either<Throwable, String>> {
-        return storePicture(Contract.Users.PATH, id, picture)
+        return connectivityManager.get()
+                .isInternetConnected()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .flatMap { referenceEither ->
+                .flatMap { isInternetConnected ->
+                    if (isInternetConnected)
+                        isUserSignedIn().map(Boolean::right)
+                    else
+                        Single.just(NoInternetConnectionException().left())
+                }.flatMap { isUserSignedInEither ->
+                    isUserSignedInEither.fold(ifLeft = {
+                        Single.just(it.left())
+                    }, ifRight = { isUserSignedIn ->
+                        if (isUserSignedIn) {
+                            storePicture(Contract.Users.PATH, id, picture)
+                        } else {
+                            Single.just(NoSignedInUserException().left())
+                        }
+                    })
+                }.flatMap { referenceEither ->
                     referenceEither.fold(ifLeft = {
                         Single.just(it.left())
                     }, ifRight = {

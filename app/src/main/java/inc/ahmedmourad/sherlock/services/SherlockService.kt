@@ -13,14 +13,14 @@ import androidx.core.content.ContextCompat
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.factories.AddChildControllerIntentFactory
-import inc.ahmedmourad.sherlock.dagger.modules.factories.DisplayChildControllerIntentFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.ChildDetailsControllerIntentFactory
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.AddChildControllerIntentQualifier
-import inc.ahmedmourad.sherlock.domain.interactors.AddChildInteractor
-import inc.ahmedmourad.sherlock.domain.model.DomainRetrievedChild
-import inc.ahmedmourad.sherlock.domain.model.disposable
+import inc.ahmedmourad.sherlock.domain.interactors.children.AddChildInteractor
+import inc.ahmedmourad.sherlock.domain.model.children.DomainRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.core.disposable
 import inc.ahmedmourad.sherlock.mapper.toAppChild
-import inc.ahmedmourad.sherlock.model.AppPublishedChild
-import inc.ahmedmourad.sherlock.model.AppSimpleRetrievedChild
+import inc.ahmedmourad.sherlock.model.children.AppPublishedChild
+import inc.ahmedmourad.sherlock.model.children.AppSimpleRetrievedChild
 import inc.ahmedmourad.sherlock.utils.backgroundContextChannelId
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -28,6 +28,7 @@ import splitties.init.appCtx
 import timber.log.Timber
 import javax.inject.Inject
 
+//TODO: use WorkManager with Notifications and firebase authentication fallback instead
 internal class SherlockService : Service() {
 
     @Inject
@@ -38,7 +39,7 @@ internal class SherlockService : Service() {
     lateinit var addChildControllerFactory: AddChildControllerIntentFactory
 
     @Inject
-    lateinit var displayChildControllerFactory: DisplayChildControllerIntentFactory
+    lateinit var childDetailsControllerFactory: ChildDetailsControllerIntentFactory
 
     private var addChildDisposable by disposable()
 
@@ -112,7 +113,7 @@ internal class SherlockService : Service() {
 
     private fun showPublishedSuccessfullyNotification(child: AppSimpleRetrievedChild) {
 
-        val pendingIntent = displayChildControllerFactory(child).let {
+        val pendingIntent = childDetailsControllerFactory(child).let {
             PendingIntent.getActivity(applicationContext, REQUEST_CODE_PUBLISHED_SUCCESSFULLY, it, PendingIntent.FLAG_UPDATE_CURRENT)
         }
 

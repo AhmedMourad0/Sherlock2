@@ -1,8 +1,9 @@
 package inc.ahmedmourad.sherlock.domain
 
 import com.nhaarman.mockitokotlin2.mock
-import inc.ahmedmourad.sherlock.domain.bus.Bus
 import inc.ahmedmourad.sherlock.domain.bus.RxBus
+import inc.ahmedmourad.sherlock.domain.constants.BackgroundState
+import inc.ahmedmourad.sherlock.domain.constants.PublishingState
 import org.mockito.Mockito
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
@@ -19,9 +20,9 @@ object RxBusUnitTests : Spek({
 
                 val publishingTest = rxBus.childPublishingState.get().test()
 
-                val success = Bus.PublishingState.Success(mock())
-                val ongoing = Bus.PublishingState.Ongoing(mock())
-                val failure = Bus.PublishingState.Failure(mock())
+                val success = PublishingState.Success(mock())
+                val ongoing = PublishingState.Ongoing(mock())
+                val failure = PublishingState.Failure(mock())
 
                 rxBus.childPublishingState.accept(failure)
                 rxBus.childPublishingState.accept(ongoing)
@@ -40,17 +41,17 @@ object RxBusUnitTests : Spek({
 
                 val publishingTest = rxBus.childFindingState.get().test()
 
-                rxBus.childFindingState.accept(Bus.BackgroundState.FAILURE)
-                rxBus.childFindingState.accept(Bus.BackgroundState.ONGOING)
+                rxBus.childFindingState.accept(BackgroundState.FAILURE)
+                rxBus.childFindingState.accept(BackgroundState.ONGOING)
 
-                publishingTest.assertValues(Bus.BackgroundState.FAILURE, Bus.BackgroundState.ONGOING)
+                publishingTest.assertValues(BackgroundState.FAILURE, BackgroundState.ONGOING)
 
-                rxBus.childFindingState.accept(Bus.BackgroundState.SUCCESS)
+                rxBus.childFindingState.accept(BackgroundState.SUCCESS)
 
                 publishingTest.assertValues(
-                        Bus.BackgroundState.FAILURE,
-                        Bus.BackgroundState.ONGOING,
-                        Bus.BackgroundState.SUCCESS
+                        BackgroundState.FAILURE,
+                        BackgroundState.ONGOING,
+                        BackgroundState.SUCCESS
                 )
             }
         }
@@ -61,17 +62,17 @@ object RxBusUnitTests : Spek({
 
                 val publishingTest = rxBus.childrenFindingState.get().test()
 
-                rxBus.childrenFindingState.accept(Bus.BackgroundState.FAILURE)
-                rxBus.childrenFindingState.accept(Bus.BackgroundState.ONGOING)
+                rxBus.childrenFindingState.accept(BackgroundState.FAILURE)
+                rxBus.childrenFindingState.accept(BackgroundState.ONGOING)
 
-                publishingTest.assertValues(Bus.BackgroundState.FAILURE, Bus.BackgroundState.ONGOING)
+                publishingTest.assertValues(BackgroundState.FAILURE, BackgroundState.ONGOING)
 
-                rxBus.childrenFindingState.accept(Bus.BackgroundState.SUCCESS)
+                rxBus.childrenFindingState.accept(BackgroundState.SUCCESS)
 
                 publishingTest.assertValues(
-                        Bus.BackgroundState.FAILURE,
-                        Bus.BackgroundState.ONGOING,
-                        Bus.BackgroundState.SUCCESS
+                        BackgroundState.FAILURE,
+                        BackgroundState.ONGOING,
+                        BackgroundState.SUCCESS
                 )
             }
         }

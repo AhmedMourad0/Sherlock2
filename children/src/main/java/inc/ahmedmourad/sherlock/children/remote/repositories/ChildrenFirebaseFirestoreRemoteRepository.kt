@@ -22,9 +22,9 @@ import inc.ahmedmourad.sherlock.domain.exceptions.NoInternetConnectionException
 import inc.ahmedmourad.sherlock.domain.exceptions.NoSignedInUserException
 import inc.ahmedmourad.sherlock.domain.filter.Filter
 import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
-import inc.ahmedmourad.sherlock.domain.model.DomainPublishedChild
-import inc.ahmedmourad.sherlock.domain.model.DomainRetrievedChild
-import inc.ahmedmourad.sherlock.domain.model.DomainSimpleRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.DomainPublishedChild
+import inc.ahmedmourad.sherlock.domain.model.children.DomainRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.DomainSimpleRetrievedChild
 import inc.ahmedmourad.sherlock.domain.platform.ConnectivityManager
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
@@ -52,7 +52,6 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
     override fun publish(domainChild: DomainPublishedChild): Single<Either<Throwable, DomainRetrievedChild>> {
 
         val childId = UUID.randomUUID().toString()
-        val publicationDate = System.currentTimeMillis()
         val publishedChild = domainChild.toFirebasePublishedChild()
 
         return connectivityManager.get()
@@ -77,7 +76,7 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
                     filePathEither.fold(ifLeft = {
                         Single.just(it.left())
                     }, ifRight = {
-                        publishChildData(childId, publicationDate, it, publishedChild)
+                        publishChildData(childId, it, publishedChild)
                     })
                 }.map { childEither ->
                     childEither.map(FirebaseRetrievedChild::toDomainChild)
@@ -86,7 +85,6 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
 
     private fun publishChildData(
             childId: String,
-            publicationDate: Long,
             pictureUrl: String,
             child: FirebasePublishedChild
     ): Single<Either<Throwable, FirebaseRetrievedChild>> {
@@ -94,7 +92,11 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
         return Single.create<Either<Throwable, FirebaseRetrievedChild>> { emitter ->
 
             val successListener = { _: Void ->
-                emitter.onSuccess(child.toFirebaseRetrievedChild(childId, publicationDate, pictureUrl).right())
+                emitter.onSuccess(child.toFirebaseRetrievedChild(
+                        childId,
+                        System.currentTimeMillis(),
+                        pictureUrl
+                ).right())
             }
 
             val failureListener = { throwable: Throwable ->
@@ -103,7 +105,7 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
 
             db.get().collection(Contract.Database.Children.PATH)
                     .document(childId)
-                    .set(child.toMap(publicationDate, pictureUrl))
+                    .set(child.toMap(pictureUrl))
                     .addOnSuccessListener(successListener)
                     .addOnFailureListener(failureListener)
 
@@ -280,7 +282,7 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
 internal fun DocumentSnapshot.extractFirebaseRetrievedChild() = FirebaseRetrievedChild(
         requireNotNull(this.id),
-        requireNotNull(this.getLong(Contract.Database.Children.PUBLICATION_DATE)),
+        requireNotNull(this.getTimestamp(Contract.Database.Children.PUBLICATION_DATE)?.seconds) * 1000L,
         extractFirebaseName(this),
         requireNotNull(this.getString(Contract.Database.Children.NOTES)),
         extractFirebaseLocation(this),

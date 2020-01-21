@@ -14,17 +14,21 @@ internal object SherlockComponent {
     object Controllers {
         val homeComponent = ComponentProvider(applicationComponent::plusHomeControllerComponent)
         val addChildComponent = ComponentProvider(applicationComponent::plusAddChildControllerComponent)
-        val displayChildComponent = ComponentProvider(applicationComponent::plusDisplayChildControllerComponent)
+        val childDetailsComponent = ComponentProvider(applicationComponent::plusChildDetailsControllerComponent)
         val findChildrenComponent = ComponentProvider(applicationComponent::plusFindChildrenControllerComponent)
-        val searchResultsComponent = ComponentProvider(applicationComponent::plusSearchResultsControllerComponent)
+        val childrenSearchResultsComponent = ComponentProvider(applicationComponent::plusChildrenSearchResultsControllerComponent)
+        val signInComponent = ComponentProvider(applicationComponent::plusSignInControllerComponent)
+        val signUpComponent = ComponentProvider(applicationComponent::plusSignUpControllerComponent)
+        val completeSignUpComponent = ComponentProvider(applicationComponent::plusCompleteSignUpControllerComponent)
+        val resetPasswordComponent = ComponentProvider(applicationComponent::plusResetPasswordControllerComponent)
+        val signedInUserProfileComponent = ComponentProvider(applicationComponent::plusSignedInUserProfileControllerComponent)
     }
 
     object Services {
-        val sherlockServiceComponent = ComponentProvider(applicationComponent::plusSherlockIntentServiceComponent)
+        val sherlockServiceComponent = ComponentProvider(applicationComponent::plusSherlockServiceComponent)
     }
 
     object Widget {
-        val resultsRemoteViewsFactoryComponent = ComponentProvider(applicationComponent::plusResultsRemoteViewsFactoryComponent)
         val resultsRemoteViewsServiceComponent = ComponentProvider(applicationComponent::plusResultsRemoteViewsServiceComponent)
         val appWidgetComponent = ComponentProvider(applicationComponent::plusAppWidgetComponent)
     }
@@ -34,18 +38,13 @@ internal object SherlockComponent {
     }
 }
 
-internal interface Provider<T> {
-    fun get(): T
-    fun release()
-}
-
-internal class ComponentProvider<T>(private val createComponent: () -> T) : Provider<T> {
+internal class ComponentProvider<T>(private val createComponent: () -> T) {
 
     private var component: T? = null
 
-    override fun get() = component ?: createComponent().also { component = it }
+    fun get() = component ?: createComponent().also { component = it }
 
-    override fun release() {
+    fun release() {
         component = null
     }
 }

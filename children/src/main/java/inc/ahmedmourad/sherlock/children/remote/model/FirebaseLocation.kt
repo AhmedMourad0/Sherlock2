@@ -1,6 +1,6 @@
 package inc.ahmedmourad.sherlock.children.remote.model
 
-import inc.ahmedmourad.sherlock.domain.model.DomainLocation
+import inc.ahmedmourad.sherlock.domain.model.children.DomainLocation
 
 internal data class FirebaseLocation(
         val id: String,

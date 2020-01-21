@@ -5,32 +5,34 @@ import dagger.Lazy
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
-import inc.ahmedmourad.sherlock.dagger.modules.factories.ResultsRecyclerAdapterFactory
-import inc.ahmedmourad.sherlock.dagger.modules.factories.SectionsRecyclerAdapterFactory
-import inc.ahmedmourad.sherlock.dagger.modules.factories.resultsRecyclerAdapterFactory
-import inc.ahmedmourad.sherlock.dagger.modules.factories.sectionsRecyclerAdapterFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.AppSectionsRecyclerAdapterFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.ChildrenRecyclerAdapterFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.appSectionsRecyclerAdapterFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.childrenRecyclerAdapterFactory
 import inc.ahmedmourad.sherlock.domain.platform.DateManager
 import inc.ahmedmourad.sherlock.utils.formatter.Formatter
 
-@Module
-internal object ResultsRecyclerAdapterModule {
+@Module(includes = [
+    TextFormatterModule::class
+])
+internal object ChildrenRecyclerAdapterModule {
     @Provides
     @Reusable
     @JvmStatic
-    fun provideResultsRecyclerAdapter(
+    fun provideChildrenRecyclerAdapter(
             dateManager: Lazy<DateManager>,
             formatter: Lazy<Formatter>
-    ): ResultsRecyclerAdapterFactory {
-        return ::resultsRecyclerAdapterFactory.curried()(dateManager)(formatter)
+    ): ChildrenRecyclerAdapterFactory {
+        return ::childrenRecyclerAdapterFactory.curried()(dateManager)(formatter)
     }
 }
 
 @Module
-internal object SectionsRecyclerAdapterModule {
+internal object AppSectionsRecyclerAdapterModule {
     @Provides
     @Reusable
     @JvmStatic
-    fun provideSectionsRecyclerAdapter(): SectionsRecyclerAdapterFactory {
-        return ::sectionsRecyclerAdapterFactory
+    fun provideAppSectionsRecyclerAdapter(): AppSectionsRecyclerAdapterFactory {
+        return ::appSectionsRecyclerAdapterFactory
     }
 }

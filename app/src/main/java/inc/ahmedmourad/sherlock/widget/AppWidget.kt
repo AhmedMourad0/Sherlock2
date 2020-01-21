@@ -5,12 +5,11 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.widget.RemoteViews
 import arrow.core.extensions.tuple2.bifunctor.mapLeft
-import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.factories.ResultsRemoteViewsServiceIntentFactory
-import inc.ahmedmourad.sherlock.domain.interactors.FindLastSearchResultsInteractor
-import inc.ahmedmourad.sherlock.domain.model.DomainSimpleRetrievedChild
+import inc.ahmedmourad.sherlock.domain.interactors.children.FindLastSearchResultsInteractor
+import inc.ahmedmourad.sherlock.domain.model.children.DomainSimpleRetrievedChild
 import inc.ahmedmourad.sherlock.mapper.toAppSimpleChild
 import inc.ahmedmourad.sherlock.utils.DisposablesSparseArray
 import io.reactivex.Flowable
@@ -25,7 +24,7 @@ internal class AppWidget : AppWidgetProvider() {
     lateinit var interactor: FindLastSearchResultsInteractor
 
     @Inject
-    lateinit var resultsRemoteViewsServiceFactory: Lazy<ResultsRemoteViewsServiceIntentFactory>
+    lateinit var resultsRemoteViewsServiceFactory: ResultsRemoteViewsServiceIntentFactory
 
     private val disposables = DisposablesSparseArray()
 
@@ -65,7 +64,7 @@ internal class AppWidget : AppWidgetProvider() {
                     views.setEmptyView(R.id.widget_list_view, R.id.widget_empty_view)
 
                     views.setRemoteAdapter(R.id.widget_list_view,
-                            resultsRemoteViewsServiceFactory.get()(appWidgetId, it)
+                            resultsRemoteViewsServiceFactory(appWidgetId, it)
                     )
 
                     appWidgetManager.updateAppWidget(appWidgetId, views)

@@ -5,7 +5,11 @@ import inc.ahmedmourad.sherlock.domain.platform.DateManager
 import splitties.init.appCtx
 
 internal class AndroidDateManager : DateManager {
-    override fun getRelativeDateTimeString(timeMillis: Long, minResolution: Long, transitionResolution: Long): String {
+    override fun getRelativeDateTimeString(
+            timeMillis: Long,
+            minResolution: Long,
+            transitionResolution: Long
+    ): String {
         return DateUtils.getRelativeDateTimeString(appCtx,
                 timeMillis,
                 minResolution,

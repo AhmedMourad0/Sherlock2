@@ -3,9 +3,9 @@ package inc.ahmedmourad.sherlock.utils.formatter
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
-import inc.ahmedmourad.sherlock.model.AppLocation
-import inc.ahmedmourad.sherlock.model.AppName
-import inc.ahmedmourad.sherlock.model.AppRange
+import inc.ahmedmourad.sherlock.model.children.AppLocation
+import inc.ahmedmourad.sherlock.model.children.AppName
+import inc.ahmedmourad.sherlock.model.children.AppRange
 
 internal interface Formatter {
 

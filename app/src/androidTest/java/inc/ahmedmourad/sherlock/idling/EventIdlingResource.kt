@@ -2,9 +2,10 @@ package inc.ahmedmourad.sherlock.idling
 
 import androidx.test.espresso.IdlingResource
 import androidx.test.espresso.IdlingResource.ResourceCallback
-import inc.ahmedmourad.sherlock.domain.bus.Bus
 import inc.ahmedmourad.sherlock.domain.bus.Event
-import inc.ahmedmourad.sherlock.domain.model.disposable
+import inc.ahmedmourad.sherlock.domain.constants.BackgroundState
+import inc.ahmedmourad.sherlock.domain.constants.PublishingState
+import inc.ahmedmourad.sherlock.domain.model.core.disposable
 import timber.log.Timber
 
 abstract class EventIdlingResource<T>(
@@ -51,18 +52,18 @@ abstract class EventIdlingResource<T>(
     }
 }
 
-class BackgroundEventIdlingResource(event: Event<Bus.BackgroundState>, name: String) : EventIdlingResource<Bus.BackgroundState>(event, name) {
-    override fun isIdleEvent(item: Bus.BackgroundState) = item != Bus.BackgroundState.ONGOING
+class BackgroundEventIdlingResource(event: Event<BackgroundState>, name: String) : EventIdlingResource<BackgroundState>(event, name) {
+    override fun isIdleEvent(item: BackgroundState) = item != BackgroundState.ONGOING
 }
 
-class PublishingEventIdlingResource(event: Event<Bus.PublishingState<*>>, name: String) : EventIdlingResource<Bus.PublishingState<*>>(event, name) {
-    override fun isIdleEvent(item: Bus.PublishingState<*>) = item !is Bus.PublishingState.Ongoing
+class PublishingEventIdlingResource(event: Event<PublishingState>, name: String) : EventIdlingResource<PublishingState>(event, name) {
+    override fun isIdleEvent(item: PublishingState) = item !is PublishingState.Ongoing
 }
 
-fun Event<Bus.BackgroundState>.toIdlingResource(name: String): BackgroundEventIdlingResource {
+fun Event<BackgroundState>.toIdlingResource(name: String): BackgroundEventIdlingResource {
     return BackgroundEventIdlingResource(this, name)
 }
 
-fun Event<Bus.PublishingState<*>>.toIdlingResource(name: String): PublishingEventIdlingResource {
+fun Event<PublishingState>.toIdlingResource(name: String): PublishingEventIdlingResource {
     return PublishingEventIdlingResource(this, name)
 }

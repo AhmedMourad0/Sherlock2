@@ -1,6 +1,7 @@
 package inc.ahmedmourad.sherlock.auth.authenticator
 
 import android.content.Intent
+import android.net.Uri
 import arrow.core.*
 import com.facebook.AccessToken
 import com.facebook.login.LoginManager
@@ -13,12 +14,14 @@ import com.twitter.sdk.android.core.TwitterCore
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.auth.authenticator.activity.AuthSignInActivity
 import inc.ahmedmourad.sherlock.auth.authenticator.bus.AuthenticatorBus
+import inc.ahmedmourad.sherlock.auth.authenticator.mapper.toAuthenticatorUserDetails
+import inc.ahmedmourad.sherlock.auth.authenticator.model.AuthenticatorCompletedUser
+import inc.ahmedmourad.sherlock.auth.authenticator.model.AuthenticatorIncompleteUser
 import inc.ahmedmourad.sherlock.auth.manager.dependencies.AuthAuthenticator
-import inc.ahmedmourad.sherlock.auth.remote.mapper.toAuthSignUpUser
+import inc.ahmedmourad.sherlock.auth.model.AuthCompletedUser
+import inc.ahmedmourad.sherlock.auth.model.AuthIncompleteUser
 import inc.ahmedmourad.sherlock.domain.exceptions.NoInternetConnectionException
 import inc.ahmedmourad.sherlock.domain.exceptions.NoSignedInUserException
-import inc.ahmedmourad.sherlock.domain.model.DomainSignUpUser
-import inc.ahmedmourad.sherlock.domain.model.DomainUserData
 import inc.ahmedmourad.sherlock.domain.platform.ConnectivityManager
 import io.reactivex.Completable
 import io.reactivex.Single
@@ -36,20 +39,28 @@ internal class AuthFirebaseAuthenticator(
                 .observeOn(Schedulers.io())
     }
 
-    override fun getCurrentUserId(): Single<Either<Throwable, Option<String>>> {
+    override fun getCurrentUser(): Single<Either<Throwable, Either<AuthIncompleteUser, AuthCompletedUser>>> {
         return connectivityManager.get()
                 .isInternetConnected()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .flatMap { isInternetConnected ->
-                    if (isInternetConnected)
-                        Single.just(auth.get().currentUser?.uid.toOption().right())
-                    else
+                    if (isInternetConnected) {
+                        Single.just(auth.get()
+                                .currentUser
+                                ?.toAuthenticatorUser()
+                                ?.right() ?: NoSignedInUserException().left()
+                        )
+                    } else {
                         Single.just(NoInternetConnectionException().left())
+                    }
                 }
     }
 
-    override fun signIn(email: String, password: String): Single<Either<Throwable, String>> {
+    override fun signIn(
+            email: String,
+            password: String
+    ): Single<Either<Throwable, Either<AuthIncompleteUser, AuthCompletedUser>>> {
         return connectivityManager.get()
                 .isInternetConnected()
                 .subscribeOn(Schedulers.io())
@@ -62,18 +73,22 @@ internal class AuthFirebaseAuthenticator(
                 }
     }
 
-    private fun createSignInSingle(email: String, password: String): Single<Either<Throwable, String>> {
+    private fun createSignInSingle(
+            email: String,
+            password: String
+    ): Single<Either<Throwable, Either<AuthIncompleteUser, AuthCompletedUser>>> {
 
-        return Single.create<Either<Throwable, String>> { emitter ->
+        return Single.create<Either<Throwable, Either<AuthIncompleteUser, AuthCompletedUser>>> { emitter ->
 
             val successListener = { result: AuthResult ->
 
                 val user = result.user
 
-                if (user != null)
-                    emitter.onSuccess(user.uid.right())
-                else
+                if (user != null) {
+                    emitter.onSuccess(user.toAuthenticatorUser().right())
+                } else {
                     emitter.onSuccess(NoSignedInUserException().left())
+                }
             }
 
             val failureListener = { throwable: Throwable ->
@@ -87,47 +102,103 @@ internal class AuthFirebaseAuthenticator(
         }.subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
     }
 
-    override fun signUp(user: DomainSignUpUser): Single<Either<Throwable, DomainUserData>> {
+    override fun signUp(email: String, password: String): Single<Either<Throwable, String>> {
         return connectivityManager.get()
                 .isInternetConnected()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .flatMap { isInternetConnected ->
                     if (isInternetConnected)
-                        createSignUpSingle(user)
+                        createSignUpSingle(email, password)
                     else
                         Single.just(NoInternetConnectionException().left())
                 }
     }
 
-    private fun createSignUpSingle(user: DomainSignUpUser): Single<Either<Throwable, DomainUserData>> {
+    private fun createSignUpSingle(email: String, password: String): Single<Either<Throwable, String>> {
 
-        return Single.create<Either<Throwable, DomainUserData>> { emitter ->
-
-            val authUser = user.toAuthSignUpUser()
+        return Single.create<Either<Throwable, String>> { emitter ->
 
             val successListener = { result: AuthResult ->
 
                 val createdUser = result.user
 
-                if (createdUser != null)
-                    emitter.onSuccess(authUser.toDomainUserData(createdUser.uid).right())
-                else // Wait, that's illegal
+                if (createdUser != null) {
+                    emitter.onSuccess(createdUser.uid.right())
+                } else { // Wait, that's illegal
                     emitter.onSuccess(NoSignedInUserException().left())
+                }
             }
 
             val failureListener = { throwable: Throwable ->
                 emitter.onSuccess(throwable.left())
             }
 
-            auth.get().createUserWithEmailAndPassword(authUser.email, authUser.password)
+            auth.get().createUserWithEmailAndPassword(email, password)
                     .addOnSuccessListener(successListener)
                     .addOnFailureListener(failureListener)
 
         }.subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
     }
 
-    override fun signInWithGoogle(): Single<Either<Throwable, String>> {
+    override fun completeUserData(completedUser: AuthCompletedUser): Single<Either<Throwable, AuthCompletedUser>> {
+        return connectivityManager.get()
+                .isInternetConnected()
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io())
+                .flatMap { isInternetConnected ->
+                    if (isInternetConnected) {
+                        isUserSignedIn().map(Boolean::right)
+                    } else {
+                        Single.just(NoInternetConnectionException().left())
+                    }
+                }.flatMap { isUserSignedInEither ->
+                    isUserSignedInEither.fold(ifLeft = {
+                        Single.just(it.left())
+                    }, ifRight = { isUserSignedIn ->
+                        if (isUserSignedIn) {
+                            createCompleteUserData(completedUser)
+                        } else {
+                            Single.just(NoSignedInUserException().left())
+                        }
+                    })
+                }
+    }
+
+    private fun createCompleteUserData(completedUser: AuthCompletedUser): Single<Either<Throwable, AuthCompletedUser>> {
+
+        return Single.create<Either<Throwable, AuthCompletedUser>> { emitter ->
+
+            val details = completedUser.toAuthenticatorUserDetails()
+            val user = auth.get().currentUser
+
+            if (user == null) {
+                emitter.onSuccess(NoSignedInUserException().left())
+                return@create
+            }
+
+            val successListener = { _: Void ->
+                emitter.onSuccess(completedUser.right())
+            }
+
+            val failureListener = { throwable: Throwable ->
+                emitter.onSuccess(throwable.left())
+            }
+
+            user.updateProfile(
+                    UserProfileChangeRequest.Builder()
+                            .setDisplayName(details.name)
+                            .setPhotoUri(Uri.parse(details.pictureUrl))
+                            .build()
+            ).continueWithTask {
+                user.updateEmail(details.email)
+            }.addOnSuccessListener(successListener)
+                    .addOnFailureListener(failureListener)
+
+        }.subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
+    }
+
+    override fun signInWithGoogle(): Single<Either<Throwable, Either<AuthIncompleteUser, AuthCompletedUser>>> {
         return connectivityManager.get()
                 .isInternetConnected()
                 .subscribeOn(Schedulers.io())
@@ -140,7 +211,7 @@ internal class AuthFirebaseAuthenticator(
                 }
     }
 
-    private fun createSignInWithGoogleSingle(): Single<Either<Throwable, String>> {
+    private fun createSignInWithGoogleSingle(): Single<Either<Throwable, Either<AuthIncompleteUser, AuthCompletedUser>>> {
 
         return Single.create<Option<GoogleSignInAccount>> { emitter ->
 
@@ -165,7 +236,7 @@ internal class AuthFirebaseAuthenticator(
         })
     }
 
-    override fun signInWithFacebook(): Single<Either<Throwable, String>> {
+    override fun signInWithFacebook(): Single<Either<Throwable, Either<AuthIncompleteUser, AuthCompletedUser>>> {
         return connectivityManager.get()
                 .isInternetConnected()
                 .subscribeOn(Schedulers.io())
@@ -178,7 +249,7 @@ internal class AuthFirebaseAuthenticator(
                 }
     }
 
-    private fun createSignInWithFacebookSingle(): Single<Either<Throwable, String>> {
+    private fun createSignInWithFacebookSingle(): Single<Either<Throwable, Either<AuthIncompleteUser, AuthCompletedUser>>> {
 
         return Single.create<Option<AccessToken>> { emitter ->
 
@@ -203,7 +274,7 @@ internal class AuthFirebaseAuthenticator(
         })
     }
 
-    override fun signInWithTwitter(): Single<Either<Throwable, String>> {
+    override fun signInWithTwitter(): Single<Either<Throwable, Either<AuthIncompleteUser, AuthCompletedUser>>> {
         return connectivityManager.get()
                 .isInternetConnected()
                 .subscribeOn(Schedulers.io())
@@ -216,7 +287,7 @@ internal class AuthFirebaseAuthenticator(
                 }
     }
 
-    private fun createSignInWithTwitterSingle(): Single<Either<Throwable, String>> {
+    private fun createSignInWithTwitterSingle(): Single<Either<Throwable, Either<AuthIncompleteUser, AuthCompletedUser>>> {
 
         return Single.create<Option<TwitterAuthToken>> { emitter ->
 
@@ -234,10 +305,11 @@ internal class AuthFirebaseAuthenticator(
         return authTokenOptional.fold(ifEmpty = {
             getAuthCredentials { it.signInWithTwitter() }
         }, ifSome = { twitterAuthToken ->
-            if (twitterAuthToken.isExpired)
+            if (twitterAuthToken.isExpired) {
                 getAuthCredentials { it.signInWithTwitter() }
-            else
+            } else {
                 Single.just(TwitterAuthProvider.getCredential(twitterAuthToken.token, twitterAuthToken.secret).right())
+            }
         })
     }
 
@@ -249,9 +321,11 @@ internal class AuthFirebaseAuthenticator(
                 .single(NoSignedInUserException().left())
     }
 
-    private fun signInWithCredentials(credentialEither: Either<Throwable, AuthCredential>): Single<Either<Throwable, String>> {
+    private fun signInWithCredentials(
+            credentialEither: Either<Throwable, AuthCredential>
+    ): Single<Either<Throwable, Either<AuthIncompleteUser, AuthCompletedUser>>> {
 
-        return Single.create<Either<Throwable, String>> { emitter ->
+        return Single.create<Either<Throwable, Either<AuthIncompleteUser, AuthCompletedUser>>> { emitter ->
 
             credentialEither.fold(ifLeft = {
 
@@ -264,7 +338,7 @@ internal class AuthFirebaseAuthenticator(
                     val user = result.user
 
                     if (user != null)
-                        emitter.onSuccess(user.uid.right())
+                        emitter.onSuccess(user.toAuthenticatorUser().right())
                     else
                         emitter.onSuccess(NoSignedInUserException().left())
                 }
@@ -325,16 +399,16 @@ internal class AuthFirebaseAuthenticator(
                     if (isInternetConnected)
                         signOutFromFirebaseAuth()
                                 .andThen(signOutFromGoogle())
-                                .flatMap { either ->
-                                    either.fold(ifLeft = {
-                                        Single.just(it.left())
-                                    }, ifRight = {
-                                        signOutFromFacebook().andThen(signOutFromTwitter())
-                                                .andThen(Single.just(id.right()))
-                                    })
-                                }
                     else
                         Single.just(NoInternetConnectionException().left())
+                }.flatMap { either ->
+                    either.fold(ifLeft = {
+                        Single.just(it.left())
+                    }, ifRight = {
+                        signOutFromFacebook()
+                                .andThen(signOutFromTwitter())
+                                .andThen(Single.just(id.right()))
+                    })
                 }
     }
 
@@ -381,4 +455,16 @@ interface AuthActivityFactory {
     fun signInWithGoogle(): Intent
     fun signInWithFacebook(): Intent
     fun signInWithTwitter(): Intent
+}
+
+private fun FirebaseUser.toAuthenticatorUser(): Either<AuthIncompleteUser, AuthCompletedUser> {
+    return AuthenticatorIncompleteUser(
+            this.uid,
+            this.email.toOption(),
+            this.displayName.toOption(),
+            this.photoUrl.toOption().map(Uri::toString)
+    ).orComplete().bimap(
+            AuthenticatorIncompleteUser::toAuthIncompleteUser,
+            AuthenticatorCompletedUser::toAuthCompletedUser
+    )
 }

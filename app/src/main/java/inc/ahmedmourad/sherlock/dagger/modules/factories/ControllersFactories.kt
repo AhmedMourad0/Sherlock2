@@ -1,20 +1,15 @@
 package inc.ahmedmourad.sherlock.dagger.modules.factories
 
 import android.content.Intent
-import dagger.Lazy
-import inc.ahmedmourad.sherlock.model.AppChildCriteriaRules
-import inc.ahmedmourad.sherlock.model.AppPublishedChild
-import inc.ahmedmourad.sherlock.model.AppSimpleRetrievedChild
-import inc.ahmedmourad.sherlock.view.controllers.AddChildController
-import inc.ahmedmourad.sherlock.view.controllers.DisplayChildController
-import inc.ahmedmourad.sherlock.view.controllers.SearchResultsController
+import inc.ahmedmourad.sherlock.model.auth.AppIncompleteUser
+import inc.ahmedmourad.sherlock.model.children.AppChildCriteriaRules
+import inc.ahmedmourad.sherlock.model.children.AppPublishedChild
+import inc.ahmedmourad.sherlock.model.children.AppSimpleRetrievedChild
+import inc.ahmedmourad.sherlock.view.controllers.auth.CompleteSignUpController
+import inc.ahmedmourad.sherlock.view.controllers.children.AddChildController
+import inc.ahmedmourad.sherlock.view.controllers.children.ChildDetailsController
+import inc.ahmedmourad.sherlock.view.controllers.children.ChildrenSearchResultsController
 import inc.ahmedmourad.sherlock.view.model.TaggedController
-
-internal typealias AddChildControllerFactory = () -> @JvmSuppressWildcards Lazy<TaggedController>
-
-internal fun addChildControllerFactory(): Lazy<TaggedController> {
-    return Lazy { AddChildController.newInstance() }
-}
 
 internal typealias AddChildControllerIntentFactory =
         (@JvmSuppressWildcards AppPublishedChild) -> @JvmSuppressWildcards Intent
@@ -23,23 +18,31 @@ internal fun addChildControllerIntentFactory(activityFactory: MainActivityIntent
     return AddChildController.createIntent(activityFactory, child)
 }
 
-internal typealias DisplayChildControllerFactory =
+internal typealias ChildDetailsControllerFactory =
         (@JvmSuppressWildcards AppSimpleRetrievedChild) -> @JvmSuppressWildcards TaggedController
 
-internal fun displayChildControllerFactory(child: AppSimpleRetrievedChild): TaggedController {
-    return DisplayChildController.newInstance(child)
+internal fun childDetailsControllerFactory(child: AppSimpleRetrievedChild): TaggedController {
+    return ChildDetailsController.newInstance(child)
 }
 
-internal typealias DisplayChildControllerIntentFactory =
+internal typealias ChildDetailsControllerIntentFactory =
         (@JvmSuppressWildcards AppSimpleRetrievedChild) -> @JvmSuppressWildcards Intent
 
-internal fun displayChildControllerIntentFactory(activityFactory: MainActivityIntentFactory, child: AppSimpleRetrievedChild): Intent {
-    return DisplayChildController.createIntent(activityFactory, child)
+internal fun childDetailsControllerIntentFactory(activityFactory: MainActivityIntentFactory, child: AppSimpleRetrievedChild): Intent {
+    return ChildDetailsController.createIntent(activityFactory, child)
 }
 
-internal typealias SearchResultsControllerFactory =
+internal typealias ChildrenSearchResultsControllerFactory =
         (@JvmSuppressWildcards AppChildCriteriaRules) -> @JvmSuppressWildcards TaggedController
 
-internal fun searchResultsControllerFactory(rules: AppChildCriteriaRules): TaggedController {
-    return SearchResultsController.newInstance(rules)
+internal fun childrenSearchResultsControllerFactory(rules: AppChildCriteriaRules): TaggedController {
+    return ChildrenSearchResultsController.newInstance(rules)
 }
+
+internal typealias CompleteSignUpControllerFactory =
+        (@JvmSuppressWildcards AppIncompleteUser) -> @JvmSuppressWildcards TaggedController
+
+internal fun completeSignUpControllerFactory(incompleteUser: AppIncompleteUser): TaggedController {
+    return CompleteSignUpController.newInstance(incompleteUser)
+}
+

@@ -14,7 +14,6 @@ import inc.ahmedmourad.sherlock.utils.pickers.places.PlacePicker
 @Module
 internal object PlacePickerModule {
     @Provides
-    @Reusable
     @JvmStatic
     fun providePlacePicker(): PlacePicker = GooglePlacePicker()
 }
@@ -22,7 +21,6 @@ internal object PlacePickerModule {
 @Module
 internal object ImagePickerModule {
     @Provides
-    @Reusable
     @JvmStatic
     fun provideImagePicker(): ImagePicker = EsafirmImagePicker()
 }

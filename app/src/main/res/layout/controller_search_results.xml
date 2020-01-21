@@ -1,23 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:id="@+id/search_results_recycler"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:fitsSystemWindows="false">
-	
-	<include
-		layout="@layout/content_appbar"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content" />
-	
-	<androidx.recyclerview.widget.RecyclerView
-		android:id="@+id/search_results_recycler"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:clipToPadding="false"
-		app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
-		android:paddingBottom="@dimen/searchResultsRecyclerPaddingBottom"
-		android:paddingTop="@dimen/searchResultsRecyclerPaddingTop"
-		android:background="@color/colorRecyclerBackground" />
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+	android:background="@color/colorRecyclerBackground"
+	android:clipToPadding="false"
+	android:paddingTop="@dimen/searchResultsRecyclerPaddingTop"
+	android:paddingBottom="@dimen/searchResultsRecyclerPaddingBottom"
+	app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />

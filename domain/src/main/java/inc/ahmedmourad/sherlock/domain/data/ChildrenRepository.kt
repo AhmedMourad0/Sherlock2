@@ -5,9 +5,9 @@ import arrow.core.Option
 import arrow.core.Tuple2
 import inc.ahmedmourad.sherlock.domain.filter.Filter
 import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
-import inc.ahmedmourad.sherlock.domain.model.DomainPublishedChild
-import inc.ahmedmourad.sherlock.domain.model.DomainRetrievedChild
-import inc.ahmedmourad.sherlock.domain.model.DomainSimpleRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.DomainPublishedChild
+import inc.ahmedmourad.sherlock.domain.model.children.DomainRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.DomainSimpleRetrievedChild
 import io.reactivex.Flowable
 import io.reactivex.Single
 

@@ -3,9 +3,9 @@ package inc.ahmedmourad.sherlock.children.remote.model
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
-import inc.ahmedmourad.sherlock.domain.model.DomainAppearance
-import inc.ahmedmourad.sherlock.domain.model.DomainEstimatedAppearance
-import inc.ahmedmourad.sherlock.domain.model.DomainExactAppearance
+import inc.ahmedmourad.sherlock.domain.model.children.DomainAppearance
+import inc.ahmedmourad.sherlock.domain.model.children.DomainEstimatedAppearance
+import inc.ahmedmourad.sherlock.domain.model.children.DomainExactAppearance
 
 private interface FirebaseAppearance<T> {
 

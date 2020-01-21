@@ -59,11 +59,11 @@ dependencies {
 
     implementation "com.google.firebase:firebase-core:17.2.1"
     api "com.google.firebase:firebase-storage:19.1.0"
-    api "com.google.firebase:firebase-firestore-ktx:21.2.1"
-    api "com.google.firebase:firebase-auth:19.1.0"
+    api "com.google.firebase:firebase-firestore-ktx:21.3.1"
+    api "com.google.firebase:firebase-auth:19.2.0"
     implementation "com.google.android.gms:play-services-auth:17.0.0"
     implementation "com.facebook.android:facebook-login:5.0.0"
-    implementation "androidx.browser:browser:1.0.0"
+    implementation "androidx.browser:browser:1.2.0"
 
     // Twitter Android SDK (only required for Twitter Login)
 //    implementation "com.twitter.sdk.android:twitter-core:3.3.0"

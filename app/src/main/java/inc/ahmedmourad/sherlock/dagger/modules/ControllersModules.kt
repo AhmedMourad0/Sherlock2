@@ -5,21 +5,26 @@ import dagger.Module
 import dagger.Provides
 import dagger.Reusable
 import inc.ahmedmourad.sherlock.dagger.modules.factories.*
-import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.AddChildControllerIntentQualifier
-import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.FindChildrenControllerQualifier
-import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.HomeControllerQualifier
-import inc.ahmedmourad.sherlock.view.controllers.FindChildrenController
-import inc.ahmedmourad.sherlock.view.controllers.HomeController
+import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.*
+import inc.ahmedmourad.sherlock.view.controllers.auth.ResetPasswordController
+import inc.ahmedmourad.sherlock.view.controllers.auth.SignInController
+import inc.ahmedmourad.sherlock.view.controllers.auth.SignUpController
+import inc.ahmedmourad.sherlock.view.controllers.auth.SignedInUserProfileController
+import inc.ahmedmourad.sherlock.view.controllers.children.AddChildController
+import inc.ahmedmourad.sherlock.view.controllers.children.FindChildrenController
+import inc.ahmedmourad.sherlock.view.controllers.core.HomeController
 import inc.ahmedmourad.sherlock.view.model.TaggedController
 
-@Module
+@Module(includes = [
+    MainActivityModule::class
+])
 internal object AddChildControllerModule {
 
     @Provides
-    @Reusable
+    @AddChildControllerQualifier
     @JvmStatic
-    fun provideAddChildController(): AddChildControllerFactory {
-        return ::addChildControllerFactory
+    fun provideAddChildController(): TaggedController {
+        return AddChildController.newInstance()
     }
 
     @Provides
@@ -31,21 +36,23 @@ internal object AddChildControllerModule {
     }
 }
 
-@Module
-internal object DisplayChildControllerModule {
+@Module(includes = [
+    MainActivityModule::class
+])
+internal object ChildDetailsControllerModule {
 
     @Provides
     @Reusable
     @JvmStatic
-    fun provideDisplayChildController(): DisplayChildControllerFactory {
-        return ::displayChildControllerFactory
+    fun provideChildDetailsController(): ChildDetailsControllerFactory {
+        return ::childDetailsControllerFactory
     }
 
     @Provides
     @Reusable
     @JvmStatic
-    fun provideDisplayChildControllerIntent(activityFactory: MainActivityIntentFactory): DisplayChildControllerIntentFactory {
-        return ::displayChildControllerIntentFactory.partially1(activityFactory)
+    fun provideChildDetailsControllerIntent(activityFactory: MainActivityIntentFactory): ChildDetailsControllerIntentFactory {
+        return ::childDetailsControllerIntentFactory.partially1(activityFactory)
     }
 }
 
@@ -60,6 +67,16 @@ internal object FindChildrenControllerModule {
 }
 
 @Module
+internal object ResetPasswordControllerModule {
+    @Provides
+    @ResetPasswordControllerQualifier
+    @JvmStatic
+    fun provideResetPasswordController(): TaggedController {
+        return ResetPasswordController.newInstance()
+    }
+}
+
+@Module
 internal object HomeControllerModule {
     @Provides
     @HomeControllerQualifier
@@ -70,11 +87,51 @@ internal object HomeControllerModule {
 }
 
 @Module
-internal object SearchResultsControllerModule {
+internal object ChildrenSearchResultsControllerModule {
     @Provides
     @Reusable
     @JvmStatic
-    fun provideSearchResultsController(): SearchResultsControllerFactory {
-        return ::searchResultsControllerFactory
+    fun provideChildrenSearchResultsController(): ChildrenSearchResultsControllerFactory {
+        return ::childrenSearchResultsControllerFactory
+    }
+}
+
+@Module
+internal object SignInControllerModule {
+    @Provides
+    @SignInControllerQualifier
+    @JvmStatic
+    fun provideSignInController(): TaggedController {
+        return SignInController.newInstance()
+    }
+}
+
+@Module
+internal object SignUpControllerModule {
+    @Provides
+    @SignUpControllerQualifier
+    @JvmStatic
+    fun provideSignUpController(): TaggedController {
+        return SignUpController.newInstance()
+    }
+}
+
+@Module
+internal object SignedInUserProfileControllerModule {
+    @Provides
+    @SignedInUserProfileControllerQualifier
+    @JvmStatic
+    fun provideSignedInUserProfileController(): TaggedController {
+        return SignedInUserProfileController.newInstance()
+    }
+}
+
+@Module
+internal object CompleteSignUpControllerModule {
+    @Provides
+    @Reusable
+    @JvmStatic
+    fun provideCompleteSignUpController(): CompleteSignUpControllerFactory {
+        return ::completeSignUpControllerFactory
     }
 }

@@ -26,6 +26,7 @@ import inc.ahmedmourad.sherlock.domain.platform.ConnectivityManager
 @Module(includes = [
     AuthAuthenticatorModule::class,
     AuthRemoteRepositoryModule::class,
+    AuthImageRepositoryModule::class,
     IsUserSignedInModule::class
 ])
 internal object AuthManagerModule {
@@ -35,10 +36,15 @@ internal object AuthManagerModule {
     fun provideAuthManager(
             authenticator: Lazy<AuthAuthenticator>,
             usersRepository: Lazy<AuthRemoteRepository>,
-            connectivityManager: Lazy<ConnectivityManager>,
+            imageRepository: Lazy<AuthImageRepository>,
             @IsUserSignedInQualifier isUserSignedIn: IsUserSignedIn
     ): AuthManager {
-        return SherlockAuthManager(authenticator, usersRepository, connectivityManager, isUserSignedIn)
+        return SherlockAuthManager(
+                authenticator,
+                usersRepository,
+                imageRepository,
+                isUserSignedIn
+        )
     }
 }
 
@@ -79,27 +85,34 @@ internal object AuthRemoteRepositoryModule {
     @JvmStatic
     fun provideAuthRemoteRepository(
             @AuthFirebaseFirestoreQualifier db: Lazy<FirebaseFirestore>,
-            authImageRepository: Lazy<AuthImageRepository>,
             connectivityManager: Lazy<ConnectivityManager>,
             @IsUserSignedInQualifier isUserSignedIn: IsUserSignedIn
     ): AuthRemoteRepository {
         return AuthFirebaseFirestoreRemoteRepository(
                 db,
-                authImageRepository,
                 connectivityManager,
                 isUserSignedIn
         )
     }
 }
 
-@Module(includes = [FirebaseStorageModule::class])
+@Module(includes = [
+    FirebaseStorageModule::class,
+    IsUserSignedInModule::class
+])
 internal object AuthImageRepositoryModule {
     @Provides
     @Reusable
     @JvmStatic
     fun provideAuthImageRepository(
+            connectivityManager: Lazy<ConnectivityManager>,
+            @IsUserSignedInQualifier isUserSignedIn: IsUserSignedIn,
             @AuthFirebaseStorageQualifier storage: Lazy<FirebaseStorage>
     ): AuthImageRepository {
-        return AuthFirebaseStorageImageRepository(storage)
+        return AuthFirebaseStorageImageRepository(
+                connectivityManager,
+                isUserSignedIn,
+                storage
+        )
     }
 }

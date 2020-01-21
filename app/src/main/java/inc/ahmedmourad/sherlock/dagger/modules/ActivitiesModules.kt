@@ -7,7 +7,7 @@ import inc.ahmedmourad.sherlock.dagger.modules.factories.MainActivityIntentFacto
 import inc.ahmedmourad.sherlock.dagger.modules.factories.mainActivityIntentFactory
 
 @Module
-internal object MainActivityModules {
+internal object MainActivityModule {
     @Provides
     @Reusable
     @JvmStatic

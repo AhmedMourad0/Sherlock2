@@ -2,7 +2,7 @@ package inc.ahmedmourad.sherlock.children.remote.mapper
 
 import inc.ahmedmourad.sherlock.children.remote.model.*
 import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
-import inc.ahmedmourad.sherlock.domain.model.*
+import inc.ahmedmourad.sherlock.domain.model.children.*
 
 internal fun DomainPublishedChild.toFirebasePublishedChild() = FirebasePublishedChild(
         name.toFirebaseName(),

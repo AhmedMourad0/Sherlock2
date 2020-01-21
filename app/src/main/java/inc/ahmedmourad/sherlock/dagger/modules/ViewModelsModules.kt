@@ -3,18 +3,23 @@ package inc.ahmedmourad.sherlock.dagger.modules
 import androidx.lifecycle.ViewModelProvider
 import arrow.syntax.function.curried
 import arrow.syntax.function.partially1
-import dagger.Lazy
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
-import inc.ahmedmourad.sherlock.dagger.modules.factories.*
-import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.AddChildViewModelQualifier
-import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.FindChildrenViewModelQualifier
-import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.MainActivityViewModelQualifier
-import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.SherlockServiceIntentQualifier
+import inc.ahmedmourad.sherlock.dagger.modules.factories.SherlockServiceIntentFactory
+import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.*
 import inc.ahmedmourad.sherlock.domain.dagger.modules.factories.ChildrenFilterFactory
-import inc.ahmedmourad.sherlock.domain.dagger.modules.qualifiers.CheckInternetConnectivityInteractorQualifier
-import inc.ahmedmourad.sherlock.domain.interactors.*
+import inc.ahmedmourad.sherlock.domain.dagger.modules.qualifiers.*
+import inc.ahmedmourad.sherlock.domain.interactors.auth.*
+import inc.ahmedmourad.sherlock.domain.interactors.children.FindChildInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.children.FindChildrenInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.core.CheckChildPublishingStateInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.core.CheckInternetConnectivityInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.core.ObserveChildPublishingStateInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.core.ObserveInternetConnectivityInteractor
+import inc.ahmedmourad.sherlock.viewmodel.activity.factory.MainActivityViewModelFactory
+import inc.ahmedmourad.sherlock.viewmodel.controllers.auth.factories.*
+import inc.ahmedmourad.sherlock.viewmodel.controllers.children.factories.*
 
 @Module
 internal object MainActivityViewModelModule {
@@ -23,31 +28,41 @@ internal object MainActivityViewModelModule {
     @MainActivityViewModelQualifier
     @JvmStatic
     fun provideMainActivityViewModel(
-            observeInternetConnectivityInteractor: ObserveInternetConnectivityInteractor
+            observeInternetConnectivityInteractor: ObserveInternetConnectivityInteractor,
+            checkIsUserSignedInInteractor: CheckIsUserSignedInInteractor,
+            @FindSignedInUserInteractorQualifier findSignedInUserInteractor: FindSignedInUserInteractor,
+            signOutInteractor: SignOutInteractor
     ): ViewModelProvider.NewInstanceFactory {
-        return MainActivityViewModelFactory(observeInternetConnectivityInteractor)
+        return MainActivityViewModelFactory(
+                observeInternetConnectivityInteractor,
+                checkIsUserSignedInInteractor,
+                findSignedInUserInteractor,
+                signOutInteractor
+        )
     }
 }
 
-@Module
+@Module(includes = [
+    SherlockServiceModule::class
+])
 internal object AddChildViewModelModule {
     @Provides
     @Reusable
     @AddChildViewModelQualifier
     @JvmStatic
     fun provideAddChildViewModel(
-            @SherlockServiceIntentQualifier serviceFactory: Lazy<SherlockServiceIntentFactory>,
+            @SherlockServiceIntentQualifier serviceFactory: SherlockServiceIntentFactory,
             observeInternetConnectivityInteractor: ObserveInternetConnectivityInteractor,
             @CheckInternetConnectivityInteractorQualifier checkInternetConnectivityInteractor: CheckInternetConnectivityInteractor,
-            observePublishingStateInteractor: ObservePublishingStateInteractor,
-            checkPublishingStateInteractor: CheckPublishingStateInteractor
+            observeChildPublishingStateInteractor: ObserveChildPublishingStateInteractor,
+            checkChildPublishingStateInteractor: CheckChildPublishingStateInteractor
     ): ViewModelProvider.NewInstanceFactory {
         return AddChildViewModelFactory(
                 serviceFactory,
                 observeInternetConnectivityInteractor,
                 checkInternetConnectivityInteractor,
-                observePublishingStateInteractor,
-                checkPublishingStateInteractor
+                observeChildPublishingStateInteractor,
+                checkChildPublishingStateInteractor
         )
     }
 }
@@ -68,24 +83,110 @@ internal object FindChildrenViewModelModule {
 }
 
 @Module
-internal object SearchResultsViewModelModule {
+internal object ResetPasswordViewModelModule {
     @Provides
     @Reusable
+    @ResetPasswordViewModelQualifier
     @JvmStatic
-    fun provideSearchResultViewModel(
-            interactor: FindChildrenInteractor,
-            filterFactory: ChildrenFilterFactory
-    ): SearchResultsViewModelFactoryFactory {
-        return ::searchResultsViewModelFactoryFactory.curried()(interactor)(filterFactory)
+    fun provideResetPasswordViewModel(
+            sendPasswordResetEmailInteractor: SendPasswordResetEmailInteractor
+    ): ViewModelProvider.NewInstanceFactory {
+        return ResetPasswordViewModelFactory(
+                sendPasswordResetEmailInteractor
+        )
     }
 }
 
 @Module
-internal object DisplayChildViewModelModule {
+internal object SignedInUserProfileViewModelModule {
+    @Provides
+    @Reusable
+    @SignedInUserProfileViewModelQualifier
+    @JvmStatic
+    fun provideSignedInUserProfileViewModel(
+            @FindSignedInUserInteractorQualifier findSignedInUserInteractor: FindSignedInUserInteractor
+    ): ViewModelProvider.NewInstanceFactory {
+        return SignedInUserProfileViewModelFactory(
+                findSignedInUserInteractor
+        )
+    }
+}
+
+@Module
+internal object SignInViewModelModule {
+    @Provides
+    @Reusable
+    @SignInViewModelQualifier
+    @JvmStatic
+    fun provideSignInViewModel(
+            signInInteractor: SignInInteractor,
+            @SignInWithGoogleInteractorQualifier signInWithGoogleInteractor: SignInWithGoogleInteractor,
+            @SignInWithFacebookInteractorQualifier signInWithFacebookInteractor: SignInWithFacebookInteractor,
+            @SignInWithTwitterInteractorQualifier signInWithTwitterInteractor: SignInWithTwitterInteractor
+    ): ViewModelProvider.NewInstanceFactory {
+        return SignInViewModelFactory(
+                signInInteractor,
+                signInWithGoogleInteractor,
+                signInWithFacebookInteractor,
+                signInWithTwitterInteractor
+        )
+    }
+}
+
+@Module
+internal object SignUpViewModelModule {
+    @Provides
+    @Reusable
+    @SignUpViewModelQualifier
+    @JvmStatic
+    fun provideSignUpViewModel(
+            signUpInteractor: SignUpInteractor,
+            @SignInWithGoogleInteractorQualifier signUpWithGoogleInteractor: SignInWithGoogleInteractor,
+            @SignInWithFacebookInteractorQualifier signUpWithFacebookInteractor: SignInWithFacebookInteractor,
+            @SignInWithTwitterInteractorQualifier signUpWithTwitterInteractor: SignInWithTwitterInteractor
+    ): ViewModelProvider.NewInstanceFactory {
+        return SignUpViewModelFactory(
+                signUpInteractor,
+                signUpWithGoogleInteractor,
+                signUpWithFacebookInteractor,
+                signUpWithTwitterInteractor
+        )
+    }
+}
+
+@Module
+internal object CompleteSignUpViewModelModule {
     @Provides
     @Reusable
     @JvmStatic
-    fun provideDisplayChildViewModel(interactor: FindChildInteractor): DisplayChildViewModelFactoryFactory {
-        return ::displayChildViewModelFactoryFactory.partially1(interactor)
+    fun provideCompleteSignUpViewModel(
+            completeSignUpInteractor: CompleteSignUpInteractor
+    ): CompleteSignUpViewModelFactoryFactory {
+        return ::completeSignUpViewModelFactoryFactory.partially1(completeSignUpInteractor)
+    }
+}
+
+@Module
+internal object ChildrenSearchResultsViewModelModule {
+    @Provides
+    @Reusable
+    @JvmStatic
+    fun provideChildrenSearchResultViewModel(
+            interactor: FindChildrenInteractor,
+            filterFactory: ChildrenFilterFactory
+    ): ChildrenSearchResultsViewModelFactoryFactory {
+        return ::childrenSearchResultsViewModelFactoryFactory.curried()(interactor)(filterFactory)
+    }
+}
+
+@Module
+internal object ChildDetailsViewModelModule {
+    @Provides
+    @Reusable
+    @JvmStatic
+    fun provideChildDetailsViewModel(
+            interactor: FindChildInteractor
+    ): ChildDetailsViewModelFactoryFactory {
+        return ::childDetailsViewModelFactoryFactory.partially1(interactor)
     }
 }

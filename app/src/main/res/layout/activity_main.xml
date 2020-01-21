@@ -27,10 +27,8 @@
 				android:layout_width="match_parent"
 				android:layout_height="?attr/actionBarSize"
 				android:focusable="true"
-				android:paddingStart="12dp"
-				android:paddingLeft="12dp"
-				android:paddingEnd="12dp"
-				android:paddingRight="12dp"
+				android:paddingStart="16dp"
+				android:paddingEnd="16dp"
 				app:contentInsetStart="0dp"
 				app:navigationIcon="@drawable/ic_sherlock"
 				app:title="@string/app_name"
@@ -67,22 +65,22 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:layout_marginTop="?attr/actionBarSize"
-		android:elevation="8dp"
+		android:elevation="@dimen/main_content_elevation"
 		android:focusableInTouchMode="true"
-		app:shape_cutCorner_topLeftSize="32dp">
+		app:shape_cutCorner_topLeftSize="@dimen/main_content_corner_cut">
 		
 		<com.bluelinelabs.conductor.ChangeHandlerFrameLayout
 			android:id="@+id/main_content_controllers_container"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:background="#FFFFFF" />
+			android:background="@android:color/white" />
 		
 		<View
 			android:id="@+id/main_content_overlay"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:alpha="0"
-			android:background="#000000"
+			android:background="@android:color/black"
 			android:clickable="true"
 			android:focusable="true"
 			android:visibility="gone" />

@@ -4,13 +4,13 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
+	android:layout_marginStart="@dimen/resultMarginStart"
+	android:layout_marginTop="@dimen/resultMarginTop"
+	android:layout_marginEnd="@dimen/resultMarginEnd"
+	android:layout_marginBottom="@dimen/resultMarginBottom"
 	android:clickable="true"
 	android:focusable="true"
 	android:foreground="?selectableItemBackground"
-	android:layout_marginStart="@dimen/resultMarginStart"
-	android:layout_marginEnd="@dimen/resultMarginEnd"
-	android:layout_marginTop="@dimen/resultMarginTop"
-	android:layout_marginBottom="@dimen/resultMarginBottom"
 	app:backgroundTint="@android:color/white"
 	app:cardCornerRadius="@dimen/resultCardCornerRadius"
 	app:cardElevation="@dimen/resultCardElevation">
@@ -24,10 +24,10 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="horizontal"
-			android:paddingBottom="@dimen/resultMetaPaddingBottom"
-			android:paddingEnd="@dimen/resultPaddingEnd"
 			android:paddingStart="@dimen/resultPaddingStart"
-			android:paddingTop="@dimen/resultMetaPaddingTop">
+			android:paddingTop="@dimen/resultMetaPaddingTop"
+			android:paddingEnd="@dimen/resultPaddingEnd"
+			android:paddingBottom="@dimen/resultMetaPaddingBottom">
 			
 			<de.hdodenhof.circleimageview.CircleImageView
 				android:layout_width="@dimen/resultMetaUserPictureWidth"
@@ -41,8 +41,8 @@
 				android:layout_gravity="center_vertical"
 				android:layout_weight="1"
 				android:orientation="vertical"
-				android:paddingEnd="@dimen/resultMetaUserTextPaddingEnd"
-				android:paddingStart="@dimen/resultMetaUserTextPaddingStart">
+				android:paddingStart="@dimen/resultMetaUserTextPaddingStart"
+				android:paddingEnd="@dimen/resultMetaUserTextPaddingEnd">
 				
 				<com.google.android.material.textview.MaterialTextView
 					android:layout_width="match_parent"
@@ -64,31 +64,20 @@
 					android:gravity="center_vertical"
 					android:maxLines="1"
 					android:scrollHorizontally="true"
-					tools:text="@string/date"
-					android:textSize="@dimen/resultDateTextSize" />
+					android:textSize="@dimen/resultDateTextSize"
+					tools:text="@string/date" />
 			
 			</LinearLayout>
 		
 		</LinearLayout>
 		
-		<androidx.constraintlayout.widget.ConstraintLayout
+		<ImageView
+			android:id="@+id/result_picture"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content">
-			
-			<ImageView
-				android:id="@+id/result_picture"
-				android:layout_width="0dp"
-				android:layout_height="0dp"
-				android:contentDescription="@string/child"
-				android:scaleType="centerCrop"
-				app:layout_constraintBottom_toBottomOf="parent"
-				app:layout_constraintDimensionRatio="1:1"
-				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toTopOf="parent"
-				tools:src="@drawable/placeholder" />
-		
-		</androidx.constraintlayout.widget.ConstraintLayout>
+			android:layout_height="wrap_content"
+			android:contentDescription="@string/child"
+			android:scaleType="centerCrop"
+			tools:src="@drawable/placeholder" />
 		
 		<com.google.android.material.textview.MaterialTextView
 			android:id="@+id/result_notes"
@@ -98,9 +87,9 @@
 			android:gravity="center_vertical"
 			android:lineSpacingMultiplier="1.2"
 			android:maxLines="3"
-			android:paddingEnd="@dimen/resultPaddingEnd"
 			android:paddingStart="@dimen/resultPaddingStart"
 			android:paddingTop="@dimen/resultNotesPaddingStart"
+			android:paddingEnd="@dimen/resultPaddingEnd"
 			android:scrollHorizontally="true"
 			android:textSize="@dimen/resultNotesTextSize"
 			tools:text="Don't you think it's ridiculous that Firebase Realtime Database has so poor querying capabilities?\nI mean It's Google for god's sake!" />
@@ -109,10 +98,10 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="horizontal"
-			android:paddingBottom="@dimen/resultLocationPaddingBottom"
-			android:paddingEnd="@dimen/resultPaddingEnd"
 			android:paddingStart="@dimen/resultPaddingStart"
-			android:paddingTop="@dimen/resultLocationPaddingTop">
+			android:paddingTop="@dimen/resultLocationPaddingTop"
+			android:paddingEnd="@dimen/resultPaddingEnd"
+			android:paddingBottom="@dimen/resultLocationPaddingBottom">
 			
 			<com.google.android.material.textview.MaterialTextView
 				android:layout_width="wrap_content"
@@ -128,8 +117,8 @@
 				android:ellipsize="end"
 				android:gravity="center_vertical"
 				android:maxLines="1"
-				android:paddingEnd="@dimen/resultLocationPaddingEnd"
 				android:paddingStart="@dimen/resultLocationSpacing"
+				android:paddingEnd="@dimen/resultLocationPaddingEnd"
 				android:scrollHorizontally="true"
 				android:textSize="@dimen/resultLocationTextSize"
 				tools:text="Yasmeena Plaza, Tanta, Egypt" />

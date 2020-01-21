@@ -8,27 +8,21 @@ import arrow.core.Tuple2
 import com.bumptech.glide.Glide
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
-import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.domain.platform.DateManager
-import inc.ahmedmourad.sherlock.model.AppSimpleRetrievedChild
+import inc.ahmedmourad.sherlock.model.children.AppSimpleRetrievedChild
 import inc.ahmedmourad.sherlock.utils.formatter.Formatter
 import splitties.init.appCtx
 import timber.log.Timber
-import javax.inject.Inject
 
 internal class ResultsRemoteViewsFactory(
         private val context: Context,
-        private val results: List<Tuple2<AppSimpleRetrievedChild, Int>>
+        private val results: List<Tuple2<AppSimpleRetrievedChild, Int>>,
+        private val formatter: Lazy<Formatter>,
+        private val dateManager: Lazy<DateManager>
 ) : RemoteViewsService.RemoteViewsFactory {
 
-    @Inject
-    lateinit var formatter: Lazy<Formatter>
-
-    @Inject
-    lateinit var dateManager: Lazy<DateManager>
-
     override fun onCreate() {
-        SherlockComponent.Widget.resultsRemoteViewsFactoryComponent.get().inject(this)
+
     }
 
     override fun onDataSetChanged() {
@@ -100,6 +94,6 @@ internal class ResultsRemoteViewsFactory(
     override fun hasStableIds() = false
 
     override fun onDestroy() {
-        SherlockComponent.Widget.resultsRemoteViewsFactoryComponent.release()
+
     }
 }

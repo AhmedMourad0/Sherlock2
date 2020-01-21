@@ -250,5 +250,7 @@
 	<dimen name="dividerMarginTop">8dp</dimen>
 	
 	<dimen name="dividerHeight">1dp</dimen>
+	<dimen name="main_content_corner_cut">32dp</dimen>
+	<dimen name="main_content_elevation">8dp</dimen>
 
 </resources>

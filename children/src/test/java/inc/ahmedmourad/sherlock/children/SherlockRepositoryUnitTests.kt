@@ -7,12 +7,10 @@ import inc.ahmedmourad.sherlock.children.repository.SherlockChildrenRepository
 import inc.ahmedmourad.sherlock.children.repository.dependencies.ChildrenLocalRepository
 import inc.ahmedmourad.sherlock.children.repository.dependencies.ChildrenRemoteRepository
 import inc.ahmedmourad.sherlock.domain.bus.Bus
-import inc.ahmedmourad.sherlock.domain.constants.Gender
-import inc.ahmedmourad.sherlock.domain.constants.Hair
-import inc.ahmedmourad.sherlock.domain.constants.Skin
+import inc.ahmedmourad.sherlock.domain.constants.*
 import inc.ahmedmourad.sherlock.domain.filter.Filter
 import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
-import inc.ahmedmourad.sherlock.domain.model.*
+import inc.ahmedmourad.sherlock.domain.model.children.*
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
@@ -84,9 +82,9 @@ object SherlockRepositoryUnitTests : Spek({
                 verify(remoteRepository).publish(publishedChild)
 
                 verify(bus.childPublishingState) {
-                    1 * { accept(eq(Bus.PublishingState.Success(retrievedChild))) }
-                    1 * { accept(eq(Bus.PublishingState.Ongoing(publishedChild))) }
-                    0 * { accept(eq(Bus.PublishingState.Failure(publishedChild))) }
+                    1 * { accept(eq(PublishingState.Success(retrievedChild))) }
+                    1 * { accept(eq(PublishingState.Ongoing(publishedChild))) }
+                    0 * { accept(eq(PublishingState.Failure(publishedChild))) }
                 }
             }
         }
@@ -121,9 +119,9 @@ object SherlockRepositoryUnitTests : Spek({
                 verify(remoteRepository).findAll(rules, filter)
 
                 verify(bus.childrenFindingState) {
-                    1 * { accept(Bus.BackgroundState.ONGOING) }
-                    1 * { accept(Bus.BackgroundState.SUCCESS) }
-                    0 * { accept(Bus.BackgroundState.FAILURE) }
+                    1 * { accept(BackgroundState.ONGOING) }
+                    1 * { accept(BackgroundState.SUCCESS) }
+                    0 * { accept(BackgroundState.FAILURE) }
                 }
             }
 
@@ -158,9 +156,9 @@ object SherlockRepositoryUnitTests : Spek({
                 }
 
                 verify(bus.childrenFindingState) {
-                    1 * { accept(Bus.BackgroundState.ONGOING) }
-                    1 * { accept(Bus.BackgroundState.SUCCESS) }
-                    0 * { accept(Bus.BackgroundState.FAILURE) }
+                    1 * { accept(BackgroundState.ONGOING) }
+                    1 * { accept(BackgroundState.SUCCESS) }
+                    0 * { accept(BackgroundState.FAILURE) }
                 }
             }
         }
@@ -200,9 +198,9 @@ object SherlockRepositoryUnitTests : Spek({
                 }
 
                 verify(bus.childFindingState) {
-                    1 * { accept(Bus.BackgroundState.ONGOING) }
-                    1 * { accept(Bus.BackgroundState.SUCCESS) }
-                    0 * { accept(Bus.BackgroundState.FAILURE) }
+                    1 * { accept(BackgroundState.ONGOING) }
+                    1 * { accept(BackgroundState.SUCCESS) }
+                    0 * { accept(BackgroundState.FAILURE) }
                 }
 
                 val nullResult = Either.NULL
@@ -220,9 +218,9 @@ object SherlockRepositoryUnitTests : Spek({
                 }
 
                 verify(bus.childFindingState) {
-                    2 * { accept(Bus.BackgroundState.ONGOING) }
-                    2 * { accept(Bus.BackgroundState.SUCCESS) }
-                    0 * { accept(Bus.BackgroundState.FAILURE) }
+                    2 * { accept(BackgroundState.ONGOING) }
+                    2 * { accept(BackgroundState.SUCCESS) }
+                    0 * { accept(BackgroundState.FAILURE) }
                 }
             }
 
@@ -263,9 +261,9 @@ object SherlockRepositoryUnitTests : Spek({
                 }
 
                 verify(bus.childFindingState) {
-                    1 * { accept(Bus.BackgroundState.ONGOING) }
-                    1 * { accept(Bus.BackgroundState.SUCCESS) }
-                    0 * { accept(Bus.BackgroundState.FAILURE) }
+                    1 * { accept(BackgroundState.ONGOING) }
+                    1 * { accept(BackgroundState.SUCCESS) }
+                    0 * { accept(BackgroundState.FAILURE) }
                 }
 
                 val nullResult = Either.NULL
@@ -287,9 +285,9 @@ object SherlockRepositoryUnitTests : Spek({
                 }
 
                 verify(bus.childFindingState) {
-                    2 * { accept(Bus.BackgroundState.ONGOING) }
-                    2 * { accept(Bus.BackgroundState.SUCCESS) }
-                    0 * { accept(Bus.BackgroundState.FAILURE) }
+                    2 * { accept(BackgroundState.ONGOING) }
+                    2 * { accept(BackgroundState.SUCCESS) }
+                    0 * { accept(BackgroundState.FAILURE) }
                 }
             }
         }

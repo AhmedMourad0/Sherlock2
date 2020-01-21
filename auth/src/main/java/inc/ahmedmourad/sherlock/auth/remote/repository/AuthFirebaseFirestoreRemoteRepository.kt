@@ -9,16 +9,15 @@ import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.auth.manager.IsUserSignedIn
-import inc.ahmedmourad.sherlock.auth.manager.dependencies.AuthImageRepository
 import inc.ahmedmourad.sherlock.auth.manager.dependencies.AuthRemoteRepository
-import inc.ahmedmourad.sherlock.auth.remote.contract.Contract
-import inc.ahmedmourad.sherlock.auth.remote.mapper.toAuthUserData
-import inc.ahmedmourad.sherlock.auth.remote.model.AuthSignedInUser
-import inc.ahmedmourad.sherlock.auth.remote.model.AuthUserData
+import inc.ahmedmourad.sherlock.auth.model.AuthRetrievedUserDetails
+import inc.ahmedmourad.sherlock.auth.model.AuthStoredUserDetails
+import inc.ahmedmourad.sherlock.auth.remote.contract.RemoteContract
+import inc.ahmedmourad.sherlock.auth.remote.mapper.toRemoteUserDetails
+import inc.ahmedmourad.sherlock.auth.remote.model.RemoteRetrievedUserDetails
+import inc.ahmedmourad.sherlock.auth.remote.model.RemoteStoredUserDetails
 import inc.ahmedmourad.sherlock.domain.exceptions.NoInternetConnectionException
 import inc.ahmedmourad.sherlock.domain.exceptions.NoSignedInUserException
-import inc.ahmedmourad.sherlock.domain.model.DomainSignedInUser
-import inc.ahmedmourad.sherlock.domain.model.DomainUserData
 import inc.ahmedmourad.sherlock.domain.platform.ConnectivityManager
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -26,7 +25,6 @@ import splitties.init.appCtx
 
 internal class AuthFirebaseFirestoreRemoteRepository(
         private val db: Lazy<FirebaseFirestore>,
-        private val authImageRepository: Lazy<AuthImageRepository>,
         private val connectivityManager: Lazy<ConnectivityManager>,
         private val isUserSignedIn: IsUserSignedIn
 ) : AuthRemoteRepository {
@@ -40,10 +38,7 @@ internal class AuthFirebaseFirestoreRemoteRepository(
         }
     }
 
-    override fun storeUser(user: DomainUserData): Single<Either<Throwable, DomainSignedInUser>> {
-
-        val registrationDate = System.currentTimeMillis()
-
+    override fun storeUserDetails(details: AuthStoredUserDetails): Single<Either<Throwable, AuthRetrievedUserDetails>> {
         return connectivityManager.get()
                 .isInternetConnected()
                 .subscribeOn(Schedulers.io())
@@ -56,45 +51,39 @@ internal class AuthFirebaseFirestoreRemoteRepository(
                 }.flatMap { isUserSignedInEither ->
                     isUserSignedInEither.fold(ifLeft = {
                         Single.just(it.left())
-                    }, ifRight = {
-                        if (it)
-                            authImageRepository.get().storeUserPicture(user.id, user.picture)
-                        else
+                    }, ifRight = { isUserSignedIn ->
+                        if (isUserSignedIn) {
+                            store(details.toRemoteUserDetails())
+                        } else {
                             Single.just(NoSignedInUserException().left())
+                        }
                     })
-                }.flatMap { pictureUrlEither ->
-                    pictureUrlEither.fold(ifLeft = {
-                        Single.just(it.left())
-                    }, ifRight = {
-                        storeUserData(registrationDate, it, user.toAuthUserData())
-                    })
-                }.map { authSignedInUserEither ->
-                    authSignedInUserEither.map { it.toDomainUser() }
                 }
     }
 
-    private fun storeUserData(registrationDate: Long, pictureUrl: String, user: AuthUserData): Single<Either<Throwable, AuthSignedInUser>> {
+    private fun store(details: RemoteStoredUserDetails): Single<Either<Throwable, AuthRetrievedUserDetails>> {
 
-        return Single.create<Either<Throwable, AuthSignedInUser>> { emitter ->
+        return Single.create<Either<Throwable, AuthRetrievedUserDetails>> { emitter ->
 
+            val registrationDate = System.currentTimeMillis()
             val successListener = { _: Void ->
-                emitter.onSuccess(user.toAuthSignedInUser(registrationDate, registrationDate, pictureUrl).right())
+                emitter.onSuccess(details.toRemoteRetrievedUserDetails(registrationDate).toAuthUserDetails().right())
             }
 
             val failureListener = { throwable: Throwable ->
                 emitter.onSuccess(throwable.left())
             }
 
-            db.get().collection(Contract.Database.Users.PATH)
-                    .document(user.id)
-                    .set(user.toMap(registrationDate, registrationDate, pictureUrl))
+            db.get().collection(RemoteContract.Database.Users.PATH)
+                    .document(details.id)
+                    .set(details.toMap())
                     .addOnSuccessListener(successListener)
                     .addOnFailureListener(failureListener)
 
         }.subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
     }
 
-    override fun findUser(id: String): Single<Either<Throwable, Option<DomainSignedInUser>>> {
+    override fun findUser(id: String): Single<Either<Throwable, Option<AuthRetrievedUserDetails>>> {
         return connectivityManager.get()
                 .isInternetConnected()
                 .subscribeOn(Schedulers.io())
@@ -116,9 +105,9 @@ internal class AuthFirebaseFirestoreRemoteRepository(
                 }
     }
 
-    private fun createFindUserSingle(id: String): Single<Either<Throwable, Option<DomainSignedInUser>>> {
+    private fun createFindUserSingle(id: String): Single<Either<Throwable, Option<AuthRetrievedUserDetails>>> {
 
-        return Single.create<Either<Throwable, Option<DomainSignedInUser>>> { emitter ->
+        return Single.create<Either<Throwable, Option<AuthRetrievedUserDetails>>> { emitter ->
 
             val snapshotListener = { snapshot: DocumentSnapshot?, exception: FirebaseFirestoreException? ->
 
@@ -129,13 +118,13 @@ internal class AuthFirebaseFirestoreRemoteRepository(
                 } else if (snapshot != null) {
 
                     if (snapshot.exists())
-                        emitter.onSuccess(snapshot.extractAuthSignedInUser().toDomainUser().some().right())
+                        emitter.onSuccess(snapshot.extractRemoteRetrievedUserDetails().toAuthUserDetails().some().right())
                     else
-                        emitter.onSuccess(none<DomainSignedInUser>().right())
+                        emitter.onSuccess(none<AuthRetrievedUserDetails>().right())
                 }
             }
 
-            val registration = db.get().collection(Contract.Database.Users.PATH)
+            val registration = db.get().collection(RemoteContract.Database.Users.PATH)
                     .document(id)
                     .addSnapshotListener(snapshotListener)
 
@@ -181,9 +170,9 @@ internal class AuthFirebaseFirestoreRemoteRepository(
                 emitter.onSuccess(throwable.left())
             }
 
-            db.get().collection(Contract.Database.Users.PATH)
+            db.get().collection(RemoteContract.Database.Users.PATH)
                     .document(id)
-                    .update(Contract.Database.Users.LAST_LOGIN_DATE, System.currentTimeMillis())
+                    .update(RemoteContract.Database.Users.LAST_LOGIN_DATE, System.currentTimeMillis())
                     .addOnSuccessListener(successListener)
                     .addOnFailureListener(failureListener)
 
@@ -191,14 +180,9 @@ internal class AuthFirebaseFirestoreRemoteRepository(
     }
 }
 
-
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-internal fun DocumentSnapshot.extractAuthSignedInUser() = AuthSignedInUser(
+internal fun DocumentSnapshot.extractRemoteRetrievedUserDetails() = RemoteRetrievedUserDetails(
         requireNotNull(this.id),
-        requireNotNull(this.getLong(Contract.Database.Users.REGISTRATION_DATE)),
-        requireNotNull(this.getLong(Contract.Database.Users.LAST_LOGIN_DATE)),
-        requireNotNull(this.getString(Contract.Database.Users.EMAIL)),
-        requireNotNull(this.getString(Contract.Database.Users.NAME)),
-        requireNotNull(this.getString(Contract.Database.Users.PHONE_NUMBER)),
-        requireNotNull(this.getString(Contract.Database.Users.PICTURE_URL))
+        requireNotNull(this.getTimestamp(RemoteContract.Database.Users.REGISTRATION_DATE)?.seconds) * 1000L,
+        requireNotNull(this.getString(RemoteContract.Database.Users.PHONE_NUMBER))
 )

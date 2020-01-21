@@ -1,8 +1,8 @@
 package inc.ahmedmourad.sherlock.children.repository.dependencies
 
 import arrow.core.Tuple2
-import inc.ahmedmourad.sherlock.domain.model.DomainRetrievedChild
-import inc.ahmedmourad.sherlock.domain.model.DomainSimpleRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.DomainRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.DomainSimpleRetrievedChild
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe

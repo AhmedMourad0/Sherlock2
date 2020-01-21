@@ -3,7 +3,7 @@ package inc.ahmedmourad.sherlock.domain.filter.criteria
 import arrow.core.Tuple2
 import arrow.core.toT
 import dagger.Lazy
-import inc.ahmedmourad.sherlock.domain.model.DomainRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.DomainRetrievedChild
 import inc.ahmedmourad.sherlock.domain.platform.LocationManager
 import me.xdrop.fuzzywuzzy.FuzzySearch
 
