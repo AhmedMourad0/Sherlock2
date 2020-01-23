@@ -20,10 +20,11 @@ import inc.ahmedmourad.sherlock.auth.authenticator.model.AuthenticatorIncomplete
 import inc.ahmedmourad.sherlock.auth.manager.dependencies.AuthAuthenticator
 import inc.ahmedmourad.sherlock.auth.model.AuthCompletedUser
 import inc.ahmedmourad.sherlock.auth.model.AuthIncompleteUser
-import inc.ahmedmourad.sherlock.domain.exceptions.NoInternetConnectionException
-import inc.ahmedmourad.sherlock.domain.exceptions.NoSignedInUserException
+import inc.ahmedmourad.sherlock.domain.exceptions.*
 import inc.ahmedmourad.sherlock.domain.platform.ConnectivityManager
+import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
+import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import splitties.init.appCtx
@@ -33,28 +34,56 @@ internal class AuthFirebaseAuthenticator(
         private val connectivityManager: Lazy<ConnectivityManager>
 ) : AuthAuthenticator {
 
-    override fun isUserSignedIn(): Single<Boolean> {
-        return Single.just(auth.get().currentUser != null)
+    override fun observeUserAuthState(): Flowable<Boolean> {
+        return createObserveUserAuthState()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
     }
 
-    override fun getCurrentUser(): Single<Either<Throwable, Either<AuthIncompleteUser, AuthCompletedUser>>> {
+    private fun createObserveUserAuthState(): Flowable<Boolean> {
+        return Flowable.create<Boolean>({ emitter ->
+
+            val authStateListener = { firebaseAuth: FirebaseAuth ->
+                emitter.onNext(firebaseAuth.currentUser != null)
+            }
+
+            auth.get().addAuthStateListener(authStateListener)
+
+            emitter.setCancellable { auth.get().removeAuthStateListener(authStateListener) }
+
+        }, BackpressureStrategy.LATEST).subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
+    }
+
+    override fun getCurrentUser(): Flowable<Either<Throwable, Either<AuthIncompleteUser, AuthCompletedUser>>> {
         return connectivityManager.get()
-                .isInternetConnected()
+                .observeInternetConnectivity()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .flatMap { isInternetConnected ->
                     if (isInternetConnected) {
-                        Single.just(auth.get()
-                                .currentUser
-                                ?.toAuthenticatorUser()
-                                ?.right() ?: NoSignedInUserException().left()
-                        )
+                        observeUserAuthState().map(Boolean::right)
                     } else {
-                        Single.just(NoInternetConnectionException().left())
+                        Flowable.just(NoInternetConnectionException().left())
                     }
+                }.flatMap { isUserSignedInEither ->
+                    isUserSignedInEither.fold(ifLeft = {
+                        Flowable.just(it.left())
+                    }, ifRight = { isUserSignedIn ->
+                        if (isUserSignedIn) {
+                            createGetCurrentUserFlowable()
+                        } else {
+                            Flowable.just(NoSignedInUserException().left())
+                        }
+                    })
                 }
+    }
+
+    private fun createGetCurrentUserFlowable(): Flowable<Either<Throwable, Either<AuthIncompleteUser, AuthCompletedUser>>> {
+        return Flowable.just<Either<Throwable, Either<AuthIncompleteUser, AuthCompletedUser>>>(
+                auth.get().currentUser
+                        ?.toAuthenticatorUser()
+                        ?.rightIfNotNull { NoSignedInUserException() }
+        ).subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
     }
 
     override fun signIn(
@@ -92,7 +121,19 @@ internal class AuthFirebaseAuthenticator(
             }
 
             val failureListener = { throwable: Throwable ->
-                emitter.onSuccess(throwable.left())
+                emitter.onSuccess(when (throwable) {
+
+                    is FirebaseAuthInvalidUserException -> InvalidUserException(
+                            "The user account corresponding to the email does not exist or has been disabled!"
+                    )
+
+                    is FirebaseAuthInvalidCredentialsException -> InvalidCredentialsException(
+                            "Wrong password!"
+                    )
+
+                    else -> throwable
+
+                }.left())
             }
 
             auth.get().signInWithEmailAndPassword(email, password)
@@ -131,7 +172,23 @@ internal class AuthFirebaseAuthenticator(
             }
 
             val failureListener = { throwable: Throwable ->
-                emitter.onSuccess(throwable.left())
+                emitter.onSuccess(when (throwable) {
+
+                    is FirebaseAuthWeakPasswordException -> WeakPasswordException(
+                            "The password is not strong enough!"
+                    )
+
+                    is FirebaseAuthInvalidCredentialsException -> InvalidCredentialsException(
+                            "The email address is malformed!"
+                    )
+
+                    is FirebaseAuthUserCollisionException -> UserCollisionException(
+                            "There already exists an account with the given email address!"
+                    )
+
+                    else -> throwable
+
+                }.left())
             }
 
             auth.get().createUserWithEmailAndPassword(email, password)
@@ -148,7 +205,7 @@ internal class AuthFirebaseAuthenticator(
                 .observeOn(Schedulers.io())
                 .flatMap { isInternetConnected ->
                     if (isInternetConnected) {
-                        isUserSignedIn().map(Boolean::right)
+                        observeUserAuthState().map(Boolean::right).singleOrError()
                     } else {
                         Single.just(NoInternetConnectionException().left())
                     }
@@ -182,7 +239,28 @@ internal class AuthFirebaseAuthenticator(
             }
 
             val failureListener = { throwable: Throwable ->
-                emitter.onSuccess(throwable.left())
+                emitter.onSuccess(when (throwable) {
+
+                    is FirebaseAuthInvalidCredentialsException -> InvalidCredentialsException(
+                            "The email address is malformed!"
+                    )
+
+                    is FirebaseAuthUserCollisionException -> UserCollisionException(
+                            "There already exists an account with the given email address!"
+                    )
+
+                    is FirebaseAuthInvalidUserException -> InvalidUserException(
+                            "The current user's account has been disabled, deleted, or its credentials are no longer valid!"
+                    )
+
+                    //TODO: can be handled, maybe, check docs
+                    is FirebaseAuthRecentLoginRequiredException -> RecentLoginRequiredException(
+                            "The user's last sign-in time does not meet the security threshold!"
+                    )
+
+                    else -> throwable
+
+                }.left())
             }
 
             user.updateProfile(
@@ -344,7 +422,24 @@ internal class AuthFirebaseAuthenticator(
                 }
 
                 val failureListener = { throwable: Throwable ->
-                    emitter.onSuccess(throwable.left())
+                    emitter.onSuccess(when (throwable) {
+
+                        is FirebaseAuthInvalidUserException -> InvalidUserException(
+                                "The user account you are trying to sign in to has been disabled!"
+                        )
+
+                        is FirebaseAuthInvalidCredentialsException -> InvalidCredentialsException(
+                                "The credential is malformed or has expired!"
+                        )
+
+                        //TODO: can be handled, check docs
+                        is FirebaseAuthUserCollisionException -> UserCollisionException(
+                                "There already exists an account with the email address asserted by the credential!"
+                        )
+
+                        else -> throwable
+
+                    }.left())
                 }
 
                 auth.get().signInWithCredential(it)
@@ -377,7 +472,15 @@ internal class AuthFirebaseAuthenticator(
             }
 
             val failureListener = { throwable: Throwable ->
-                emitter.onSuccess(throwable.left())
+                emitter.onSuccess(when (throwable) {
+
+                    is FirebaseAuthInvalidUserException -> InvalidUserException(
+                            "There is no user corresponding to the given email address!"
+                    )
+
+                    else -> throwable
+
+                }.left())
             }
 
             auth.get().sendPasswordResetEmail(email)

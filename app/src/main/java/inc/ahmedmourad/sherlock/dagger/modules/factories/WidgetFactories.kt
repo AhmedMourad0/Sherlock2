@@ -8,31 +8,31 @@ import dagger.Lazy
 import inc.ahmedmourad.sherlock.domain.platform.DateManager
 import inc.ahmedmourad.sherlock.model.children.AppSimpleRetrievedChild
 import inc.ahmedmourad.sherlock.utils.formatter.Formatter
-import inc.ahmedmourad.sherlock.widget.adapter.ResultsRemoteViewsFactory
-import inc.ahmedmourad.sherlock.widget.adapter.ResultsRemoteViewsService
+import inc.ahmedmourad.sherlock.widget.adapter.ChildrenRemoteViewsFactory
+import inc.ahmedmourad.sherlock.widget.adapter.ChildrenRemoteViewsService
 
-internal typealias ResultsRemoteViewsServiceIntentFactory =
+internal typealias ChildrenRemoteViewsServiceIntentFactory =
         (@JvmSuppressWildcards Int, @JvmSuppressWildcards List<Tuple2<AppSimpleRetrievedChild, Int>>)
         -> @JvmSuppressWildcards Intent
 
-internal fun resultsRemoteViewsServiceIntentFactory(
+internal fun childrenRemoteViewsServiceIntentFactory(
         appWidgetId: Int,
         results: List<Tuple2<AppSimpleRetrievedChild, Int>>
 ): Intent {
-    return ResultsRemoteViewsService.create(appWidgetId, results)
+    return ChildrenRemoteViewsService.create(appWidgetId, results)
 }
 
-internal typealias ResultsRemoteViewsFactoryFactory =
+internal typealias ChildrenRemoteViewsFactoryFactory =
         (@JvmSuppressWildcards Context, @JvmSuppressWildcards List<Tuple2<AppSimpleRetrievedChild, Int>>)
         -> @JvmSuppressWildcards RemoteViewsService.RemoteViewsFactory
 
-internal fun resultsRemoteViewsFactoryFactory(
+internal fun childrenRemoteViewsFactoryFactory(
         formatter: Lazy<Formatter>,
         dateManager: Lazy<DateManager>,
         context: Context,
         results: List<Tuple2<AppSimpleRetrievedChild, Int>>
 ): RemoteViewsService.RemoteViewsFactory {
-    return ResultsRemoteViewsFactory(
+    return ChildrenRemoteViewsFactory(
             context,
             results,
             formatter,

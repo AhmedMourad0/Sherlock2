@@ -19,13 +19,13 @@ internal class SherlockApplication : MultiDexApplication() {
 *
 * SavedStateViewModel and DataBinding
 *
-* * * Store picture url, username and any other possible data ONLY at FirebaseAuth
+* Find a way to store phone number at FirebaseAuth
 *
 * Dagger encapsulation with qualifiers
 *
 * * Package per feature
 *
-* map firebase exceptions to domain ones and get rid of IsUserSignedIn
+* remove unnecessary Options
 *
 * DDD
 *

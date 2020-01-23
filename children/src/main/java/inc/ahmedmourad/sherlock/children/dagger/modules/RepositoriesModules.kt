@@ -62,12 +62,14 @@ internal object ChildrenRemoteRepositoryModule {
             childrenImageRepository: Lazy<ChildrenImageRepository>,
             authManager: Lazy<AuthManager>,
             connectivityManager: Lazy<ConnectivityManager>
-    ): ChildrenRemoteRepository = ChildrenFirebaseFirestoreRemoteRepository(
-            db,
-            childrenImageRepository,
-            authManager,
-            connectivityManager
-    )
+    ): ChildrenRemoteRepository {
+        return ChildrenFirebaseFirestoreRemoteRepository(
+                db,
+                childrenImageRepository,
+                authManager,
+                connectivityManager
+        )
+    }
 }
 
 @Module(includes = [FirebaseStorageModule::class])
@@ -76,8 +78,16 @@ internal object ChildrenImageRepositoryModule {
     @Reusable
     @JvmStatic
     fun provideChildrenImageRepository(
+            connectivityManager: Lazy<ConnectivityManager>,
+            authManager: Lazy<AuthManager>,
             @ChildrenFirebaseStorageQualifier storage: Lazy<FirebaseStorage>
-    ): ChildrenImageRepository = ChildrenFirebaseStorageImageRepository(storage)
+    ): ChildrenImageRepository {
+        return ChildrenFirebaseStorageImageRepository(
+                connectivityManager,
+                authManager,
+                storage
+        )
+    }
 }
 
 @Module(includes = [SherlockDatabaseModule::class])

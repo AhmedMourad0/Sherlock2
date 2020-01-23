@@ -8,7 +8,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.FirebaseFirestoreSettings
 import dagger.Lazy
-import inc.ahmedmourad.sherlock.auth.manager.IsUserSignedIn
+import inc.ahmedmourad.sherlock.auth.manager.ObserveUserAuthState
 import inc.ahmedmourad.sherlock.auth.manager.dependencies.AuthRemoteRepository
 import inc.ahmedmourad.sherlock.auth.model.AuthRetrievedUserDetails
 import inc.ahmedmourad.sherlock.auth.model.AuthStoredUserDetails
@@ -19,6 +19,8 @@ import inc.ahmedmourad.sherlock.auth.remote.model.RemoteStoredUserDetails
 import inc.ahmedmourad.sherlock.domain.exceptions.NoInternetConnectionException
 import inc.ahmedmourad.sherlock.domain.exceptions.NoSignedInUserException
 import inc.ahmedmourad.sherlock.domain.platform.ConnectivityManager
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import splitties.init.appCtx
@@ -26,7 +28,7 @@ import splitties.init.appCtx
 internal class AuthFirebaseFirestoreRemoteRepository(
         private val db: Lazy<FirebaseFirestore>,
         private val connectivityManager: Lazy<ConnectivityManager>,
-        private val isUserSignedIn: IsUserSignedIn
+        private val observeUserAuthState: ObserveUserAuthState
 ) : AuthRemoteRepository {
 
     init {
@@ -44,10 +46,11 @@ internal class AuthFirebaseFirestoreRemoteRepository(
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .flatMap { isInternetConnected ->
-                    if (isInternetConnected)
-                        isUserSignedIn().map(Boolean::right)
-                    else
+                    if (isInternetConnected) {
+                        observeUserAuthState().map(Boolean::right).singleOrError()
+                    } else {
                         Single.just(NoInternetConnectionException().left())
+                    }
                 }.flatMap { isUserSignedInEither ->
                     isUserSignedInEither.fold(ifLeft = {
                         Single.just(it.left())
@@ -83,44 +86,47 @@ internal class AuthFirebaseFirestoreRemoteRepository(
         }.subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
     }
 
-    override fun findUser(id: String): Single<Either<Throwable, Option<AuthRetrievedUserDetails>>> {
+    override fun findUser(id: String): Flowable<Either<Throwable, Option<AuthRetrievedUserDetails>>> {
         return connectivityManager.get()
-                .isInternetConnected()
+                .observeInternetConnectivity()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .flatMap { isInternetConnected ->
-                    if (isInternetConnected)
-                        isUserSignedIn().map(Boolean::right)
-                    else
-                        Single.just(NoInternetConnectionException().left())
+                    if (isInternetConnected) {
+                        observeUserAuthState().map(Boolean::right)
+                    } else {
+                        Flowable.just(NoInternetConnectionException().left())
+                    }
                 }.flatMap { isUserSignedInEither ->
                     isUserSignedInEither.fold(ifLeft = {
-                        Single.just(it.left())
-                    }, ifRight = {
-                        if (it)
-                            createFindUserSingle(id)
-                        else
-                            Single.just(NoSignedInUserException().left())
+                        Flowable.just(it.left())
+                    }, ifRight = { isUserSignedIn ->
+                        if (isUserSignedIn) {
+                            createFindUserFlowable(id)
+                        } else {
+                            Flowable.just(NoSignedInUserException().left())
+                        }
                     })
                 }
     }
 
-    private fun createFindUserSingle(id: String): Single<Either<Throwable, Option<AuthRetrievedUserDetails>>> {
+    private fun createFindUserFlowable(id: String): Flowable<Either<Throwable, Option<AuthRetrievedUserDetails>>> {
 
-        return Single.create<Either<Throwable, Option<AuthRetrievedUserDetails>>> { emitter ->
+        return Flowable.create<Either<Throwable, Option<AuthRetrievedUserDetails>>>({ emitter ->
 
             val snapshotListener = { snapshot: DocumentSnapshot?, exception: FirebaseFirestoreException? ->
 
                 if (exception != null) {
 
-                    emitter.onSuccess(exception.left())
+                    emitter.onNext(exception.left())
 
                 } else if (snapshot != null) {
 
-                    if (snapshot.exists())
-                        emitter.onSuccess(snapshot.extractRemoteRetrievedUserDetails().toAuthUserDetails().some().right())
-                    else
-                        emitter.onSuccess(none<AuthRetrievedUserDetails>().right())
+                    if (snapshot.exists()) {
+                        emitter.onNext(snapshot.extractRemoteRetrievedUserDetails().toAuthUserDetails().some().right())
+                    } else {
+                        emitter.onNext(none<AuthRetrievedUserDetails>().right())
+                    }
                 }
             }
 
@@ -130,7 +136,7 @@ internal class AuthFirebaseFirestoreRemoteRepository(
 
             emitter.setCancellable { registration.remove() }
 
-        }.subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
+        }, BackpressureStrategy.LATEST).subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
     }
 
     override fun updateUserLastLoginDate(id: String): Single<Either<Throwable, Unit>> {
@@ -139,18 +145,20 @@ internal class AuthFirebaseFirestoreRemoteRepository(
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .flatMap { isInternetConnected ->
-                    if (isInternetConnected)
-                        isUserSignedIn().map(Boolean::right)
-                    else
+                    if (isInternetConnected) {
+                        observeUserAuthState().map(Boolean::right).singleOrError()
+                    } else {
                         Single.just(NoInternetConnectionException().left())
+                    }
                 }.flatMap { isUserSignedInEither ->
                     isUserSignedInEither.fold(ifLeft = {
                         Single.just(it.left())
-                    }, ifRight = {
-                        if (it)
+                    }, ifRight = { isUserSignedIn ->
+                        if (isUserSignedIn) {
                             createUpdateUserLastLoginDateSingle(id, db)
-                        else
+                        } else {
                             Single.just(NoSignedInUserException().left())
+                        }
                     })
                 }
     }

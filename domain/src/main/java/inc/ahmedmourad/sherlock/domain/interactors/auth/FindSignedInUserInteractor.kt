@@ -5,13 +5,13 @@ import dagger.Lazy
 import inc.ahmedmourad.sherlock.domain.data.AuthManager
 import inc.ahmedmourad.sherlock.domain.model.auth.DomainIncompleteUser
 import inc.ahmedmourad.sherlock.domain.model.auth.DomainSignedInUser
-import io.reactivex.Single
+import io.reactivex.Flowable
 
 typealias FindSignedInUserInteractor =
-        () -> @JvmSuppressWildcards Single<Either<Throwable, Either<DomainIncompleteUser, DomainSignedInUser>>>
+        () -> @JvmSuppressWildcards Flowable<Either<Throwable, Either<DomainIncompleteUser, DomainSignedInUser>>>
 
 internal fun findSignedInUser(
         authManager: Lazy<AuthManager>
-): Single<Either<Throwable, Either<DomainIncompleteUser, DomainSignedInUser>>> {
+): Flowable<Either<Throwable, Either<DomainIncompleteUser, DomainSignedInUser>>> {
     return authManager.get().findSignedInUser()
 }

@@ -29,13 +29,13 @@ internal object MainActivityViewModelModule {
     @JvmStatic
     fun provideMainActivityViewModel(
             observeInternetConnectivityInteractor: ObserveInternetConnectivityInteractor,
-            checkIsUserSignedInInteractor: CheckIsUserSignedInInteractor,
+            observeUserAuthStateInteractor: ObserveUserAuthStateInteractor,
             @FindSignedInUserInteractorQualifier findSignedInUserInteractor: FindSignedInUserInteractor,
             signOutInteractor: SignOutInteractor
     ): ViewModelProvider.NewInstanceFactory {
         return MainActivityViewModelFactory(
                 observeInternetConnectivityInteractor,
-                checkIsUserSignedInInteractor,
+                observeUserAuthStateInteractor,
                 findSignedInUserInteractor,
                 signOutInteractor
         )

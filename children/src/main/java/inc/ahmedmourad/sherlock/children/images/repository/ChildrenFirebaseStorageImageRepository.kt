@@ -10,16 +10,40 @@ import com.google.firebase.storage.UploadTask
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.children.images.contract.Contract
 import inc.ahmedmourad.sherlock.children.repository.dependencies.ChildrenImageRepository
+import inc.ahmedmourad.sherlock.domain.data.AuthManager
+import inc.ahmedmourad.sherlock.domain.exceptions.NoInternetConnectionException
+import inc.ahmedmourad.sherlock.domain.exceptions.NoSignedInUserException
+import inc.ahmedmourad.sherlock.domain.platform.ConnectivityManager
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 
-internal class ChildrenFirebaseStorageImageRepository(private val storage: Lazy<FirebaseStorage>) : ChildrenImageRepository {
+internal class ChildrenFirebaseStorageImageRepository(
+        private val connectivityManager: Lazy<ConnectivityManager>,
+        private val authManager: Lazy<AuthManager>,
+        private val storage: Lazy<FirebaseStorage>
+) : ChildrenImageRepository {
 
     override fun storeChildPicture(id: String, picture: ByteArray): Single<Either<Throwable, String>> {
-        return storePicture(Contract.Children.PATH, id, picture)
+        return connectivityManager.get()
+                .isInternetConnected()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .flatMap { filePath ->
+                .flatMap { isInternetConnected ->
+                    if (isInternetConnected)
+                        authManager.get().observeUserAuthState().map(Boolean::right).firstOrError()
+                    else
+                        Single.just(NoInternetConnectionException().left())
+                }.flatMap { isUserSignedInEither ->
+                    isUserSignedInEither.fold(ifLeft = {
+                        Single.just(it.left())
+                    }, ifRight = { isUserSignedIn ->
+                        if (isUserSignedIn) {
+                            storePicture(Contract.Children.PATH, id, picture)
+                        } else {
+                            Single.just(NoSignedInUserException().left())
+                        }
+                    })
+                }.flatMap { filePath ->
                     filePath.fold(ifLeft = {
                         Single.just(it.left())
                     }, ifRight = {

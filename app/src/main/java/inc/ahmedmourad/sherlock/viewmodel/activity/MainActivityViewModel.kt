@@ -1,21 +1,24 @@
 package inc.ahmedmourad.sherlock.viewmodel.activity
 
 import androidx.lifecycle.ViewModel
-import inc.ahmedmourad.sherlock.domain.interactors.auth.CheckIsUserSignedInInteractor
+import arrow.core.Either
 import inc.ahmedmourad.sherlock.domain.interactors.auth.FindSignedInUserInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.auth.ObserveUserAuthStateInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.auth.SignOutInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.core.ObserveInternetConnectivityInteractor
 import inc.ahmedmourad.sherlock.domain.model.auth.DomainIncompleteUser
 import inc.ahmedmourad.sherlock.domain.model.auth.DomainSignedInUser
 import inc.ahmedmourad.sherlock.mapper.toAppIncompleteUser
 import inc.ahmedmourad.sherlock.mapper.toAppSignedInUser
+import inc.ahmedmourad.sherlock.model.auth.AppIncompleteUser
+import inc.ahmedmourad.sherlock.model.auth.AppSignedInUser
 import inc.ahmedmourad.sherlock.model.core.Connectivity
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 
 internal class MainActivityViewModel(
         observeInternetConnectivityInteractor: ObserveInternetConnectivityInteractor,
-        checkIsUserSignedInInteractor: CheckIsUserSignedInInteractor,
+        observeUserAuthStateInteractor: ObserveUserAuthStateInteractor,
         findSignedInUserInteractor: FindSignedInUserInteractor,
         signOutInteractor: SignOutInteractor
 ) : ViewModel() {
@@ -25,11 +28,11 @@ internal class MainActivityViewModel(
             .retry()
             .observeOn(AndroidSchedulers.mainThread())
 
-    val isUserSignedInSingle = checkIsUserSignedInInteractor()
+    val isUserSignedInSingle: Flowable<Boolean> = observeUserAuthStateInteractor()
             .observeOn(AndroidSchedulers.mainThread())
 
-    val findSignedInUserSingle = findSignedInUserInteractor()
-            .map { resultEither ->
+    val findSignedInUserSingle: Flowable<Either<Throwable, Either<AppIncompleteUser, AppSignedInUser>>> =
+            findSignedInUserInteractor().map { resultEither ->
                 resultEither.map {
                     it.bimap(DomainIncompleteUser::toAppIncompleteUser, DomainSignedInUser::toAppSignedInUser)
                 }

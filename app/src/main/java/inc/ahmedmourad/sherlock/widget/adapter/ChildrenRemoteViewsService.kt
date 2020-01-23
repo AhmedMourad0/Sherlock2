@@ -9,21 +9,21 @@ import arrow.core.Tuple2
 import arrow.core.toMap
 import arrow.core.toTuple2
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
-import inc.ahmedmourad.sherlock.dagger.modules.factories.ResultsRemoteViewsFactoryFactory
+import inc.ahmedmourad.sherlock.dagger.modules.factories.ChildrenRemoteViewsFactoryFactory
 import inc.ahmedmourad.sherlock.model.children.AppSimpleRetrievedChild
 import splitties.init.appCtx
 import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 
-internal class ResultsRemoteViewsService : RemoteViewsService() {
+internal class ChildrenRemoteViewsService : RemoteViewsService() {
 
     @Inject
-    lateinit var resultsRemoteViewsFactoryFactory: ResultsRemoteViewsFactoryFactory
+    lateinit var childrenRemoteViewsFactoryFactory: ChildrenRemoteViewsFactoryFactory
 
     override fun onCreate() {
         super.onCreate()
-        SherlockComponent.Widget.resultsRemoteViewsServiceComponent.get().inject(this)
+        SherlockComponent.Widget.childrenRemoteViewsServiceComponent.get().inject(this)
     }
 
     override fun onGetViewFactory(intent: Intent): RemoteViewsFactory {
@@ -36,14 +36,14 @@ internal class ResultsRemoteViewsService : RemoteViewsService() {
 
         require(children.size == scores.size)
 
-        return resultsRemoteViewsFactoryFactory(
+        return childrenRemoteViewsFactoryFactory(
                 applicationContext,
                 children.zip(scores).map(Pair<AppSimpleRetrievedChild, Int>::toTuple2)
         )
     }
 
     override fun onDestroy() {
-        SherlockComponent.Widget.resultsRemoteViewsServiceComponent.release()
+        SherlockComponent.Widget.childrenRemoteViewsServiceComponent.release()
         super.onDestroy()
     }
 
@@ -56,7 +56,7 @@ internal class ResultsRemoteViewsService : RemoteViewsService() {
 
         fun create(appWidgetId: Int, results: List<Tuple2<AppSimpleRetrievedChild, Int>>): Intent {
             val resultsMap = results.toMap()
-            return Intent(appCtx, ResultsRemoteViewsService::class.java).also { intent ->
+            return Intent(appCtx, ChildrenRemoteViewsService::class.java).also { intent ->
                 intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                 intent.data = getUniqueDataUri(appWidgetId)
                 intent.putExtra(EXTRA_HACK_BUNDLE, Bundle(2).apply {

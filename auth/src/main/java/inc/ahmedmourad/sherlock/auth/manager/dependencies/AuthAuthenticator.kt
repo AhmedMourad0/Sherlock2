@@ -4,13 +4,14 @@ import arrow.core.Either
 import arrow.core.Option
 import inc.ahmedmourad.sherlock.auth.model.AuthCompletedUser
 import inc.ahmedmourad.sherlock.auth.model.AuthIncompleteUser
+import io.reactivex.Flowable
 import io.reactivex.Single
 
 internal interface AuthAuthenticator {
 
-    fun isUserSignedIn(): Single<Boolean>
+    fun observeUserAuthState(): Flowable<Boolean>
 
-    fun getCurrentUser(): Single<Either<Throwable, Either<AuthIncompleteUser, AuthCompletedUser>>>
+    fun getCurrentUser(): Flowable<Either<Throwable, Either<AuthIncompleteUser, AuthCompletedUser>>>
 
     fun signIn(email: String, password: String): Single<Either<Throwable, Either<AuthIncompleteUser, AuthCompletedUser>>>
 

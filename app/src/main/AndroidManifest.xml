@@ -41,7 +41,7 @@
 				android:resource="@xml/app_widget_info" />
 		</receiver>
 		<service
-			android:name=".widget.adapter.ResultsRemoteViewsService"
+			android:name=".widget.adapter.ChildrenRemoteViewsService"
 			android:permission="android.permission.BIND_REMOTEVIEWS" />
 	</application>
 

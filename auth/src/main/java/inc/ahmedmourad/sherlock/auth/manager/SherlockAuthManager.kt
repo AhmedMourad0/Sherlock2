@@ -19,35 +19,36 @@ import inc.ahmedmourad.sherlock.domain.model.auth.DomainCompletedUser
 import inc.ahmedmourad.sherlock.domain.model.auth.DomainIncompleteUser
 import inc.ahmedmourad.sherlock.domain.model.auth.DomainSignUpUser
 import inc.ahmedmourad.sherlock.domain.model.auth.DomainSignedInUser
+import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 
-internal typealias IsUserSignedIn = () -> @JvmSuppressWildcards Single<Boolean>
+internal typealias ObserveUserAuthState = () -> @JvmSuppressWildcards Flowable<Boolean>
 
 internal class SherlockAuthManager(
         private val authenticator: Lazy<AuthAuthenticator>,
         private val remoteRepository: Lazy<AuthRemoteRepository>,
-        private val imageRepository: Lazy<AuthImageRepository>,
-        private val isUserSignedIn: IsUserSignedIn
+        private val imageRepository: Lazy<AuthImageRepository>
 ) : AuthManager {
 
-    override fun isUserSignedIn(): Single<Boolean> {
-        return isUserSignedIn.invoke()
+    override fun observeUserAuthState(): Flowable<Boolean> {
+        return authenticator.get()
+                .observeUserAuthState()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
     }
 
-    override fun findSignedInUser(): Single<Either<Throwable, Either<DomainIncompleteUser, DomainSignedInUser>>> {
+    override fun findSignedInUser(): Flowable<Either<Throwable, Either<DomainIncompleteUser, DomainSignedInUser>>> {
         return authenticator.get()
                 .getCurrentUser()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .flatMap { incompleteUserEither ->
                     incompleteUserEither.fold(ifLeft = {
-                        Single.just(it.left())
+                        Flowable.just(it.left())
                     }, ifRight = { userEither ->
                         userEither.fold(ifLeft = { incompleteUser ->
-                            Single.just(incompleteUser.left().right())
+                            Flowable.just(incompleteUser.left().right())
                         }, ifRight = { completedUser ->
                             remoteRepository.get()
                                     .findUser(completedUser.id)
@@ -64,14 +65,15 @@ internal class SherlockAuthManager(
                     })
                 }.flatMap { either ->
                     either.fold(ifLeft = {
-                        Single.just(it.left())
+                        Flowable.just(it.left())
                     }, ifRight = { userEither ->
                         userEither.fold(ifLeft = { incompleteUser ->
-                            Single.just(incompleteUser.left().right())
+                            Flowable.just(incompleteUser.left().right())
                         }, ifRight = { signedInUser ->
                             remoteRepository.get()
                                     .updateUserLastLoginDate(signedInUser.id)
                                     .map { signedInUser.right().right() }
+                                    .toFlowable()
                         })
                     })
                 }.map { either ->
@@ -105,7 +107,7 @@ internal class SherlockAuthManager(
                                                 completedUser.toAuthSignedInUser(retrievedDetails).right()
                                             })
                                         }
-                                    }
+                                    }.firstOrError()
                         })
                     })
                 }.map { either ->
@@ -222,7 +224,7 @@ internal class SherlockAuthManager(
                                                 completedUser.toAuthSignedInUser(retrievedDetails).right()
                                             })
                                         }
-                                    }
+                                    }.firstOrError()
                         })
                     })
                 }.map { either ->
@@ -261,13 +263,4 @@ internal class SherlockAuthManager(
                     })
                 }
     }
-}
-
-internal fun isUserSignedIn(
-        authenticator: Lazy<AuthAuthenticator>
-): Single<Boolean> {
-    return authenticator.get()
-            .isUserSignedIn()
-            .subscribeOn(Schedulers.io())
-            .observeOn(Schedulers.io())
 }

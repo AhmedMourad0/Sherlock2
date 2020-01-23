@@ -28,7 +28,7 @@ import splitties.init.appCtx
 import timber.log.Timber
 import javax.inject.Inject
 
-//TODO: use WorkManager with Notifications and firebase authentication fallback instead
+//TODO: use WorkManager with Notifications (maybe ListenableWorker with progress?) and firebase authentication fallback instead
 internal class SherlockService : Service() {
 
     @Inject

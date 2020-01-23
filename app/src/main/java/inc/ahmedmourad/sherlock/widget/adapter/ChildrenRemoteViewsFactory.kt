@@ -14,7 +14,7 @@ import inc.ahmedmourad.sherlock.utils.formatter.Formatter
 import splitties.init.appCtx
 import timber.log.Timber
 
-internal class ResultsRemoteViewsFactory(
+internal class ChildrenRemoteViewsFactory(
         private val context: Context,
         private val results: List<Tuple2<AppSimpleRetrievedChild, Int>>,
         private val formatter: Lazy<Formatter>,

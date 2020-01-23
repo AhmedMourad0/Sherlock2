@@ -5,13 +5,14 @@ import inc.ahmedmourad.sherlock.domain.model.auth.DomainCompletedUser
 import inc.ahmedmourad.sherlock.domain.model.auth.DomainIncompleteUser
 import inc.ahmedmourad.sherlock.domain.model.auth.DomainSignUpUser
 import inc.ahmedmourad.sherlock.domain.model.auth.DomainSignedInUser
+import io.reactivex.Flowable
 import io.reactivex.Single
 
 interface AuthManager {
 
-    fun isUserSignedIn(): Single<Boolean>
+    fun observeUserAuthState(): Flowable<Boolean>
 
-    fun findSignedInUser(): Single<Either<Throwable, Either<DomainIncompleteUser, DomainSignedInUser>>>
+    fun findSignedInUser(): Flowable<Either<Throwable, Either<DomainIncompleteUser, DomainSignedInUser>>>
 
     fun signIn(email: String, password: String): Single<Either<Throwable, Either<DomainIncompleteUser, DomainSignedInUser>>>
 

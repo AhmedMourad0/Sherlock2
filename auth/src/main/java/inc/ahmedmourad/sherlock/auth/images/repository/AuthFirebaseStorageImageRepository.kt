@@ -9,7 +9,7 @@ import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.UploadTask
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.auth.images.contract.Contract
-import inc.ahmedmourad.sherlock.auth.manager.IsUserSignedIn
+import inc.ahmedmourad.sherlock.auth.manager.ObserveUserAuthState
 import inc.ahmedmourad.sherlock.auth.manager.dependencies.AuthImageRepository
 import inc.ahmedmourad.sherlock.domain.exceptions.NoInternetConnectionException
 import inc.ahmedmourad.sherlock.domain.exceptions.NoSignedInUserException
@@ -19,7 +19,7 @@ import io.reactivex.schedulers.Schedulers
 
 internal class AuthFirebaseStorageImageRepository(
         private val connectivityManager: Lazy<ConnectivityManager>,
-        private val isUserSignedIn: IsUserSignedIn,
+        private val observeUserAuthState: ObserveUserAuthState,
         private val storage: Lazy<FirebaseStorage>
 ) : AuthImageRepository {
 
@@ -30,7 +30,7 @@ internal class AuthFirebaseStorageImageRepository(
                 .observeOn(Schedulers.io())
                 .flatMap { isInternetConnected ->
                     if (isInternetConnected)
-                        isUserSignedIn().map(Boolean::right)
+                        observeUserAuthState().map(Boolean::right).firstOrError()
                     else
                         Single.just(NoInternetConnectionException().left())
                 }.flatMap { isUserSignedInEither ->

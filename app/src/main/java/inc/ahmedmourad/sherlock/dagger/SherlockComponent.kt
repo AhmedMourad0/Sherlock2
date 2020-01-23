@@ -29,7 +29,7 @@ internal object SherlockComponent {
     }
 
     object Widget {
-        val resultsRemoteViewsServiceComponent = ComponentProvider(applicationComponent::plusResultsRemoteViewsServiceComponent)
+        val childrenRemoteViewsServiceComponent = ComponentProvider(applicationComponent::plusChildrenRemoteViewsServiceComponent)
         val appWidgetComponent = ComponentProvider(applicationComponent::plusAppWidgetComponent)
     }
 

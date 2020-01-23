@@ -40,7 +40,7 @@ internal interface ApplicationComponent {
 
     fun plusSherlockServiceComponent(): SherlockServiceComponent
 
-    fun plusResultsRemoteViewsServiceComponent(): ResultsRemoteViewsServiceComponent
+    fun plusChildrenRemoteViewsServiceComponent(): ChildrenRemoteViewsServiceComponent
 
     fun plusAppWidgetComponent(): AppWidgetComponent
 

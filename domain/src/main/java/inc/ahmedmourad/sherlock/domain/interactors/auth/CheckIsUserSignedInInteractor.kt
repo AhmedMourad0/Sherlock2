@@ -2,10 +2,10 @@ package inc.ahmedmourad.sherlock.domain.interactors.auth
 
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.domain.data.AuthManager
-import io.reactivex.Single
+import io.reactivex.Flowable
 
-typealias CheckIsUserSignedInInteractor = () -> @JvmSuppressWildcards Single<Boolean>
+typealias ObserveUserAuthStateInteractor = () -> @JvmSuppressWildcards Flowable<Boolean>
 
-internal fun checkIsUserSignedIn(authManager: Lazy<AuthManager>): Single<Boolean> {
-    return authManager.get().isUserSignedIn()
+internal fun checkIsUserSignedIn(authManager: Lazy<AuthManager>): Flowable<Boolean> {
+    return authManager.get().observeUserAuthState()
 }

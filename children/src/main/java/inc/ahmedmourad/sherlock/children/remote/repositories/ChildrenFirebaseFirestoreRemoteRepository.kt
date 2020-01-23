@@ -60,7 +60,7 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
                 .observeOn(Schedulers.io())
                 .flatMap { isInternetConnected ->
                     if (isInternetConnected)
-                        authManager.get().isUserSignedIn().map(Boolean::right)
+                        authManager.get().observeUserAuthState().map(Boolean::right).firstOrError()
                     else
                         Single.just(NoInternetConnectionException().left())
                 }.flatMap { isUserSignedInEither ->
@@ -116,23 +116,24 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
             child: DomainSimpleRetrievedChild
     ): Flowable<Either<Throwable, Option<DomainRetrievedChild>>> {
         return connectivityManager.get()
-                .isInternetConnected()
+                .observeInternetConnectivity()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .flatMap { isInternetConnected ->
-                    if (isInternetConnected)
-                        authManager.get().isUserSignedIn().map(Boolean::right)
-                    else
-                        Single.just(NoInternetConnectionException().left())
-                }.toFlowable()
-                .flatMap { isUserSignedInEither ->
+                    if (isInternetConnected) {
+                        authManager.get().observeUserAuthState().map(Boolean::right)
+                    } else {
+                        Flowable.just(NoInternetConnectionException().left())
+                    }
+                }.flatMap { isUserSignedInEither ->
                     isUserSignedInEither.fold(ifLeft = {
                         Flowable.just(it.left())
-                    }, ifRight = {
-                        if (it)
+                    }, ifRight = { isUserSignedIn ->
+                        if (isUserSignedIn) {
                             createFindFlowable(child)
-                        else
+                        } else {
                             Flowable.just(NoSignedInUserException().left())
+                        }
                     })
                 }
     }
@@ -167,29 +168,29 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
         }, BackpressureStrategy.LATEST).subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
     }
 
-    //TODO: this needs to be replaced with Google's BigQuery
     override fun findAll(
             rules: DomainChildCriteriaRules,
             filter: Filter<DomainRetrievedChild>
     ): Flowable<Either<Throwable, List<Tuple2<DomainRetrievedChild, Int>>>> {
         return connectivityManager.get()
-                .isInternetConnected()
+                .observeInternetConnectivity()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .flatMap { isInternetConnected ->
-                    if (isInternetConnected)
-                        authManager.get().isUserSignedIn().map(Boolean::right)
-                    else
-                        Single.just(NoInternetConnectionException().left())
-                }.toFlowable()
-                .flatMap { isUserSignedInEither ->
+                    if (isInternetConnected) {
+                        authManager.get().observeUserAuthState().map(Boolean::right)
+                    } else {
+                        Flowable.just(NoInternetConnectionException().left())
+                    }
+                }.flatMap { isUserSignedInEither ->
                     isUserSignedInEither.fold(ifLeft = {
                         Flowable.just(it.left())
-                    }, ifRight = {
-                        if (it)
+                    }, ifRight = { isUserSignedIn ->
+                        if (isUserSignedIn) {
                             createFindAllFlowable(rules, filter)
-                        else
+                        } else {
                             Flowable.just(NoSignedInUserException().left())
+                        }
                     })
                 }
     }
@@ -237,7 +238,7 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
                 .observeOn(Schedulers.io())
                 .flatMap { isInternetConnected ->
                     if (isInternetConnected)
-                        authManager.get().isUserSignedIn().map(Boolean::right)
+                        authManager.get().observeUserAuthState().map(Boolean::right).firstOrError()
                     else
                         Single.just(NoInternetConnectionException().left())
                 }.flatMap { isUserSignedInEither ->

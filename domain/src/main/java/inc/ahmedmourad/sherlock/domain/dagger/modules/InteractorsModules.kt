@@ -132,7 +132,7 @@ internal object CheckIsUserSignedInInteractorModule {
     @Provides
     @Reusable
     @JvmStatic
-    fun provideCheckIsUserSignedInInteractor(authManager: Lazy<AuthManager>): CheckIsUserSignedInInteractor {
+    fun provideCheckIsUserSignedInInteractor(authManager: Lazy<AuthManager>): ObserveUserAuthStateInteractor {
         return ::checkIsUserSignedIn.partially1(authManager)
     }
 }

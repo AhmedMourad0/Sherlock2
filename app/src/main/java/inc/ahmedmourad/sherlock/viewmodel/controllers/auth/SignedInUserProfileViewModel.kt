@@ -9,12 +9,12 @@ import inc.ahmedmourad.sherlock.mapper.toAppIncompleteUser
 import inc.ahmedmourad.sherlock.mapper.toAppSignedInUser
 import inc.ahmedmourad.sherlock.model.auth.AppIncompleteUser
 import inc.ahmedmourad.sherlock.model.auth.AppSignedInUser
-import io.reactivex.Single
+import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 
 internal class SignedInUserProfileViewModel(interactor: FindSignedInUserInteractor) : ViewModel() {
 
-    val signedInUserSingle: Single<Either<Throwable, Either<AppIncompleteUser, AppSignedInUser>>>
+    val signedInUserSingle: Flowable<Either<Throwable, Either<AppIncompleteUser, AppSignedInUser>>>
 
     init {
         signedInUserSingle = interactor().map { resultEither ->
