@@ -17,6 +17,6 @@ interface Criteria<T> {
 
 data class DomainChildCriteriaRules(
         val name: DomainName,
-        val location: DomainLocation,
+        val location: DomainLocation?,
         val appearance: DomainExactAppearance
 )

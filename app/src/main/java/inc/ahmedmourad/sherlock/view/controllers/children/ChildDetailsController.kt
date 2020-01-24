@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
+import arrow.core.Either
 import arrow.core.Tuple2
 import butterknife.BindView
 import butterknife.ButterKnife
@@ -104,18 +105,20 @@ internal class ChildDetailsController(args: Bundle) : LifecycleController(args) 
     override fun onAttach(view: View) {
         super.onAttach(view)
 
-        //TODO: notify the user when the data is updated
+        //TODO: notify the user when the data is updated or deleted
         findChildDisposable = viewModel.result.subscribe({ resultEither ->
-            resultEither.fold(ifLeft = {
-                Timber.e(it)
-                Toast.makeText(context, it.localizedMessage, Toast.LENGTH_LONG).show()
-                router.popCurrentController()
-            }, ifRight = { resultOption ->
-                resultOption.fold(ifEmpty = {
-                    Toast.makeText(context, context.getString(R.string.child_data_deleted), Toast.LENGTH_LONG).show()
+            when (resultEither) {
+
+                is Either.Left -> {
+                    Timber.e(resultEither.a)
+                    Toast.makeText(context, resultEither.a.localizedMessage, Toast.LENGTH_LONG).show()
                     router.popCurrentController()
-                }, ifSome = this@ChildDetailsController::populateUi)
-            })
+                }
+
+                is Either.Right -> {
+                    populateUi(resultEither.b)
+                }
+            }
         }, {
             Timber.e(it)
             Toast.makeText(context, it.localizedMessage, Toast.LENGTH_LONG).show()
@@ -127,7 +130,13 @@ internal class ChildDetailsController(args: Bundle) : LifecycleController(args) 
         super.onDetach(view)
     }
 
-    private fun populateUi(result: Tuple2<AppRetrievedChild, Int>) {
+    private fun populateUi(result: Tuple2<AppRetrievedChild, Int?>?) {
+
+        if (result == null) {
+            Toast.makeText(context, R.string.child_data_missing, Toast.LENGTH_LONG).show()
+            router.popCurrentController()
+            return
+        }
 
         //TODO: we should inject glide
         Glide.with(appCtx)

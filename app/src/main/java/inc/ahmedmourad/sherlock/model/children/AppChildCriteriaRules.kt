@@ -7,12 +7,12 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 internal data class AppChildCriteriaRules(
         val name: AppName,
-        val location: AppLocation,
+        val location: AppLocation?,
         val appearance: AppExactAppearance
 ) : Parcelable {
     fun toDomainChildCriteriaRules() = DomainChildCriteriaRules(
             name.toDomainName(),
-            location.toDomainLocation(),
+            location?.toDomainLocation(),
             appearance.toDomainAppearance()
     )
 }

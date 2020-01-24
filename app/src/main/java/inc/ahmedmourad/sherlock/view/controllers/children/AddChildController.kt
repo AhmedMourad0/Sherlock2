@@ -37,6 +37,7 @@ import inc.ahmedmourad.sherlock.domain.constants.PublishingState
 import inc.ahmedmourad.sherlock.domain.constants.Skin
 import inc.ahmedmourad.sherlock.domain.model.core.disposable
 import inc.ahmedmourad.sherlock.mapper.toAppChild
+import inc.ahmedmourad.sherlock.model.children.AppLocation
 import inc.ahmedmourad.sherlock.model.children.AppPublishedChild
 import inc.ahmedmourad.sherlock.model.children.AppRetrievedChild
 import inc.ahmedmourad.sherlock.utils.defaults.DefaultOnRangeChangedListener
@@ -184,13 +185,13 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
         // we only handle connection (enabling and disabling internet-dependant
         // views) if publishing isn't underway
         internetConnectionDisposable = viewModel.internetConnectivityFlowable
-                .subscribe({ (isConnected, publishingStateOption) ->
-
-                    publishingStateOption.fold(ifEmpty = {
+                .subscribe({ (isConnected, publishingState) ->
+                    if (publishingState == null) {
                         setEnabledAndIdle(true)
                         handleConnectionStateChange(isConnected)
-                    }, ifSome = this@AddChildController::handlePublishingStateValue)
-
+                    } else {
+                        handlePublishingStateValue(publishingState)
+                    }
                 }, Timber::e)
     }
 
@@ -369,14 +370,12 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
     }
 
     private fun initializeLocationTextView() {
-        viewModel.location.observe(this, Observer { locationOption ->
-            locationOption.filter {
-                it.name.isNotBlank()
-            }.fold(ifEmpty = {
+        viewModel.location.observe(this, Observer { location: AppLocation ->
+            if (location.name.isBlank()) {
                 locationTextView.setText(R.string.no_location_specified)
-            }, ifSome = {
-                locationTextView.text = it.name
-            })
+            } else {
+                locationTextView.text = location.name
+            }
         })
     }
 

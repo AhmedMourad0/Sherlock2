@@ -1,7 +1,6 @@
 package inc.ahmedmourad.sherlock.auth.manager.dependencies
 
 import arrow.core.Either
-import arrow.core.Option
 import inc.ahmedmourad.sherlock.auth.model.AuthCompletedUser
 import inc.ahmedmourad.sherlock.auth.model.AuthIncompleteUser
 import io.reactivex.Flowable
@@ -27,5 +26,5 @@ internal interface AuthAuthenticator {
 
     fun sendPasswordResetEmail(email: String): Single<Either<Throwable, Unit>>
 
-    fun signOut(): Single<Either<Throwable, Option<String>>>
+    fun signOut(): Single<Either<Throwable, String?>>
 }

@@ -91,5 +91,6 @@
 	<string name="complete">Complete</string>
 	<string name="send_email">Send email</string>
 	<string name="joined_on">Joined on</string>
+	<string name="child_data_missing">This child\'s data doesn\'t exists or has been deleted!</string>
 
 </resources>

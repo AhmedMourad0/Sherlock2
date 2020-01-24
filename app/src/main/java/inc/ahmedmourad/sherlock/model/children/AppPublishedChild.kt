@@ -10,7 +10,7 @@ import kotlinx.android.parcel.Parcelize
 internal data class AppPublishedChild(
         val name: AppName,
         val notes: String,
-        val location: AppLocation,
+        val location: AppLocation?,
         val appearance: AppEstimatedAppearance,
         val picturePath: String
 ) : Parcelable {
@@ -18,7 +18,7 @@ internal data class AppPublishedChild(
     fun toDomainChild() = DomainPublishedChild(
             name.toDomainName(),
             notes,
-            location.toDomainLocation(),
+            location?.toDomainLocation(),
             appearance.toDomainAppearance(),
             getImageBytes(picturePath, R.drawable.placeholder)
     )

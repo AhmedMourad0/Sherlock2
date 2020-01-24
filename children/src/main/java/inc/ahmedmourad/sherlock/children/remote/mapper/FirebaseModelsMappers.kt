@@ -7,7 +7,7 @@ import inc.ahmedmourad.sherlock.domain.model.children.*
 internal fun DomainPublishedChild.toFirebasePublishedChild() = FirebasePublishedChild(
         name.toFirebaseName(),
         notes,
-        location.toFirebaseLocation(),
+        location?.toFirebaseLocation(),
         appearance.toFirebaseEstimatedAppearance(),
         picture
 )
@@ -24,7 +24,7 @@ internal fun DomainSimpleRetrievedChild.toFirebaseSimpleChild() = FirebaseSimple
 
 internal fun DomainChildCriteriaRules.toFirebaseChildCriteriaRules() = FirebaseChildCriteriaRules(
         name.toFirebaseName(),
-        location.toFirebaseLocation(),
+        location?.toFirebaseLocation(),
         appearance.toFirebaseExactAppearance()
 )
 

@@ -25,7 +25,7 @@ internal class SherlockApplication : MultiDexApplication() {
 *
 * * Package per feature
 *
-* remove unnecessary Options
+* replace unnecessary folds with when
 *
 * DDD
 *

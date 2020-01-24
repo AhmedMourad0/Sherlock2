@@ -1,11 +1,11 @@
 package inc.ahmedmourad.sherlock.domain.model.children
 
 data class DomainPublishedChild(
-        val name: DomainName,
-        val notes: String,
-        val location: DomainLocation,
-        val appearance: DomainEstimatedAppearance,
-        val picture: ByteArray
+        val name: DomainName?,
+        val notes: String?,
+        val location: DomainLocation?,
+        val appearance: DomainEstimatedAppearance?,
+        val picture: ByteArray?
 ) {
 
     override fun equals(other: Any?): Boolean {
@@ -30,8 +30,16 @@ data class DomainPublishedChild(
         if (appearance != other.appearance)
             return false
 
-        if (!picture.contentEquals(other.picture))
+        if (picture != null) {
+            if (other.picture == null) {
+                return false
+            }
+            if (!picture.contentEquals(other.picture)) {
+                return false
+            }
+        } else if (other.picture != null) {
             return false
+        }
 
         return true
     }
@@ -41,7 +49,7 @@ data class DomainPublishedChild(
         result = 31 * result + notes.hashCode()
         result = 31 * result + location.hashCode()
         result = 31 * result + appearance.hashCode()
-        result = 31 * result + picture.contentHashCode()
+        result = 31 * result + (picture?.contentHashCode() ?: 0)
         return result
     }
 }

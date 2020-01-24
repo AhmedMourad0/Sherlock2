@@ -1,8 +1,10 @@
 package inc.ahmedmourad.sherlock.viewmodel.controllers.children
 
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import arrow.core.*
+import arrow.core.Tuple2
+import arrow.core.toT
 import inc.ahmedmourad.sherlock.dagger.modules.factories.SherlockServiceIntentFactory
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
@@ -35,7 +37,7 @@ internal class AddChildViewModel(
 
     val gender by lazy { DefaultLiveData(Gender.MALE) }
 
-    val location by lazy { DefaultLiveData(none<AppLocation>()) }
+    val location by lazy { MutableLiveData<AppLocation>() }
 
     val startAge by lazy { DefaultLiveData(0) }
     val endAge by lazy { DefaultLiveData(30) }
@@ -46,14 +48,14 @@ internal class AddChildViewModel(
 
     val picturePath by lazy { DefaultLiveData("") }
 
-    val internetConnectivityFlowable: Flowable<Tuple2<Boolean, Option<PublishingState>>> =
+    val internetConnectivityFlowable: Flowable<Tuple2<Boolean, PublishingState?>> =
             observeInternetConnectivityInteractor()
                     .retry()
                     .observeOn(AndroidSchedulers.mainThread())
                     .flatMapSingle { isConnected ->
                         checkChildPublishingStateInteractor()
                                 .observeOn(AndroidSchedulers.mainThread())
-                                .map { isConnected toT it }
+                                .map { isConnected toT it.orNull() }
                     }
 
     val internetConnectivitySingle: Single<Boolean> = checkInternetConnectivityInteractor()
@@ -73,7 +75,7 @@ internal class AddChildViewModel(
         skin.value = child.appearance.skin
         hair.value = child.appearance.hair
         gender.value = child.appearance.gender
-        location.value = child.location.toOption()
+        location.value = child.location
         startAge.value = child.appearance.age.from
         endAge.value = child.appearance.age.to
         startHeight.value = child.appearance.height.from
@@ -85,7 +87,7 @@ internal class AddChildViewModel(
     private fun toAppPublishedChild() = AppPublishedChild(
             name = AppName(firstName.value.trim(), lastName.value.trim()),
             notes = notes.value.trim(),
-            location = location.value.getOrElse { AppLocation.invalid() },
+            location = location.value,
             appearance = AppEstimatedAppearance(
                     gender.value,
                     skin.value,

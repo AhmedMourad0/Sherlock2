@@ -1,45 +1,40 @@
 package inc.ahmedmourad.sherlock.auth.authenticator.model
 
 import arrow.core.Either
-import arrow.core.Option
 import arrow.core.left
 import arrow.core.right
 import inc.ahmedmourad.sherlock.auth.model.AuthIncompleteUser
 
 data class AuthenticatorIncompleteUser(
         val id: String,
-        val email: Option<String>,
-        val name: Option<String>,
-        val pictureUrl: Option<String>
+        val email: String?,
+        val name: String?,
+        val pictureUrl: String?
 ) {
 
     fun toAuthIncompleteUser() = AuthIncompleteUser(
             id,
             email,
             name,
+            null,
             pictureUrl
     )
 
     fun orComplete(): Either<AuthenticatorIncompleteUser, AuthenticatorCompletedUser> {
-        return if (isComplete()) {
-            complete().right()
-        } else {
-            this.left()
+        return complete()?.right() ?: this.left()
+    }
+
+    private fun complete(): AuthenticatorCompletedUser? {
+
+        if (email == null || name == null || pictureUrl == null) {
+            return null
         }
-    }
 
-    private fun isComplete(): Boolean {
-        return email.isDefined() &&
-                name.isDefined() &&
-                pictureUrl.isDefined()
-    }
-
-    private fun complete(): AuthenticatorCompletedUser {
         return AuthenticatorCompletedUser(
                 id,
-                email.orNull()!!,
-                name.orNull()!!,
-                pictureUrl.orNull()!!
+                email,
+                name,
+                pictureUrl
         )
     }
 }

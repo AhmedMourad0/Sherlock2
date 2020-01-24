@@ -38,7 +38,7 @@ internal fun DomainSignedInUser.toAppSignedInUser() = AppSignedInUser(
         pictureUrl
 )
 
-internal fun DomainUser.toAppSignedInUser() = AppUser(
+internal fun DomainUser.toAppUser() = AppUser(
         id,
         registrationDate,
         lastLoginDate,

@@ -1,7 +1,5 @@
 package inc.ahmedmourad.sherlock.auth.model
 
-import arrow.core.some
-
 data class AuthCompletedUser(
         val id: String,
         val email: String,
@@ -20,8 +18,9 @@ data class AuthCompletedUser(
 
     fun incomplete() = AuthIncompleteUser(
             id,
-            email.some(),
-            name.some(),
-            pictureUrl.some()
+            email,
+            name,
+            null,
+            pictureUrl
     )
 }

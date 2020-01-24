@@ -1,7 +1,10 @@
 package inc.ahmedmourad.sherlock.children.remote.repositories
 
 import androidx.annotation.VisibleForTesting
-import arrow.core.*
+import arrow.core.Either
+import arrow.core.Tuple2
+import arrow.core.left
+import arrow.core.right
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.*
@@ -114,7 +117,7 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
 
     override fun find(
             child: DomainSimpleRetrievedChild
-    ): Flowable<Either<Throwable, Option<DomainRetrievedChild>>> {
+    ): Flowable<Either<Throwable, DomainRetrievedChild?>> {
         return connectivityManager.get()
                 .observeInternetConnectivity()
                 .subscribeOn(Schedulers.io())
@@ -140,9 +143,9 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
 
     private fun createFindFlowable(
             child: DomainSimpleRetrievedChild
-    ): Flowable<Either<Throwable, Option<DomainRetrievedChild>>> {
+    ): Flowable<Either<Throwable, DomainRetrievedChild?>> {
 
-        return Flowable.create<Either<Throwable, Option<DomainRetrievedChild>>>({ emitter ->
+        return Flowable.create<Either<Throwable, DomainRetrievedChild?>>({ emitter ->
 
             val snapshotListener = { snapshot: DocumentSnapshot?, exception: FirebaseFirestoreException? ->
 
@@ -152,10 +155,11 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
 
                 } else if (snapshot != null) {
 
-                    if (snapshot.exists())
-                        emitter.onNext(snapshot.extractFirebaseRetrievedChild().toDomainChild().some().right())
-                    else
-                        emitter.onNext(none<DomainRetrievedChild>().right())
+                    if (snapshot.exists()) {
+                        emitter.onNext(snapshot.extractFirebaseRetrievedChild().toDomainChild().right())
+                    } else {
+                        emitter.onNext(null.right())
+                    }
                 }
             }
 

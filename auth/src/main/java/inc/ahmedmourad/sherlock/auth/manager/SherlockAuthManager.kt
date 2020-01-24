@@ -53,12 +53,12 @@ internal class SherlockAuthManager(
                             remoteRepository.get()
                                     .findUser(completedUser.id)
                                     .map { either ->
-                                        either.map { userOption ->
-                                            userOption.fold(ifEmpty = {
+                                        either.map { user ->
+                                            if (user == null) {
                                                 completedUser.incomplete().left()
-                                            }, ifSome = { retrievedDetails ->
-                                                completedUser.toAuthSignedInUser(retrievedDetails).right()
-                                            })
+                                            } else {
+                                                completedUser.toAuthSignedInUser(user).right()
+                                            }
                                         }
                                     }
                         })
@@ -100,12 +100,12 @@ internal class SherlockAuthManager(
                             remoteRepository.get()
                                     .findUser(completedUser.id)
                                     .map { userEither ->
-                                        userEither.map { userOption ->
-                                            userOption.fold(ifEmpty = {
+                                        userEither.map { user ->
+                                            if (user == null) {
                                                 completedUser.incomplete().left()
-                                            }, ifSome = { retrievedDetails ->
-                                                completedUser.toAuthSignedInUser(retrievedDetails).right()
-                                            })
+                                            } else {
+                                                completedUser.toAuthSignedInUser(user).right()
+                                            }
                                         }
                                     }.firstOrError()
                         })
@@ -217,12 +217,12 @@ internal class SherlockAuthManager(
                             remoteRepository.get()
                                     .findUser(completedUser.id)
                                     .map { userEither ->
-                                        userEither.map { userOption ->
-                                            userOption.fold(ifEmpty = {
+                                        userEither.map { user ->
+                                            if (user == null) {
                                                 completedUser.incomplete().left()
-                                            }, ifSome = { retrievedDetails ->
-                                                completedUser.toAuthSignedInUser(retrievedDetails).right()
-                                            })
+                                            } else {
+                                                completedUser.toAuthSignedInUser(user).right()
+                                            }
                                         }
                                     }.firstOrError()
                         })
@@ -252,14 +252,14 @@ internal class SherlockAuthManager(
                 .flatMap { userUidEither ->
                     userUidEither.fold(ifLeft = {
                         Single.just(it.left())
-                    }, ifRight = { userUidOption ->
-                        userUidOption.fold(ifEmpty = {
+                    }, ifRight = { userUid ->
+                        if (userUid == null) {
                             Single.just(Unit.right())
-                        }, ifSome = {
+                        } else {
                             remoteRepository.get()
-                                    .updateUserLastLoginDate(it)
+                                    .updateUserLastLoginDate(userUid)
                                     .map { Unit.right() }
-                        })
+                        }
                     })
                 }
     }

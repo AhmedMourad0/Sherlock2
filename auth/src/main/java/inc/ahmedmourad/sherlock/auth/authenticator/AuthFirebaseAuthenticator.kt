@@ -490,10 +490,7 @@ internal class AuthFirebaseAuthenticator(
         }.subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
     }
 
-    override fun signOut(): Single<Either<Throwable, Option<String>>> {
-
-        val id = auth.get().currentUser?.uid.toOption()
-
+    override fun signOut(): Single<Either<Throwable, String?>> {
         return connectivityManager.get()
                 .isInternetConnected()
                 .subscribeOn(Schedulers.io())
@@ -510,7 +507,7 @@ internal class AuthFirebaseAuthenticator(
                     }, ifRight = {
                         signOutFromFacebook()
                                 .andThen(signOutFromTwitter())
-                                .andThen(Single.just(id.right()))
+                                .andThen(Single.just(auth.get().currentUser?.uid.right()))
                     })
                 }
     }
@@ -563,9 +560,9 @@ interface AuthActivityFactory {
 private fun FirebaseUser.toAuthenticatorUser(): Either<AuthIncompleteUser, AuthCompletedUser> {
     return AuthenticatorIncompleteUser(
             this.uid,
-            this.email.toOption(),
-            this.displayName.toOption(),
-            this.photoUrl.toOption().map(Uri::toString)
+            this.email,
+            this.displayName,
+            this.photoUrl?.toString()
     ).orComplete().bimap(
             AuthenticatorIncompleteUser::toAuthIncompleteUser,
             AuthenticatorCompletedUser::toAuthCompletedUser

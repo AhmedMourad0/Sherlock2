@@ -7,7 +7,8 @@ data class DomainRetrievedChild(
         val notes: String,
         val location: DomainLocation,
         val appearance: DomainEstimatedAppearance,
-        val pictureUrl: String) {
+        val pictureUrl: String
+) {
     fun simplify() = DomainSimpleRetrievedChild(
             id,
             publicationDate,

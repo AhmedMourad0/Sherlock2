@@ -20,13 +20,4 @@ internal data class AppLocation(
             address,
             coordinates.toDomainCoordinates()
     )
-
-    companion object {
-        fun invalid() = AppLocation(
-                "",
-                "",
-                "",
-                AppCoordinates(1000.0, 1000.0)
-        )
-    }
 }

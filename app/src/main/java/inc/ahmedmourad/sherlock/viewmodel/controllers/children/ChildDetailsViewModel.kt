@@ -2,7 +2,6 @@ package inc.ahmedmourad.sherlock.viewmodel.controllers.children
 
 import androidx.lifecycle.ViewModel
 import arrow.core.Either
-import arrow.core.Option
 import arrow.core.Tuple2
 import arrow.core.extensions.tuple2.bifunctor.mapLeft
 import inc.ahmedmourad.sherlock.domain.interactors.children.FindChildInteractor
@@ -19,15 +18,13 @@ internal class ChildDetailsViewModel(child: AppSimpleRetrievedChild, interactor:
 
     private val refreshSubject = PublishSubject.create<Unit>()
 
-    val result: Flowable<Either<Throwable, Option<Tuple2<AppRetrievedChild, Int>>>>
+    val result: Flowable<Either<Throwable, Tuple2<AppRetrievedChild, Int?>?>>
 
     init {
         result = interactor(child.toDomainSimpleChild())
                 .map { resultEither ->
-                    resultEither.map { resultOption ->
-                        resultOption.map { resultTuple ->
-                            resultTuple.mapLeft(DomainRetrievedChild::toAppChild)
-                        }
+                    resultEither.map { result ->
+                        result?.mapLeft(DomainRetrievedChild::toAppChild)
                     }
                 }.retryWhen { refreshSubject.toFlowable(BackpressureStrategy.LATEST) }
                 .observeOn(AndroidSchedulers.mainThread())

@@ -1,7 +1,9 @@
 package inc.ahmedmourad.sherlock.auth.remote.repository
 
 import androidx.annotation.VisibleForTesting
-import arrow.core.*
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -86,7 +88,7 @@ internal class AuthFirebaseFirestoreRemoteRepository(
         }.subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
     }
 
-    override fun findUser(id: String): Flowable<Either<Throwable, Option<AuthRetrievedUserDetails>>> {
+    override fun findUser(id: String): Flowable<Either<Throwable, AuthRetrievedUserDetails?>> {
         return connectivityManager.get()
                 .observeInternetConnectivity()
                 .subscribeOn(Schedulers.io())
@@ -110,9 +112,9 @@ internal class AuthFirebaseFirestoreRemoteRepository(
                 }
     }
 
-    private fun createFindUserFlowable(id: String): Flowable<Either<Throwable, Option<AuthRetrievedUserDetails>>> {
+    private fun createFindUserFlowable(id: String): Flowable<Either<Throwable, AuthRetrievedUserDetails?>> {
 
-        return Flowable.create<Either<Throwable, Option<AuthRetrievedUserDetails>>>({ emitter ->
+        return Flowable.create<Either<Throwable, AuthRetrievedUserDetails?>>({ emitter ->
 
             val snapshotListener = { snapshot: DocumentSnapshot?, exception: FirebaseFirestoreException? ->
 
@@ -123,9 +125,9 @@ internal class AuthFirebaseFirestoreRemoteRepository(
                 } else if (snapshot != null) {
 
                     if (snapshot.exists()) {
-                        emitter.onNext(snapshot.extractRemoteRetrievedUserDetails().toAuthUserDetails().some().right())
+                        emitter.onNext(snapshot.extractRemoteRetrievedUserDetails().toAuthUserDetails().right())
                     } else {
-                        emitter.onNext(none<AuthRetrievedUserDetails>().right())
+                        emitter.onNext(null.right())
                     }
                 }
             }

@@ -1,7 +1,6 @@
 package inc.ahmedmourad.sherlock.children.repository.dependencies
 
 import arrow.core.Either
-import arrow.core.Option
 import arrow.core.Tuple2
 import inc.ahmedmourad.sherlock.domain.filter.Filter
 import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
@@ -19,7 +18,7 @@ internal interface ChildrenRemoteRepository {
 
     fun find(
             child: DomainSimpleRetrievedChild
-    ): Flowable<Either<Throwable, Option<DomainRetrievedChild>>>
+    ): Flowable<Either<Throwable, DomainRetrievedChild?>>
 
     fun findAll(
             rules: DomainChildCriteriaRules,

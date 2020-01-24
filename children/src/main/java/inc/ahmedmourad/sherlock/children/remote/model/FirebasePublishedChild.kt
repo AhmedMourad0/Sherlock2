@@ -6,7 +6,7 @@ import inc.ahmedmourad.sherlock.children.remote.contract.Contract
 internal data class FirebasePublishedChild(
         val name: FirebaseName,
         val notes: String,
-        val location: FirebaseLocation,
+        val location: FirebaseLocation?,
         val appearance: FirebaseEstimatedAppearance,
         val picture: ByteArray) {
 

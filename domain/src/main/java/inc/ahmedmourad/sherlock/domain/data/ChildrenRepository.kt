@@ -1,7 +1,6 @@
 package inc.ahmedmourad.sherlock.domain.data
 
 import arrow.core.Either
-import arrow.core.Option
 import arrow.core.Tuple2
 import inc.ahmedmourad.sherlock.domain.filter.Filter
 import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
@@ -17,7 +16,7 @@ interface ChildrenRepository {
 
     fun find(
             child: DomainSimpleRetrievedChild
-    ): Flowable<Either<Throwable, Option<Tuple2<DomainRetrievedChild, Int>>>>
+    ): Flowable<Either<Throwable, Tuple2<DomainRetrievedChild, Int?>?>>
 
     fun findAll(
             rules: DomainChildCriteriaRules,

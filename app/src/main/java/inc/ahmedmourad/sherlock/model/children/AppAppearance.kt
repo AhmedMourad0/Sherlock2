@@ -4,31 +4,19 @@ import android.os.Parcelable
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
-import inc.ahmedmourad.sherlock.domain.model.children.DomainAppearance
 import inc.ahmedmourad.sherlock.domain.model.children.DomainEstimatedAppearance
 import inc.ahmedmourad.sherlock.domain.model.children.DomainExactAppearance
 import kotlinx.android.parcel.Parcelize
 
-private interface AppAppearance<T> : Parcelable {
-
-    val gender: Gender
-    val skin: Skin
-    val hair: Hair
-    val age: T
-    val height: T
-
-    fun toDomainAppearance(): DomainAppearance<*>
-}
-
 @Parcelize
 internal data class AppExactAppearance(
-        override val gender: Gender,
-        override val skin: Skin,
-        override val hair: Hair,
-        override val age: Int,
-        override val height: Int) : AppAppearance<Int> {
-
-    override fun toDomainAppearance() = DomainExactAppearance(
+        val gender: Gender,
+        val skin: Skin,
+        val hair: Hair,
+        val age: Int,
+        val height: Int
+) : Parcelable {
+    fun toDomainAppearance() = DomainExactAppearance(
             gender,
             skin,
             hair,
@@ -39,13 +27,13 @@ internal data class AppExactAppearance(
 
 @Parcelize
 internal data class AppEstimatedAppearance(
-        override val gender: Gender,
-        override val skin: Skin,
-        override val hair: Hair,
-        override val age: AppRange,
-        override val height: AppRange) : AppAppearance<AppRange> {
-
-    override fun toDomainAppearance() = DomainEstimatedAppearance(
+        val gender: Gender,
+        val skin: Skin,
+        val hair: Hair,
+        val age: AppRange,
+        val height: AppRange
+) : Parcelable {
+    fun toDomainAppearance() = DomainEstimatedAppearance(
             gender,
             skin,
             hair,

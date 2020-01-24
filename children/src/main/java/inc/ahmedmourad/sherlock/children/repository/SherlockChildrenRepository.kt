@@ -48,26 +48,26 @@ internal class SherlockChildrenRepository(
 
     override fun find(
             child: DomainSimpleRetrievedChild
-    ): Flowable<Either<Throwable, Option<Tuple2<DomainRetrievedChild, Int>>>> {
+    ): Flowable<Either<Throwable, Tuple2<DomainRetrievedChild, Int?>?>> {
         return childrenRemoteRepository.get()
                 .find(child)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .flatMap { childEither ->
+                .flatMap<Either<Throwable, Tuple2<DomainRetrievedChild, Int?>?>> { childEither ->
                     childEither.fold(ifLeft = {
                         Flowable.just(it.left())
-                    }, ifRight = { childOption ->
-                        childOption.fold(ifEmpty = {
-                            Flowable.just(none<Tuple2<DomainRetrievedChild, Int>>().right())
-                        }, ifSome = { child ->
+                    }, ifRight = { child ->
+                        if (child == null) {
+                            Flowable.just(null.right())
+                        } else {
                             childrenLocalRepository.get()
                                     .updateIfExists(child)
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(Schedulers.io())
-                                    .map { it.some().right() }
-                                    .toSingle((child toT -1).some().right())
+                                    .map { it.right<Tuple2<DomainRetrievedChild, Int?>>() }
+                                    .toSingle((child toT null).right())
                                     .toFlowable()
-                        })
+                        }
                     })
                 }.doOnSubscribe { notifyChildFindingStateChangeInteractor(BackgroundState.ONGOING) }
                 .doOnNext { notifyChildFindingStateChangeInteractor(BackgroundState.SUCCESS) }

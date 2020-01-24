@@ -225,14 +225,12 @@ internal class FindChildrenController : LifecycleController(), View.OnClickListe
     }
 
     private fun initializeLocationTextView() {
-        viewModel.location.observe(this, Observer { locationOption ->
-            locationOption.filter {
-                it.name.isNotBlank()
-            }.fold(ifEmpty = {
+        viewModel.location.observe(this, Observer { location ->
+            if (location.name.isBlank()) {
                 locationTextView.setText(R.string.no_location_specified)
-            }, ifSome = {
-                locationTextView.text = it.name
-            })
+            } else {
+                locationTextView.text = location.name
+            }
         })
     }
 
