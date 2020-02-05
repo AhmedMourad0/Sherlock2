@@ -10,9 +10,9 @@ import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
 import inc.ahmedmourad.sherlock.domain.filter.ResultsFilter
 import inc.ahmedmourad.sherlock.domain.filter.criteria.Criteria
-import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
 import inc.ahmedmourad.sherlock.domain.filter.criteria.LooseCriteria
 import inc.ahmedmourad.sherlock.domain.model.children.*
+import inc.ahmedmourad.sherlock.domain.model.children.Range
 import inc.ahmedmourad.sherlock.domain.platform.LocationManager
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue
@@ -35,10 +35,10 @@ object CriteriaUnitTests : Spek({
             }
 
             val rules by memoized {
-                DomainChildCriteriaRules(
-                        DomainName("Ahmed", "Mourad"),
-                        DomainLocation("1", "a", "a", DomainCoordinates(50.0, 40.0)),
-                        DomainExactAppearance(
+                ChildQuery(
+                        FullName("Ahmed", "Mourad"),
+                        Location("1", "a", "a", Coordinates(50.0, 40.0)),
+                        ExactAppearance(
                                 Gender.MALE,
                                 Skin.WHEAT,
                                 Hair.DARK,
@@ -48,37 +48,37 @@ object CriteriaUnitTests : Spek({
                 )
             }
 
-            val criteria by memoized { LooseCriteria<DomainRetrievedChild>(rules, Lazy { locationManager }) }
+            val criteria by memoized { LooseCriteria<RetrievedChild>(rules, Lazy { locationManager }) }
 
             it("should calculate the result supplied with apply") {
 
-                val (_, rightScore) = criteria.apply(DomainRetrievedChild(
+                val (_, rightScore) = criteria.apply(RetrievedChild(
                         "1",
                         System.currentTimeMillis(),
-                        DomainName("Ahmed", "Mourad"),
+                        FullName("Ahmed", "Mourad"),
                         "",
-                        DomainLocation("1", "a", "a", DomainCoordinates(90.0, 140.0)),
-                        DomainEstimatedAppearance(
+                        Location("1", "a", "a", Coordinates(90.0, 140.0)),
+                        ApproximateAppearance(
                                 Gender.MALE,
                                 Skin.WHEAT,
                                 Hair.DARK,
-                                DomainRange(18, 22),
-                                DomainRange(170, 190)
+                                Range(18, 22),
+                                Range(170, 190)
                         ), ""
                 ))
 
-                val (_, wrongsScore) = criteria.apply(DomainRetrievedChild(
+                val (_, wrongsScore) = criteria.apply(RetrievedChild(
                         "1",
                         System.currentTimeMillis(),
-                        DomainName("Mohamed", "Mosad"),
+                        FullName("Mohamed", "Mosad"),
                         "",
-                        DomainLocation("1", "a", "a", DomainCoordinates(45.0, 180.0)),
-                        DomainEstimatedAppearance(
+                        Location("1", "a", "a", Coordinates(45.0, 180.0)),
+                        ApproximateAppearance(
                                 Gender.FEMALE,
                                 Skin.WHITE,
                                 Hair.BROWN,
-                                DomainRange(16, 17),
-                                DomainRange(135, 145)
+                                Range(16, 17),
+                                Range(135, 145)
                         ), ""
                 ))
 
@@ -99,86 +99,86 @@ object CriteriaUnitTests : Spek({
         describe("ResultsFilter") {
 
             val result0 by memoized {
-                DomainRetrievedChild(
+                RetrievedChild(
                         UUID.randomUUID().toString(),
                         System.currentTimeMillis(),
-                        DomainName("", ""),
+                        FullName("", ""),
                         "",
-                        DomainLocation("", "", "", DomainCoordinates(50.0, 50.0)),
-                        DomainEstimatedAppearance(
+                        Location("", "", "", Coordinates(50.0, 50.0)),
+                        ApproximateAppearance(
                                 Gender.MALE,
                                 Skin.DARK,
                                 Hair.BROWN,
-                                DomainRange(10, 15),
-                                DomainRange(100, 150)
+                                Range(10, 15),
+                                Range(100, 150)
                         ), ""
                 )
             }
 
             val result1 by memoized {
-                DomainRetrievedChild(
+                RetrievedChild(
                         UUID.randomUUID().toString(),
                         System.currentTimeMillis(),
-                        DomainName("", ""),
+                        FullName("", ""),
                         "",
-                        DomainLocation("", "", "", DomainCoordinates(50.0, 50.0)),
-                        DomainEstimatedAppearance(
+                        Location("", "", "", Coordinates(50.0, 50.0)),
+                        ApproximateAppearance(
                                 Gender.MALE,
                                 Skin.DARK,
                                 Hair.BROWN,
-                                DomainRange(10, 15),
-                                DomainRange(100, 150)
+                                Range(10, 15),
+                                Range(100, 150)
                         ), ""
                 )
             }
 
             val result2 by memoized {
-                DomainRetrievedChild(
+                RetrievedChild(
                         UUID.randomUUID().toString(),
                         System.currentTimeMillis(),
-                        DomainName("", ""),
+                        FullName("", ""),
                         "",
-                        DomainLocation("", "", "", DomainCoordinates(50.0, 50.0)),
-                        DomainEstimatedAppearance(
+                        Location("", "", "", Coordinates(50.0, 50.0)),
+                        ApproximateAppearance(
                                 Gender.MALE,
                                 Skin.DARK,
                                 Hair.BROWN,
-                                DomainRange(10, 15),
-                                DomainRange(100, 150)
+                                Range(10, 15),
+                                Range(100, 150)
                         ), ""
                 )
             }
 
             val result3 by memoized {
-                DomainRetrievedChild(
+                RetrievedChild(
                         UUID.randomUUID().toString(),
                         System.currentTimeMillis(),
-                        DomainName("", ""),
+                        FullName("", ""),
                         "",
-                        DomainLocation("", "", "", DomainCoordinates(50.0, 50.0)),
-                        DomainEstimatedAppearance(
+                        Location("", "", "", Coordinates(50.0, 50.0)),
+                        ApproximateAppearance(
                                 Gender.MALE,
                                 Skin.DARK,
                                 Hair.BROWN,
-                                DomainRange(10, 15),
-                                DomainRange(100, 150)
+                                Range(10, 15),
+                                Range(100, 150)
                         ), ""
                 )
             }
 
             val result4 by memoized {
-                DomainRetrievedChild(
+                RetrievedChild(
                         UUID.randomUUID().toString(),
                         System.currentTimeMillis(),
-                        DomainName("", ""),
+                        FullName("", ""),
                         "",
-                        DomainLocation("", "", "", DomainCoordinates(50.0, 50.0)),
-                        DomainEstimatedAppearance(
+                        Location("", "", "", Coordinates(50.0, 50.0)),
+                        ApproximateAppearance(
                                 Gender.MALE,
                                 Skin.DARK,
                                 Hair.BROWN,
-                                DomainRange(10, 15),
-                                DomainRange(100, 150)
+                                Range(10, 15),
+                                Range(100, 150)
                         ), ""
                 )
             }
@@ -196,7 +196,7 @@ object CriteriaUnitTests : Spek({
             val pair4 by memoized { result4 to score4 }
 
             val criteria by memoized {
-                mock<Criteria<DomainRetrievedChild>> {
+                mock<Criteria<RetrievedChild>> {
                     on { apply(result0) } doReturn pair0
                     on { apply(result1) } doReturn pair1
                     on { apply(result2) } doReturn pair2

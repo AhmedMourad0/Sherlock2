@@ -6,23 +6,23 @@ import dagger.Lazy
 import inc.ahmedmourad.sherlock.adapters.AppSectionsRecyclerAdapter
 import inc.ahmedmourad.sherlock.adapters.ChildrenRecyclerAdapter
 import inc.ahmedmourad.sherlock.adapters.DynamicRecyclerAdapter
+import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
 import inc.ahmedmourad.sherlock.domain.platform.DateManager
-import inc.ahmedmourad.sherlock.model.children.AppSimpleRetrievedChild
+import inc.ahmedmourad.sherlock.model.core.AppSection
+import inc.ahmedmourad.sherlock.model.core.TaggedController
 import inc.ahmedmourad.sherlock.utils.formatter.Formatter
-import inc.ahmedmourad.sherlock.view.model.AppSection
-import inc.ahmedmourad.sherlock.view.model.TaggedController
 
-private typealias OnChildClickListener = (Tuple2<AppSimpleRetrievedChild, Int>) -> Unit
+private typealias OnChildClickListener = (Tuple2<SimpleRetrievedChild, Int>) -> Unit
 
 internal typealias ChildrenRecyclerAdapterFactory =
         (@JvmSuppressWildcards OnChildClickListener) ->
-        @JvmSuppressWildcards DynamicRecyclerAdapter<List<Tuple2<AppSimpleRetrievedChild, Int>>, *>
+        @JvmSuppressWildcards DynamicRecyclerAdapter<List<Tuple2<SimpleRetrievedChild, Int>>, *>
 
 internal fun childrenRecyclerAdapterFactory(
         dateManager: Lazy<DateManager>,
         formatter: Lazy<Formatter>,
-        onResultSelectedListener: (Tuple2<AppSimpleRetrievedChild, Int>) -> Unit
-): DynamicRecyclerAdapter<List<Tuple2<AppSimpleRetrievedChild, Int>>, *> {
+        onResultSelectedListener: (Tuple2<SimpleRetrievedChild, Int>) -> Unit
+): DynamicRecyclerAdapter<List<Tuple2<SimpleRetrievedChild, Int>>, *> {
     return ChildrenRecyclerAdapter(dateManager, formatter, onResultSelectedListener)
 }
 

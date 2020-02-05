@@ -6,6 +6,7 @@ import dagger.Provides
 import dagger.Reusable
 import inc.ahmedmourad.sherlock.dagger.modules.factories.*
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.*
+import inc.ahmedmourad.sherlock.model.core.TaggedController
 import inc.ahmedmourad.sherlock.view.controllers.auth.ResetPasswordController
 import inc.ahmedmourad.sherlock.view.controllers.auth.SignInController
 import inc.ahmedmourad.sherlock.view.controllers.auth.SignUpController
@@ -13,7 +14,6 @@ import inc.ahmedmourad.sherlock.view.controllers.auth.SignedInUserProfileControl
 import inc.ahmedmourad.sherlock.view.controllers.children.AddChildController
 import inc.ahmedmourad.sherlock.view.controllers.children.FindChildrenController
 import inc.ahmedmourad.sherlock.view.controllers.core.HomeController
-import inc.ahmedmourad.sherlock.view.model.TaggedController
 
 @Module(includes = [
     MainActivityModule::class

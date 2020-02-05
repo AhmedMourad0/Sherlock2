@@ -1,29 +1,32 @@
 package inc.ahmedmourad.sherlock.children.repository
 
 import arrow.core.*
+import arrow.core.extensions.tuple2.bifunctor.mapLeft
 import dagger.Lazy
+import inc.ahmedmourad.sherlock.children.repository.dependencies.ChildrenImageRepository
 import inc.ahmedmourad.sherlock.children.repository.dependencies.ChildrenLocalRepository
 import inc.ahmedmourad.sherlock.children.repository.dependencies.ChildrenRemoteRepository
 import inc.ahmedmourad.sherlock.domain.constants.BackgroundState
 import inc.ahmedmourad.sherlock.domain.constants.PublishingState
 import inc.ahmedmourad.sherlock.domain.data.ChildrenRepository
+import inc.ahmedmourad.sherlock.domain.exceptions.ModelConversionException
 import inc.ahmedmourad.sherlock.domain.filter.Filter
-import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
 import inc.ahmedmourad.sherlock.domain.interactors.core.NotifyChildFindingStateChangeInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.core.NotifyChildPublishingStateChangeInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.core.NotifyChildrenFindingStateChangeInteractor
-import inc.ahmedmourad.sherlock.domain.model.children.DomainPublishedChild
-import inc.ahmedmourad.sherlock.domain.model.children.DomainRetrievedChild
-import inc.ahmedmourad.sherlock.domain.model.children.DomainSimpleRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.*
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
+import java.util.*
 
 //TODO: if requireUserSignedIn doesn't fail and user is not signed in with FirebaseAuth
 // implement a fallback mechanism and sign the user in anonymously
 internal class SherlockChildrenRepository(
         private val childrenLocalRepository: Lazy<ChildrenLocalRepository>,
         private val childrenRemoteRepository: Lazy<ChildrenRemoteRepository>,
+        private val childrenImageRepository: Lazy<ChildrenImageRepository>,
         private val notifyChildPublishingStateChangeInteractor: NotifyChildPublishingStateChangeInteractor,
         private val notifyChildFindingStateChangeInteractor: NotifyChildFindingStateChangeInteractor,
         private val notifyChildrenFindingStateChangeInteractor: NotifyChildrenFindingStateChangeInteractor
@@ -31,12 +34,20 @@ internal class SherlockChildrenRepository(
 
     private val tester by lazy { SherlockTester(childrenRemoteRepository, childrenLocalRepository) }
 
-    override fun publish(child: DomainPublishedChild): Single<Either<Throwable, DomainRetrievedChild>> {
-        return childrenRemoteRepository.get()
-                .publish(child)
+    override fun publish(child: PublishedChild): Single<Either<Throwable, RetrievedChild>> {
+
+        val childId = ChildId(UUID.randomUUID().toString())
+
+        return childrenImageRepository.get().storeChildPicture(childId, child.picture)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .doOnSuccess { childEither ->
+                .flatMap { urlEither ->
+                    urlEither.fold(ifLeft = {
+                        Single.just(it.left())
+                    }, ifRight = {
+                        childrenRemoteRepository.get().publish(childId, child, it)
+                    })
+                }.doOnSuccess { childEither ->
                     childEither.fold(ifLeft = {
                         notifyChildPublishingStateChangeInteractor(PublishingState.Failure(child))
                     }, ifRight = {
@@ -47,13 +58,13 @@ internal class SherlockChildrenRepository(
     }
 
     override fun find(
-            child: DomainSimpleRetrievedChild
-    ): Flowable<Either<Throwable, Tuple2<DomainRetrievedChild, Int?>?>> {
+            child: SimpleRetrievedChild
+    ): Flowable<Either<Throwable, Tuple2<RetrievedChild, Int?>?>> {
         return childrenRemoteRepository.get()
-                .find(child)
+                .find(child.id)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .flatMap<Either<Throwable, Tuple2<DomainRetrievedChild, Int?>?>> { childEither ->
+                .flatMap<Either<Throwable, Tuple2<RetrievedChild, Int?>?>> { childEither ->
                     childEither.fold(ifLeft = {
                         Flowable.just(it.left())
                     }, ifRight = { child ->
@@ -64,8 +75,7 @@ internal class SherlockChildrenRepository(
                                     .updateIfExists(child)
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(Schedulers.io())
-                                    .map { it.right<Tuple2<DomainRetrievedChild, Int?>>() }
-                                    .toSingle((child toT null).right())
+                                    .toSingle((child toT null).right<Tuple2<RetrievedChild, Int?>>())
                                     .toFlowable()
                         }
                     })
@@ -75,11 +85,11 @@ internal class SherlockChildrenRepository(
     }
 
     override fun findAll(
-            rules: DomainChildCriteriaRules,
-            filter: Filter<DomainRetrievedChild>
-    ): Flowable<Either<Throwable, List<Tuple2<DomainSimpleRetrievedChild, Int>>>> {
+            query: ChildQuery,
+            filter: Filter<RetrievedChild>
+    ): Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Int>>>> {
         return childrenRemoteRepository.get()
-                .findAll(rules, filter)
+                .findAll(query, filter)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .flatMap { resultsEither ->
@@ -90,17 +100,27 @@ internal class SherlockChildrenRepository(
                                 .replaceAll(results)
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(Schedulers.io())
-                                .map { it.right() }
-                                .toFlowable()
+                                .map { _ ->
+                                    results.map { tuple ->
+                                        tuple.mapLeft { child ->
+                                            child.simplify().getOrHandle {
+                                                Timber.e(ModelConversionException(it.toString()))
+                                                null
+                                            }
+                                        }
+                                    }.mapNotNull { tuple ->
+                                        tuple.a?.let { it toT tuple.b }
+                                    }.right()
+                                }.toFlowable()
                     })
                 }.doOnSubscribe { notifyChildrenFindingStateChangeInteractor(BackgroundState.ONGOING) }
                 .doOnNext { notifyChildrenFindingStateChangeInteractor(BackgroundState.SUCCESS) }
                 .doOnError { notifyChildrenFindingStateChangeInteractor(BackgroundState.FAILURE) }
     }
 
-    override fun findLastSearchResults(): Flowable<List<Tuple2<DomainSimpleRetrievedChild, Int>>> {
+    override fun findLastSearchResults(): Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Int>>>> {
         return childrenLocalRepository.get()
-                .findAll()
+                .findAllWithWeight()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
     }

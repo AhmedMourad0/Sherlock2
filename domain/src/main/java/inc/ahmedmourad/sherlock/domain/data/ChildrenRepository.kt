@@ -3,27 +3,27 @@ package inc.ahmedmourad.sherlock.domain.data
 import arrow.core.Either
 import arrow.core.Tuple2
 import inc.ahmedmourad.sherlock.domain.filter.Filter
-import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
-import inc.ahmedmourad.sherlock.domain.model.children.DomainPublishedChild
-import inc.ahmedmourad.sherlock.domain.model.children.DomainRetrievedChild
-import inc.ahmedmourad.sherlock.domain.model.children.DomainSimpleRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.ChildQuery
+import inc.ahmedmourad.sherlock.domain.model.children.PublishedChild
+import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
 import io.reactivex.Flowable
 import io.reactivex.Single
 
 interface ChildrenRepository {
 
-    fun publish(child: DomainPublishedChild): Single<Either<Throwable, DomainRetrievedChild>>
+    fun publish(child: PublishedChild): Single<Either<Throwable, RetrievedChild>>
 
     fun find(
-            child: DomainSimpleRetrievedChild
-    ): Flowable<Either<Throwable, Tuple2<DomainRetrievedChild, Int?>?>>
+            child: SimpleRetrievedChild
+    ): Flowable<Either<Throwable, Tuple2<RetrievedChild, Int?>?>>
 
     fun findAll(
-            rules: DomainChildCriteriaRules,
-            filter: Filter<DomainRetrievedChild>
-    ): Flowable<Either<Throwable, List<Tuple2<DomainSimpleRetrievedChild, Int>>>>
+            query: ChildQuery,
+            filter: Filter<RetrievedChild>
+    ): Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Int>>>>
 
-    fun findLastSearchResults(): Flowable<List<Tuple2<DomainSimpleRetrievedChild, Int>>>
+    fun findLastSearchResults(): Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Int>>>>
 
     fun test(): Tester
 

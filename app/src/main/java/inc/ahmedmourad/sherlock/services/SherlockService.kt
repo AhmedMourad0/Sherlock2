@@ -10,17 +10,19 @@ import android.os.IBinder
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import arrow.core.getOrHandle
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.factories.AddChildControllerIntentFactory
 import inc.ahmedmourad.sherlock.dagger.modules.factories.ChildDetailsControllerIntentFactory
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.AddChildControllerIntentQualifier
+import inc.ahmedmourad.sherlock.domain.exceptions.ModelConversionException
 import inc.ahmedmourad.sherlock.domain.interactors.children.AddChildInteractor
-import inc.ahmedmourad.sherlock.domain.model.children.DomainRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
 import inc.ahmedmourad.sherlock.domain.model.core.disposable
-import inc.ahmedmourad.sherlock.mapper.toAppChild
 import inc.ahmedmourad.sherlock.model.children.AppPublishedChild
-import inc.ahmedmourad.sherlock.model.children.AppSimpleRetrievedChild
+import inc.ahmedmourad.sherlock.model.core.ParcelableWrapper
+import inc.ahmedmourad.sherlock.model.core.parcelize
 import inc.ahmedmourad.sherlock.utils.backgroundContextChannelId
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -54,18 +56,32 @@ internal class SherlockService : Service() {
         checkNotNull(intent.action)
 
         when (intent.action) {
-            ACTION_PUBLISH_CHILD -> handleActionPublishFound(requireNotNull(intent.getParcelableExtra(EXTRA_CHILD)))
+            ACTION_PUBLISH_CHILD -> handleActionPublishFound(
+                    requireNotNull(
+                            intent.getParcelableExtra<ParcelableWrapper<AppPublishedChild>>(EXTRA_CHILD)
+                    ).value
+            )
         }
 
         return START_REDELIVER_INTENT
     }
 
-    private fun handleActionPublishFound(child: AppPublishedChild) {
+    private fun handleActionPublishFound(appChild: AppPublishedChild) {
 
-        startForeground(NOTIFICATION_ID_PUBLISH_CHILD, createPublishingNotification(child))
+        val child = appChild.toPublishedChild().getOrHandle {
+            Timber.e(ModelConversionException(it.toString()))
+            showPublishingFailedNotification(
+                    IllegalArgumentException(getString(R.string.something_went_wrong)),
+                    appChild,
+                    false
+            )
+            stopSelf()
+            null
+        } ?: return
 
-        addChildDisposable = addChildInteractor(child.toDomainChild())
-                .map { it.map(DomainRetrievedChild::toAppChild) }
+        startForeground(NOTIFICATION_ID_PUBLISH_CHILD, createPublishingNotification(appChild))
+
+        addChildDisposable = addChildInteractor(child)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnSuccess {
@@ -78,13 +94,18 @@ internal class SherlockService : Service() {
                 }.subscribe({ childEither ->
                     childEither.fold(ifLeft = {
                         Timber.e(it)
-                        showPublishingFailedNotification(it, child)
-                    }, ifRight = {
-                        this.showPublishedSuccessfullyNotification(it.simplify())
+                        showPublishingFailedNotification(it, appChild, true)
+                    }, ifRight = { child ->
+                        this.showPublishedSuccessfullyNotification(
+                                child.simplify().getOrHandle {
+                                    Timber.e(ModelConversionException(it.toString()))
+                                    null
+                                }
+                        )
                     })
                 }, {
                     Timber.e(it)
-                    showPublishingFailedNotification(it, child)
+                    showPublishingFailedNotification(it, appChild, true)
                 })
     }
 
@@ -94,10 +115,14 @@ internal class SherlockService : Service() {
             PendingIntent.getActivity(applicationContext, REQUEST_CODE_PUBLISH_CHILD, it, PendingIntent.FLAG_UPDATE_CURRENT)
         }
 
-        val contentText = if (child.name.first.isEmpty() && child.name.last.isEmpty())
-            getString(R.string.publishing_child_data)
-        else
-            getString(R.string.publishing_child_data_with_name, "${child.name.first} ${child.name.last}".trim())
+        val name = child.name
+        val contentText = name?.fold(
+                ifLeft = {
+                    getString(R.string.publishing_child_data_with_name, it.value.trim())
+                }, ifRight = {
+            getString(R.string.publishing_child_data_with_name, "${it.first.value} ${it.last.value}".trim())
+        }
+        ) ?: getString(R.string.publishing_child_data)
 
         return NotificationCompat.Builder(applicationContext, backgroundContextChannelId(applicationContext))
                 .setContentTitle(getString(R.string.publishing))
@@ -111,16 +136,25 @@ internal class SherlockService : Service() {
                 .build()
     }
 
-    private fun showPublishedSuccessfullyNotification(child: AppSimpleRetrievedChild) {
+    private fun showPublishedSuccessfullyNotification(child: SimpleRetrievedChild?) {
 
-        val pendingIntent = childDetailsControllerFactory(child).let {
-            PendingIntent.getActivity(applicationContext, REQUEST_CODE_PUBLISHED_SUCCESSFULLY, it, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent = child?.let { childDetailsControllerFactory(it) }?.let {
+            PendingIntent.getActivity(
+                    applicationContext,
+                    REQUEST_CODE_PUBLISHED_SUCCESSFULLY,
+                    it,
+                    PendingIntent.FLAG_UPDATE_CURRENT
+            )
         }
 
-        val contentText = if (child.name.first.isEmpty() && child.name.last.isEmpty())
-            getString(R.string.published_child_data_successfully)
-        else
-            getString(R.string.published_child_data_successfully_with_name, "${child.name.first} ${child.name.last}".trim())
+        val name = child?.name
+        val contentText = name?.fold(
+                ifLeft = {
+                    getString(R.string.published_child_data_successfully_with_name, it.value.trim())
+                }, ifRight = {
+            getString(R.string.published_child_data_successfully_with_name, "${it.first.value} ${it.last.value}".trim())
+        }
+        ) ?: getString(R.string.published_child_data_successfully)
 
         val notification = NotificationCompat.Builder(applicationContext, backgroundContextChannelId(applicationContext))
                 .setContentTitle(getString(R.string.success))
@@ -137,35 +171,51 @@ internal class SherlockService : Service() {
                 .notify(NOTIFICATION_ID_PUBLISHED_SUCCESSFULLY, notification)
     }
 
-    private fun showPublishingFailedNotification(throwable: Throwable, child: AppPublishedChild) {
+    private fun showPublishingFailedNotification(throwable: Throwable, child: AppPublishedChild, isRecoverable: Boolean) {
 
-        val pendingIntent = createIntent(child).let {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                PendingIntent.getForegroundService(applicationContext, REQUEST_CODE_PUBLISHING_FAILED, it, PendingIntent.FLAG_UPDATE_CURRENT)
-            } else {
-                PendingIntent.getService(applicationContext, REQUEST_CODE_PUBLISHING_FAILED, it, PendingIntent.FLAG_UPDATE_CURRENT)
-            }
-        }
+        val name = child.name
+        val contentTitle = name?.fold(
+                ifLeft = { getString(R.string.publishing_failed_with_name, it.value.trim()) },
+                ifRight = { getString(R.string.publishing_failed_with_name, "${it.first.value} ${it.last.value}".trim()) }
+        ) ?: getString(R.string.publishing_failed)
 
-        val contentTitle = if (child.name.first.isEmpty() && child.name.last.isEmpty())
-            getString(R.string.publishing_failed)
-        else
-            getString(R.string.publishing_failed_with_name, "${child.name.first} ${child.name.last}".trim())
-
-        val notification = NotificationCompat.Builder(applicationContext, backgroundContextChannelId(applicationContext))
+        val notificationBuilder = NotificationCompat.Builder(applicationContext, backgroundContextChannelId(applicationContext))
                 .setContentTitle(contentTitle)
-                .setContentText(getString(R.string.click_to_retry_with_reason, throwable.localizedMessage))
                 .setSmallIcon(R.drawable.ic_sherlock)
-                .setContentIntent(pendingIntent)
                 .setDefaults(NotificationCompat.DEFAULT_VIBRATE)
                 .setTicker(getString(R.string.publishing_failed))
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setColor(ContextCompat.getColor(applicationContext, R.color.colorPrimary))
-                .build()
+
+        if (isRecoverable) {
+
+            val pendingIntent = createIntent(child).let {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    PendingIntent.getForegroundService(
+                            applicationContext,
+                            REQUEST_CODE_PUBLISHING_FAILED,
+                            it,
+                            PendingIntent.FLAG_UPDATE_CURRENT
+                    )
+                } else {
+                    PendingIntent.getService(
+                            applicationContext,
+                            REQUEST_CODE_PUBLISHING_FAILED,
+                            it,
+                            PendingIntent.FLAG_UPDATE_CURRENT
+                    )
+                }
+            }
+
+            notificationBuilder.setContentText(getString(R.string.click_to_retry_with_reason, throwable.localizedMessage))
+                    .setContentIntent(pendingIntent)
+        } else {
+            notificationBuilder.setContentText(throwable.localizedMessage)
+        }
 
         checkNotNull(ContextCompat.getSystemService(applicationContext, NotificationManager::class.java))
-                .notify(NOTIFICATION_ID_PUBLISHING_FAILED, notification)
+                .notify(NOTIFICATION_ID_PUBLISHING_FAILED, notificationBuilder.build())
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -191,7 +241,7 @@ internal class SherlockService : Service() {
 
         fun createIntent(child: AppPublishedChild) = Intent(appCtx, SherlockService::class.java).apply {
             action = ACTION_PUBLISH_CHILD
-            putExtra(EXTRA_CHILD, child)
+            putExtra(EXTRA_CHILD, child.parcelize())
         }
     }
 }

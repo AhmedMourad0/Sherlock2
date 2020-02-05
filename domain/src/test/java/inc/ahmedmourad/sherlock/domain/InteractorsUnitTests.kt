@@ -11,11 +11,11 @@ import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
 import inc.ahmedmourad.sherlock.domain.data.ChildrenRepository
 import inc.ahmedmourad.sherlock.domain.filter.Filter
-import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
 import inc.ahmedmourad.sherlock.domain.interactors.children.AddChildInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.children.FindChildrenInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.children.FindLastSearchResultsInteractor
 import inc.ahmedmourad.sherlock.domain.model.children.*
+import inc.ahmedmourad.sherlock.domain.model.children.Range
 import io.reactivex.Flowable
 import io.reactivex.Single
 import junit.framework.TestCase.assertSame
@@ -34,20 +34,20 @@ object InteractorsUnitTests : Spek({
 
             it("should call publish on repository when execute is called") {
 
-                val child = DomainPublishedChild(
-                        DomainName("", ""),
+                val child = PublishedChild(
+                        FullName("", ""),
                         "",
-                        DomainLocation("", "", "", DomainCoordinates(50.0, 50.0)),
-                        DomainEstimatedAppearance(
+                        Location("", "", "", Coordinates(50.0, 50.0)),
+                        ApproximateAppearance(
                                 Gender.MALE,
                                 Skin.DARK,
                                 Hair.BROWN,
-                                DomainRange(10, 15),
-                                DomainRange(100, 150)
+                                Range(10, 15),
+                                Range(100, 150)
                         ), ByteArray(0)
                 )
 
-                val returnedChild = DomainRetrievedChild(
+                val returnedChild = RetrievedChild(
                         UUID.randomUUID().toString(),
                         System.currentTimeMillis(),
                         child.name,
@@ -75,12 +75,12 @@ object InteractorsUnitTests : Spek({
 
             it("should call findAll on repository when execute is called") {
 
-                val filter = mock<Filter<DomainRetrievedChild>>()
-                val result = Flowable.empty<List<Tuple2<DomainSimpleRetrievedChild, Int>>>()
-                val rules = DomainChildCriteriaRules(
-                        DomainName("", ""),
-                        DomainLocation("", "", "", DomainCoordinates(50.0, 40.0)),
-                        DomainExactAppearance(
+                val filter = mock<Filter<RetrievedChild>>()
+                val result = Flowable.empty<List<Tuple2<SimpleRetrievedChild, Int>>>()
+                val rules = ChildQuery(
+                        FullName("", ""),
+                        Location("", "", "", Coordinates(50.0, 40.0)),
+                        ExactAppearance(
                                 Gender.MALE,
                                 Skin.WHEAT,
                                 Hair.DARK,
@@ -104,8 +104,8 @@ object InteractorsUnitTests : Spek({
 
             it("should call findLastSearchResults on repository when execute is called") {
 
-                val list1 = listOf<Tuple2<DomainSimpleRetrievedChild, Int>>()
-                val list2 = listOf<Tuple2<DomainSimpleRetrievedChild, Int>>()
+                val list1 = listOf<Tuple2<SimpleRetrievedChild, Int>>()
+                val list2 = listOf<Tuple2<SimpleRetrievedChild, Int>>()
 
                 whenever(repository.findLastSearchResults()).thenReturn(Flowable.just(list1, list2))
 

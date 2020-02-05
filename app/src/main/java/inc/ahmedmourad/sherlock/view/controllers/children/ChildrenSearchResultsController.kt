@@ -20,13 +20,15 @@ import inc.ahmedmourad.sherlock.adapters.DynamicRecyclerAdapter
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.factories.ChildDetailsControllerFactory
 import inc.ahmedmourad.sherlock.dagger.modules.factories.ChildrenRecyclerAdapterFactory
+import inc.ahmedmourad.sherlock.domain.model.children.ChildQuery
+import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
 import inc.ahmedmourad.sherlock.domain.model.core.disposable
 import inc.ahmedmourad.sherlock.domain.platform.DateManager
-import inc.ahmedmourad.sherlock.model.children.AppChildCriteriaRules
-import inc.ahmedmourad.sherlock.model.children.AppSimpleRetrievedChild
+import inc.ahmedmourad.sherlock.model.core.ParcelableWrapper
+import inc.ahmedmourad.sherlock.model.core.TaggedController
+import inc.ahmedmourad.sherlock.model.core.parcelize
 import inc.ahmedmourad.sherlock.utils.formatter.Formatter
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
-import inc.ahmedmourad.sherlock.view.model.TaggedController
 import inc.ahmedmourad.sherlock.viewmodel.controllers.children.ChildrenSearchResultsViewModel
 import inc.ahmedmourad.sherlock.viewmodel.controllers.children.factories.ChildrenSearchResultsViewModelFactoryFactory
 import timber.log.Timber
@@ -54,9 +56,9 @@ internal class ChildrenSearchResultsController(args: Bundle) : LifecycleControll
 
     private lateinit var context: Context
 
-    private lateinit var rules: AppChildCriteriaRules
+    private lateinit var query: ChildQuery
 
-    private lateinit var adapter: DynamicRecyclerAdapter<List<Tuple2<AppSimpleRetrievedChild, Int>>, *>
+    private lateinit var adapter: DynamicRecyclerAdapter<List<Tuple2<SimpleRetrievedChild, Int>>, *>
 
     private lateinit var viewModel: ChildrenSearchResultsViewModel
 
@@ -74,11 +76,11 @@ internal class ChildrenSearchResultsController(args: Bundle) : LifecycleControll
 
         context = view.context
 
-        rules = requireNotNull(args.getParcelable(ARG_RULES))
+        query = requireNotNull(args.getParcelable<ParcelableWrapper<ChildQuery>>(ARG_QUERY)).value
 
         initializeRecyclerView()
 
-        viewModel = viewModelProvider(viewModelFactoryFactory(rules))[ChildrenSearchResultsViewModel::class.java]
+        viewModel = viewModelProvider(viewModelFactoryFactory(query))[ChildrenSearchResultsViewModel::class.java]
 
         return view
     }
@@ -127,11 +129,11 @@ internal class ChildrenSearchResultsController(args: Bundle) : LifecycleControll
 
         private const val CONTROLLER_TAG = "inc.ahmedmourad.sherlock.view.controllers.tag.ChildrenSearchResultsController"
 
-        private const val ARG_RULES = "inc.ahmedmourad.sherlock.view.controllers.arg.RULES"
+        private const val ARG_QUERY = "inc.ahmedmourad.sherlock.view.controllers.arg.QUERY"
 
-        fun newInstance(rules: AppChildCriteriaRules) = TaggedController(
+        fun newInstance(query: ChildQuery) = TaggedController(
                 ChildrenSearchResultsController(Bundle(1).apply {
-                    putParcelable(ARG_RULES, rules)
+                    putParcelable(ARG_QUERY, query.parcelize())
                 }), CONTROLLER_TAG
         )
     }

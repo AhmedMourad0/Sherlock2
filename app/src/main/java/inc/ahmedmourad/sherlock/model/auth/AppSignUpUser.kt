@@ -2,6 +2,7 @@ package inc.ahmedmourad.sherlock.model.auth
 
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.domain.model.auth.DomainSignUpUser
+import inc.ahmedmourad.sherlock.utils.getImageBitmap
 import inc.ahmedmourad.sherlock.utils.getImageBytes
 
 internal data class AppSignUpUser(
@@ -17,7 +18,7 @@ internal data class AppSignUpUser(
             email,
             name,
             phoneNumber,
-            getImageBytes(picturePath, R.drawable.placeholder)
+            getImageBytes(getImageBitmap(picturePath, R.drawable.placeholder))
     )
 
     override fun equals(other: Any?): Boolean {

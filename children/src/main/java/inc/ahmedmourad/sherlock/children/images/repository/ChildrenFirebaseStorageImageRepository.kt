@@ -11,8 +11,11 @@ import dagger.Lazy
 import inc.ahmedmourad.sherlock.children.images.contract.Contract
 import inc.ahmedmourad.sherlock.children.repository.dependencies.ChildrenImageRepository
 import inc.ahmedmourad.sherlock.domain.data.AuthManager
+import inc.ahmedmourad.sherlock.domain.exceptions.ModelCreationException
 import inc.ahmedmourad.sherlock.domain.exceptions.NoInternetConnectionException
 import inc.ahmedmourad.sherlock.domain.exceptions.NoSignedInUserException
+import inc.ahmedmourad.sherlock.domain.model.children.ChildId
+import inc.ahmedmourad.sherlock.domain.model.children.Url
 import inc.ahmedmourad.sherlock.domain.platform.ConnectivityManager
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -23,7 +26,12 @@ internal class ChildrenFirebaseStorageImageRepository(
         private val storage: Lazy<FirebaseStorage>
 ) : ChildrenImageRepository {
 
-    override fun storeChildPicture(id: String, picture: ByteArray): Single<Either<Throwable, String>> {
+    override fun storeChildPicture(id: ChildId, picture: ByteArray?): Single<Either<Throwable, Url?>> {
+
+        if (picture == null) {
+            return Single.just(null.right())
+        }
+
         return connectivityManager.get()
                 .isInternetConnected()
                 .subscribeOn(Schedulers.io())
@@ -38,7 +46,7 @@ internal class ChildrenFirebaseStorageImageRepository(
                         Single.just(it.left())
                     }, ifRight = { isUserSignedIn ->
                         if (isUserSignedIn) {
-                            storePicture(Contract.Children.PATH, id, picture)
+                            storePicture(Contract.Children.PATH, id.value, picture)
                         } else {
                             Single.just(NoSignedInUserException().left())
                         }
@@ -74,12 +82,12 @@ internal class ChildrenFirebaseStorageImageRepository(
         }.subscribeOn(Schedulers.io()).observeOn(Schedulers.io())
     }
 
-    private fun fetchPictureUrl(filePath: StorageReference): Single<Either<Throwable, String>> {
+    private fun fetchPictureUrl(filePath: StorageReference): Single<Either<Throwable, Url>> {
 
-        return Single.create<Either<Throwable, String>> { emitter ->
+        return Single.create<Either<Throwable, Url>> { emitter ->
 
             val successListener = { uri: Uri ->
-                emitter.onSuccess(uri.toString().right())
+                emitter.onSuccess(Url.of(uri.toString()).mapLeft { ModelCreationException(it.toString()) })
             }
 
             val failureListener = { throwable: Throwable ->

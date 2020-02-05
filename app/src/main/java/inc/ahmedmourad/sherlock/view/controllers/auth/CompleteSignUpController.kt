@@ -28,10 +28,10 @@ import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.SignedInUserProfileCon
 import inc.ahmedmourad.sherlock.domain.model.core.disposable
 import inc.ahmedmourad.sherlock.model.auth.AppIncompleteUser
 import inc.ahmedmourad.sherlock.model.auth.AppSignedInUser
+import inc.ahmedmourad.sherlock.model.core.TaggedController
 import inc.ahmedmourad.sherlock.utils.defaults.DefaultTextWatcher
 import inc.ahmedmourad.sherlock.utils.pickers.images.ImagePicker
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
-import inc.ahmedmourad.sherlock.view.model.TaggedController
 import inc.ahmedmourad.sherlock.viewmodel.controllers.auth.CompleteSignUpViewModel
 import inc.ahmedmourad.sherlock.viewmodel.controllers.auth.factories.CompleteSignUpViewModelFactoryFactory
 import timber.log.Timber
@@ -125,7 +125,7 @@ internal class CompleteSignUpController(args: Bundle) : LifecycleController(args
             }
         })
 
-        if (viewModel.picturePath.value.isNotBlank()) {
+        if (viewModel.picturePath.value != null) {
             Glide.with(context)
                     .load(viewModel.picturePath.value)
                     .placeholder(R.drawable.placeholder)
@@ -185,7 +185,11 @@ internal class CompleteSignUpController(args: Bundle) : LifecycleController(args
             "Parameter data is null!"
         }
 
-        imagePicker.get().handleActivityResult(requestCode, data, viewModel.picturePath::setValue, Timber::e)
+        imagePicker.get().handleActivityResult(requestCode, data) { pictureEither ->
+            pictureEither.fold(ifLeft = {
+                Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            }, ifRight = viewModel.picturePath::setValue)
+        }
 
         super.onActivityResult(requestCode, resultCode, data)
     }

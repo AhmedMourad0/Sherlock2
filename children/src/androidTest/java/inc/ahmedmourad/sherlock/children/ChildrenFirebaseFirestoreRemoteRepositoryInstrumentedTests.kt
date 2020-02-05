@@ -18,8 +18,8 @@ import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
 import inc.ahmedmourad.sherlock.domain.filter.Filter
-import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
 import inc.ahmedmourad.sherlock.domain.model.children.*
+import inc.ahmedmourad.sherlock.domain.model.children.Range
 import io.reactivex.Single
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -36,40 +36,40 @@ class ChildrenFirebaseFirestoreRemoteRepositoryInstrumentedTests {
 
     private lateinit var repository: ChildrenRemoteRepository
 
-    private val child0 = DomainPublishedChild(
-            DomainName("Ahmed", "Mourad"),
+    private val child0 = PublishedChild(
+            FullName("Ahmed", "Mourad"),
             "",
-            DomainLocation("1", "a", "a", DomainCoordinates(90.0, 140.0)),
-            DomainEstimatedAppearance(
+            Location("1", "a", "a", Coordinates(90.0, 140.0)),
+            ApproximateAppearance(
                     Gender.MALE,
                     Skin.WHEAT,
                     Hair.DARK,
-                    DomainRange(18, 22),
-                    DomainRange(170, 190)
+                    Range(18, 22),
+                    Range(170, 190)
             ), getImageBytes(R.drawable.test))
 
-    private val child1 = DomainPublishedChild(
-            DomainName("Yasmeen", "Mourad"),
+    private val child1 = PublishedChild(
+            FullName("Yasmeen", "Mourad"),
             "",
-            DomainLocation("11", "sh", "hs", DomainCoordinates(70.0, 120.0)),
-            DomainEstimatedAppearance(
+            Location("11", "sh", "hs", Coordinates(70.0, 120.0)),
+            ApproximateAppearance(
                     Gender.FEMALE,
                     Skin.WHITE,
                     Hair.DARK,
-                    DomainRange(16, 21),
-                    DomainRange(160, 180)
+                    Range(16, 21),
+                    Range(160, 180)
             ), getImageBytes(R.drawable.test))
 
-    private val child2 = DomainPublishedChild(
-            DomainName("Ahmed", "Shamakh"),
+    private val child2 = PublishedChild(
+            FullName("Ahmed", "Shamakh"),
             "",
-            DomainLocation("111", "b", "bb", DomainCoordinates(55.0, 99.0)),
-            DomainEstimatedAppearance(
+            Location("111", "b", "bb", Coordinates(55.0, 99.0)),
+            ApproximateAppearance(
                     Gender.MALE,
                     Skin.DARK,
                     Hair.BROWN,
-                    DomainRange(11, 23),
-                    DomainRange(150, 180)
+                    Range(11, 23),
+                    Range(150, 180)
             ), getImageBytes(R.drawable.test))
 
     @Before
@@ -107,7 +107,7 @@ class ChildrenFirebaseFirestoreRemoteRepositoryInstrumentedTests {
                     .assertNoErrors()
                     .values()[0]
         }.onEach { (publishedChild, retrievedChild) ->
-            assertEquals(retrievedChild, DomainRetrievedChild(
+            assertEquals(retrievedChild, RetrievedChild(
                     retrievedChild.id,
                     retrievedChild.publicationDate,
                     publishedChild.name,
@@ -151,10 +151,10 @@ class ChildrenFirebaseFirestoreRemoteRepositoryInstrumentedTests {
                     .assertValue(Either.Value(it))
         }
 
-        repository.find(DomainSimpleRetrievedChild(
+        repository.find(SimpleRetrievedChild(
                 UUID.randomUUID().toString(),
                 0L,
-                DomainName("", ""),
+                FullName("", ""),
                 "",
                 "",
                 "",
@@ -186,18 +186,18 @@ class ChildrenFirebaseFirestoreRemoteRepositoryInstrumentedTests {
             assertChildCorrect(it)
         }.toList()
 
-        val filter = mock<Filter<DomainRetrievedChild>> {
+        val filter = mock<Filter<RetrievedChild>> {
             on {
                 filter(any())
             } doAnswer { param ->
-                param.getArgument<List<DomainRetrievedChild>>(0).sortedBy { it.id }.mapIndexed { i, child -> child to i * 100 }
+                param.getArgument<List<RetrievedChild>>(0).sortedBy { it.id }.mapIndexed { i, child -> child to i * 100 }
             }
         }
 
-        val rules = DomainChildCriteriaRules(
-                DomainName("", ""),
-                DomainLocation("", "", "", DomainCoordinates(0.0, 0.0)),
-                DomainExactAppearance(
+        val rules = ChildQuery(
+                FullName("", ""),
+                Location("", "", "", Coordinates(0.0, 0.0)),
+                ExactAppearance(
                         Gender.MALE,
                         Skin.WHITE,
                         Hair.BROWN,
@@ -246,7 +246,7 @@ class ChildrenFirebaseFirestoreRemoteRepositoryInstrumentedTests {
         repository.clear().test().await().assertNoErrors().assertComplete()
     }
 
-    private fun assertChildExists(child: DomainRetrievedChild, exists: Boolean) {
+    private fun assertChildExists(child: RetrievedChild, exists: Boolean) {
         Single.create<Boolean> {
             FirebaseFirestore.getInstance()
                     .collection(Contract.Database.Children.PATH)
@@ -262,7 +262,7 @@ class ChildrenFirebaseFirestoreRemoteRepositoryInstrumentedTests {
         }.test().await().assertComplete().assertNoErrors().assertValue(exists)
     }
 
-    private fun assertPictureExists(child: DomainRetrievedChild, exists: Boolean) {
+    private fun assertPictureExists(child: RetrievedChild, exists: Boolean) {
         Single.create<Boolean> {
             FirebaseStorage.getInstance()
                     .getReference(Contract.Database.Children.PATH)
@@ -274,8 +274,8 @@ class ChildrenFirebaseFirestoreRemoteRepositoryInstrumentedTests {
         }.test().await().assertComplete().assertNoErrors().assertValue(exists)
     }
 
-    private fun assertChildCorrect(child: DomainRetrievedChild) {
-        Single.create<DomainRetrievedChild> {
+    private fun assertChildCorrect(child: RetrievedChild) {
+        Single.create<RetrievedChild> {
             FirebaseFirestore.getInstance()
                     .collection(Contract.Database.Children.PATH)
                     .document(child.id)
@@ -300,7 +300,7 @@ class ChildrenFirebaseFirestoreRemoteRepositoryInstrumentedTests {
         }.test().await().assertComplete().assertNoErrors().assertValue(child)
     }
 
-    private fun assertPictureUrlCorrect(child: DomainRetrievedChild, url: String) {
+    private fun assertPictureUrlCorrect(child: RetrievedChild, url: String) {
         Single.create<Boolean> {
             FirebaseStorage.getInstance()
                     .getReference(Contract.Database.Children.PATH)

@@ -1,44 +1,36 @@
 package inc.ahmedmourad.sherlock.children.remote.repositories
 
 import androidx.annotation.VisibleForTesting
-import arrow.core.Either
-import arrow.core.Tuple2
-import arrow.core.left
-import arrow.core.right
+import arrow.core.*
+import arrow.core.extensions.fx
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.*
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.children.remote.contract.Contract
-import inc.ahmedmourad.sherlock.children.remote.mapper.toFirebaseChildCriteriaRules
-import inc.ahmedmourad.sherlock.children.remote.mapper.toFirebasePublishedChild
-import inc.ahmedmourad.sherlock.children.remote.mapper.toFirebaseSimpleChild
-import inc.ahmedmourad.sherlock.children.remote.model.*
-import inc.ahmedmourad.sherlock.children.repository.dependencies.ChildrenImageRepository
+import inc.ahmedmourad.sherlock.children.remote.utils.toMap
 import inc.ahmedmourad.sherlock.children.repository.dependencies.ChildrenRemoteRepository
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
 import inc.ahmedmourad.sherlock.domain.constants.findEnum
 import inc.ahmedmourad.sherlock.domain.data.AuthManager
+import inc.ahmedmourad.sherlock.domain.exceptions.ModelConversionException
+import inc.ahmedmourad.sherlock.domain.exceptions.ModelCreationException
 import inc.ahmedmourad.sherlock.domain.exceptions.NoInternetConnectionException
 import inc.ahmedmourad.sherlock.domain.exceptions.NoSignedInUserException
 import inc.ahmedmourad.sherlock.domain.filter.Filter
-import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
-import inc.ahmedmourad.sherlock.domain.model.children.DomainPublishedChild
-import inc.ahmedmourad.sherlock.domain.model.children.DomainRetrievedChild
-import inc.ahmedmourad.sherlock.domain.model.children.DomainSimpleRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.*
 import inc.ahmedmourad.sherlock.domain.platform.ConnectivityManager
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import splitties.init.appCtx
-import java.util.*
+import timber.log.Timber
 
 internal class ChildrenFirebaseFirestoreRemoteRepository(
         private val db: Lazy<FirebaseFirestore>,
-        private val childrenImageRepository: Lazy<ChildrenImageRepository>,
         private val authManager: Lazy<AuthManager>,
         private val connectivityManager: Lazy<ConnectivityManager>
 ) : ChildrenRemoteRepository {
@@ -52,10 +44,11 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
         }
     }
 
-    override fun publish(domainChild: DomainPublishedChild): Single<Either<Throwable, DomainRetrievedChild>> {
-
-        val childId = UUID.randomUUID().toString()
-        val publishedChild = domainChild.toFirebasePublishedChild()
+    override fun publish(
+            childId: ChildId,
+            child: PublishedChild,
+            pictureUrl: Url?
+    ): Single<Either<Throwable, RetrievedChild>> {
 
         return connectivityManager.get()
                 .isInternetConnected()
@@ -69,37 +62,32 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
                 }.flatMap { isUserSignedInEither ->
                     isUserSignedInEither.fold(ifLeft = {
                         Single.just(it.left())
-                    }, ifRight = {
-                        if (it)
-                            childrenImageRepository.get().storeChildPicture(childId, publishedChild.picture)
-                        else
+                    }, ifRight = { isUserSignedIn ->
+                        if (isUserSignedIn) {
+                            publishChildData(childId, child, pictureUrl)
+                        } else {
                             Single.just(NoSignedInUserException().left())
+                        }
                     })
-                }.flatMap { filePathEither ->
-                    filePathEither.fold(ifLeft = {
-                        Single.just(it.left())
-                    }, ifRight = {
-                        publishChildData(childId, it, publishedChild)
-                    })
-                }.map { childEither ->
-                    childEither.map(FirebaseRetrievedChild::toDomainChild)
                 }
     }
 
     private fun publishChildData(
-            childId: String,
-            pictureUrl: String,
-            child: FirebasePublishedChild
-    ): Single<Either<Throwable, FirebaseRetrievedChild>> {
+            childId: ChildId,
+            child: PublishedChild,
+            pictureUrl: Url?
+    ): Single<Either<Throwable, RetrievedChild>> {
 
-        return Single.create<Either<Throwable, FirebaseRetrievedChild>> { emitter ->
+        return Single.create<Either<Throwable, RetrievedChild>> { emitter ->
 
             val successListener = { _: Void ->
-                emitter.onSuccess(child.toFirebaseRetrievedChild(
+                emitter.onSuccess(child.toRetrievedChild(
                         childId,
                         System.currentTimeMillis(),
                         pictureUrl
-                ).right())
+                ).mapLeft {
+                    ModelConversionException(it.toString()).also(Timber::e)
+                })
             }
 
             val failureListener = { throwable: Throwable ->
@@ -107,7 +95,7 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
             }
 
             db.get().collection(Contract.Database.Children.PATH)
-                    .document(childId)
+                    .document(childId.value)
                     .set(child.toMap(pictureUrl))
                     .addOnSuccessListener(successListener)
                     .addOnFailureListener(failureListener)
@@ -116,8 +104,8 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
     }
 
     override fun find(
-            child: DomainSimpleRetrievedChild
-    ): Flowable<Either<Throwable, DomainRetrievedChild?>> {
+            childId: ChildId
+    ): Flowable<Either<Throwable, RetrievedChild?>> {
         return connectivityManager.get()
                 .observeInternetConnectivity()
                 .subscribeOn(Schedulers.io())
@@ -133,7 +121,7 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
                         Flowable.just(it.left())
                     }, ifRight = { isUserSignedIn ->
                         if (isUserSignedIn) {
-                            createFindFlowable(child)
+                            createFindFlowable(childId)
                         } else {
                             Flowable.just(NoSignedInUserException().left())
                         }
@@ -142,10 +130,10 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
     }
 
     private fun createFindFlowable(
-            child: DomainSimpleRetrievedChild
-    ): Flowable<Either<Throwable, DomainRetrievedChild?>> {
+            childId: ChildId
+    ): Flowable<Either<Throwable, RetrievedChild?>> {
 
-        return Flowable.create<Either<Throwable, DomainRetrievedChild?>>({ emitter ->
+        return Flowable.create<Either<Throwable, RetrievedChild?>>({ emitter ->
 
             val snapshotListener = { snapshot: DocumentSnapshot?, exception: FirebaseFirestoreException? ->
 
@@ -156,7 +144,7 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
                 } else if (snapshot != null) {
 
                     if (snapshot.exists()) {
-                        emitter.onNext(snapshot.extractFirebaseRetrievedChild().toDomainChild().right())
+                        emitter.onNext(extractRetrievedChild(snapshot))
                     } else {
                         emitter.onNext(null.right())
                     }
@@ -164,7 +152,7 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
             }
 
             val registration = db.get().collection(Contract.Database.Children.PATH)
-                    .document(child.toFirebaseSimpleChild().id)
+                    .document(childId.value)
                     .addSnapshotListener(snapshotListener)
 
             emitter.setCancellable { registration.remove() }
@@ -173,9 +161,9 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
     }
 
     override fun findAll(
-            rules: DomainChildCriteriaRules,
-            filter: Filter<DomainRetrievedChild>
-    ): Flowable<Either<Throwable, List<Tuple2<DomainRetrievedChild, Int>>>> {
+            query: ChildQuery,
+            filter: Filter<RetrievedChild>
+    ): Flowable<Either<Throwable, List<Tuple2<RetrievedChild, Int>>>> {
         return connectivityManager.get()
                 .observeInternetConnectivity()
                 .subscribeOn(Schedulers.io())
@@ -191,7 +179,7 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
                         Flowable.just(it.left())
                     }, ifRight = { isUserSignedIn ->
                         if (isUserSignedIn) {
-                            createFindAllFlowable(rules, filter)
+                            createFindAllFlowable(filter)
                         } else {
                             Flowable.just(NoSignedInUserException().left())
                         }
@@ -200,13 +188,10 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
     }
 
     private fun createFindAllFlowable(
-            rules: DomainChildCriteriaRules,
-            filter: Filter<DomainRetrievedChild>
-    ): Flowable<Either<Throwable, List<Tuple2<DomainRetrievedChild, Int>>>> {
+            filter: Filter<RetrievedChild>
+    ): Flowable<Either<Throwable, List<Tuple2<RetrievedChild, Int>>>> {
 
-        val firebaseRules = rules.toFirebaseChildCriteriaRules()
-
-        return Flowable.create<Either<Throwable, List<Tuple2<DomainRetrievedChild, Int>>>>({ emitter ->
+        return Flowable.create<Either<Throwable, List<Tuple2<RetrievedChild, Int>>>>({ emitter ->
 
             val snapshotListener = { snapshot: QuerySnapshot?, exception: FirebaseFirestoreException? ->
 
@@ -218,16 +203,18 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
 
                     emitter.onNext(filter.filter(snapshot.documents
                             .filter(DocumentSnapshot::exists)
-                            .map(DocumentSnapshot::extractFirebaseRetrievedChild)
-                            .map(FirebaseRetrievedChild::toDomainChild)
+                            .mapNotNull { documentSnapshot ->
+                                extractRetrievedChild(documentSnapshot).getOrHandle {
+                                    Timber.e(it)
+                                    null
+                                }
+                            }
                     ).right())
                 }
             }
 
+            //This's all going to change
             val registration = db.get().collection(Contract.Database.Children.PATH)
-                    .whereEqualTo(Contract.Database.Children.SKIN, firebaseRules.appearance.skin.value)
-                    .whereEqualTo(Contract.Database.Children.GENDER, firebaseRules.appearance.gender.value)
-                    .whereEqualTo(Contract.Database.Children.HAIR, firebaseRules.appearance.hair.value)
                     .addSnapshotListener(snapshotListener)
 
             emitter.setCancellable { registration.remove() }
@@ -285,47 +272,162 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
 }
 
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-internal fun DocumentSnapshot.extractFirebaseRetrievedChild() = FirebaseRetrievedChild(
-        requireNotNull(this.id),
-        requireNotNull(this.getTimestamp(Contract.Database.Children.PUBLICATION_DATE)?.seconds) * 1000L,
-        extractFirebaseName(this),
-        requireNotNull(this.getString(Contract.Database.Children.NOTES)),
-        extractFirebaseLocation(this),
-        extractFirebaseAppearance(this),
-        requireNotNull(this.getString(Contract.Database.Children.PICTURE_URL))
-)
+internal fun extractRetrievedChild(snapshot: DocumentSnapshot): Either<Throwable, RetrievedChild> {
 
-private fun extractFirebaseName(snapshot: DocumentSnapshot) = FirebaseName(
-        requireNotNull(snapshot.getString(Contract.Database.Children.FIRST_NAME)),
-        requireNotNull(snapshot.getString(Contract.Database.Children.LAST_NAME))
-)
+    val id = snapshot.id
 
-private fun extractFirebaseAppearance(snapshot: DocumentSnapshot) = FirebaseEstimatedAppearance(
-        findEnum(requireNotNull(snapshot.getLong(Contract.Database.Children.GENDER)?.toInt()), Gender.values()),
-        findEnum(requireNotNull(snapshot.getLong(Contract.Database.Children.SKIN)?.toInt()), Skin.values()),
-        findEnum(requireNotNull(snapshot.getLong(Contract.Database.Children.HAIR)?.toInt()), Hair.values()),
-        extractFirebaseAge(snapshot),
-        extractFirebaseHeight(snapshot)
-)
+    val publicationDate = snapshot.getTimestamp(Contract.Database.Children.PUBLICATION_DATE)
+            ?.seconds
+            ?.let { it * 1000L }
+            ?: return ModelCreationException("publicationDate is null for id=\"$id\"").left()
 
-private fun extractFirebaseAge(snapshot: DocumentSnapshot) = FirebaseRange(
-        requireNotNull(snapshot.getLong(Contract.Database.Children.START_AGE)?.toInt()),
-        requireNotNull(snapshot.getLong(Contract.Database.Children.END_AGE)?.toInt())
-)
+    val pictureUrl = snapshot.getString(Contract.Database.Children.PICTURE_URL)
+            ?.let(Url.Companion::of)
+            ?.mapLeft { ModelCreationException(it.toString()) }
+            ?.getOrHandle {
+                Timber.e(it)
+                null
+            }
 
-private fun extractFirebaseHeight(snapshot: DocumentSnapshot) = FirebaseRange(
-        requireNotNull(snapshot.getLong(Contract.Database.Children.START_HEIGHT)?.toInt()),
-        requireNotNull(snapshot.getLong(Contract.Database.Children.END_HEIGHT)?.toInt())
-)
+    val name = extractName(snapshot).getOrHandle {
+        Timber.e(it)
+        null
+    }
 
-private fun extractFirebaseLocation(snapshot: DocumentSnapshot) = FirebaseLocation(
-        requireNotNull(snapshot.getString(Contract.Database.Children.LOCATION_ID)),
-        requireNotNull(snapshot.getString(Contract.Database.Children.LOCATION_NAME)),
-        requireNotNull(snapshot.getString(Contract.Database.Children.LOCATION_ADDRESS)),
-        extractFirebaseCoordinates(snapshot)
-)
+    val location = extractLocation(snapshot).getOrHandle {
+        Timber.e(it)
+        null
+    }
 
-private fun extractFirebaseCoordinates(snapshot: DocumentSnapshot) = FirebaseCoordinates(
-        requireNotNull(snapshot.getDouble(Contract.Database.Children.LOCATION_LATITUDE)),
-        requireNotNull(snapshot.getDouble(Contract.Database.Children.LOCATION_LONGITUDE))
-)
+    return Either.fx {
+
+        val (appearance) = extractApproximateAppearance(snapshot)
+
+        val (child) = RetrievedChild.of(
+                ChildId(id),
+                publicationDate,
+                name,
+                snapshot.getString(Contract.Database.Children.NOTES),
+                location,
+                appearance,
+                pictureUrl
+        ).mapLeft { ModelCreationException(it.toString()) }
+
+        return@fx child
+    }
+}
+
+private fun extractName(snapshot: DocumentSnapshot): Either<Throwable, Either<Name, FullName>?> {
+    return Either.fx {
+
+        val first = snapshot.getString(Contract.Database.Children.FIRST_NAME) ?: return@fx null
+
+        val (firstName) = Name.of(first).mapLeft { ModelCreationException(it.toString()) }
+
+        val last = snapshot.getString(Contract.Database.Children.LAST_NAME)
+                ?: return@fx firstName.left()
+
+        val (lastName) = Name.of(last).mapLeft { ModelCreationException(it.toString()) }
+
+        val (fullName) = FullName.of(firstName, lastName).mapLeft { ModelCreationException(it.toString()) }
+
+        return@fx fullName.right()
+    }
+}
+
+private fun extractApproximateAppearance(snapshot: DocumentSnapshot): Either<Throwable, ApproximateAppearance> {
+    return Either.fx {
+
+        val gender = snapshot.getLong(Contract.Database.Children.GENDER)?.toInt()
+                ?.let { findEnum(it, Gender.values()) }
+
+        val skin = snapshot.getLong(Contract.Database.Children.SKIN)?.toInt()
+                ?.let { findEnum(it, Skin.values()) }
+
+        val hair = snapshot.getLong(Contract.Database.Children.HAIR)?.toInt()
+                ?.let { findEnum(it, Hair.values()) }
+
+        val (ageRange) = extractAgeRange(snapshot).mapLeft { ModelCreationException(it.toString()) }
+
+        val (heightRange) = extractHeightRange(snapshot).mapLeft { ModelCreationException(it.toString()) }
+
+        val (appearance) = ApproximateAppearance.of(
+                gender,
+                skin,
+                hair,
+                ageRange,
+                heightRange
+        ).mapLeft { ModelCreationException(it.toString()) }
+
+        return@fx appearance
+    }
+}
+
+private fun extractAgeRange(snapshot: DocumentSnapshot): Either<Throwable, AgeRange?> {
+    return Either.fx {
+
+        val min = snapshot.getLong(Contract.Database.Children.MIN_AGE)?.toInt() ?: return@fx null
+
+        val (minAge) = Age.of(min).mapLeft { ModelCreationException(it.toString()) }
+
+        val max = snapshot.getLong(Contract.Database.Children.MAX_AGE)?.toInt() ?: return@fx null
+
+        val (maxAge) = Age.of(max).mapLeft { ModelCreationException(it.toString()) }
+
+        val (ageRange) = AgeRange.of(minAge, maxAge).mapLeft { ModelCreationException(it.toString()) }
+
+        return@fx ageRange
+    }
+}
+
+private fun extractHeightRange(snapshot: DocumentSnapshot): Either<Throwable, HeightRange?> {
+    return Either.fx {
+
+        val min = snapshot.getLong(Contract.Database.Children.MIN_HEIGHT)?.toInt() ?: return@fx null
+
+        val (minHeight) = Height.of(min).mapLeft { ModelCreationException(it.toString()) }
+
+        val max = snapshot.getLong(Contract.Database.Children.MAX_HEIGHT)?.toInt() ?: return@fx null
+
+        val (maxHeight) = Height.of(max).mapLeft { ModelCreationException(it.toString()) }
+
+        val (heightRange) = HeightRange.of(minHeight, maxHeight).mapLeft { ModelCreationException(it.toString()) }
+
+        return@fx heightRange
+    }
+}
+
+private fun extractLocation(snapshot: DocumentSnapshot): Either<Throwable, Location?> {
+    return Either.fx {
+
+        val locationId = snapshot.getString(Contract.Database.Children.LOCATION_ID)
+                ?: return@fx null
+        val locationName = snapshot.getString(Contract.Database.Children.LOCATION_NAME)
+                ?: return@fx null
+        val locationAddress = snapshot.getString(Contract.Database.Children.LOCATION_ADDRESS)
+                ?: return@fx null
+
+        val (coordinates) = extractCoordinates(snapshot)
+
+        coordinates ?: return@fx null
+
+        val (location) = Location.of(
+                locationId,
+                locationName,
+                locationAddress,
+                coordinates
+        ).mapLeft { ModelCreationException(it.toString()) }
+
+        return@fx location
+    }
+}
+
+private fun extractCoordinates(snapshot: DocumentSnapshot): Either<Throwable, Coordinates?> {
+
+    val latitude = snapshot.getDouble(Contract.Database.Children.LOCATION_LATITUDE)
+            ?: return null.right()
+    val longitude = snapshot.getDouble(Contract.Database.Children.LOCATION_LONGITUDE)
+            ?: return null.right()
+
+    return Coordinates.of(latitude, longitude).mapLeft { ModelCreationException(it.toString()) }
+}

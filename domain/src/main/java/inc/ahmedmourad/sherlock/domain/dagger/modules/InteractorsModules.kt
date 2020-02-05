@@ -58,8 +58,11 @@ internal object FindLastSearchResultsInteractorModule {
 internal object ObserveInternetConnectivityInteractorModule {
     @Provides
     @Reusable
+    @ObserveInternetConnectivityInteractorQualifier
     @JvmStatic
-    fun provideObserveInternetConnectivityInteractor(connectivityManager: Lazy<ConnectivityManager>): ObserveInternetConnectivityInteractor {
+    fun provideObserveInternetConnectivityInteractor(
+            connectivityManager: Lazy<ConnectivityManager>
+    ): ObserveInternetConnectivityInteractor {
         return ::observeInternetConnectivity.partially1(connectivityManager)
     }
 }
@@ -128,12 +131,13 @@ internal object NotifyChildrenFindingStateChangeInteractorModule {
 }
 
 @Module
-internal object CheckIsUserSignedInInteractorModule {
+internal object ObserveUserAuthStateInteractorModule {
     @Provides
     @Reusable
+    @ObserveUserAuthStateInteractorQualifier
     @JvmStatic
-    fun provideCheckIsUserSignedInInteractor(authManager: Lazy<AuthManager>): ObserveUserAuthStateInteractor {
-        return ::checkIsUserSignedIn.partially1(authManager)
+    fun provideObserveUserAuthStateInteractor(authManager: Lazy<AuthManager>): ObserveUserAuthStateInteractor {
+        return ::observeUserAuthState.partially1(authManager)
     }
 }
 

@@ -2,10 +2,12 @@ package inc.ahmedmourad.sherlock.utils.pickers.places
 
 import android.app.Activity
 import android.content.Intent
+import arrow.core.Either
+import arrow.core.extensions.fx
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException
 import com.google.android.gms.common.GooglePlayServicesRepairableException
-import inc.ahmedmourad.sherlock.model.children.AppCoordinates
-import inc.ahmedmourad.sherlock.model.children.AppLocation
+import inc.ahmedmourad.sherlock.viewmodel.controllers.children.utils.validateCoordinates
+import inc.ahmedmourad.sherlock.viewmodel.controllers.children.utils.validateLocation
 import splitties.init.appCtx
 import com.google.android.gms.location.places.ui.PlacePicker as DelegatePlacePicker
 
@@ -24,17 +26,23 @@ internal class GooglePlacePicker : PlacePicker {
         }
     }
 
-    override fun handleActivityResult(requestCode: Int, data: Intent, onSuccess: OnSuccess) {
+    override fun handleActivityResult(requestCode: Int, data: Intent, onHandled: OnHandled) {
         if (requestCode == this.requestCode) {
-            onSuccess(
-                    DelegatePlacePicker.getPlace(appCtx, data)?.run {
-                        AppLocation(this.id,
-                                this.name.toString(),
-                                this.address.toString(),
-                                AppCoordinates(this.latLng.latitude, this.latLng.longitude)
-                        )
-                    }
-            )
+
+            val place = DelegatePlacePicker.getPlace(appCtx, data) ?: return
+
+            onHandled(Either.fx {
+
+                val (coordinates) = validateCoordinates(place.latLng.latitude, place.latLng.longitude)
+
+                val (location) = validateLocation(place.id,
+                        place.name.toString(),
+                        place.address.toString(),
+                        coordinates
+                )
+
+                return@fx location
+            })
         }
     }
 }

@@ -4,27 +4,27 @@ import dagger.Lazy
 import inc.ahmedmourad.sherlock.domain.filter.Filter
 import inc.ahmedmourad.sherlock.domain.filter.ResultsFilter
 import inc.ahmedmourad.sherlock.domain.filter.criteria.Criteria
-import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
 import inc.ahmedmourad.sherlock.domain.filter.criteria.LooseCriteria
-import inc.ahmedmourad.sherlock.domain.model.children.DomainRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.ChildQuery
+import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
 import inc.ahmedmourad.sherlock.domain.platform.LocationManager
 
 typealias ChildrenFilterFactory =
-        (@JvmSuppressWildcards DomainChildCriteriaRules) -> @JvmSuppressWildcards Filter<DomainRetrievedChild>
+        (@JvmSuppressWildcards ChildQuery) -> @JvmSuppressWildcards Filter<RetrievedChild>
 
 internal fun childrenFilterFactory(
         criteriaFactory: ChildrenCriteriaFactory,
-        rules: DomainChildCriteriaRules
-): Filter<DomainRetrievedChild> {
+        rules: ChildQuery
+): Filter<RetrievedChild> {
     return ResultsFilter(criteriaFactory(rules))
 }
 
 typealias ChildrenCriteriaFactory =
-        (@JvmSuppressWildcards DomainChildCriteriaRules) -> @JvmSuppressWildcards Criteria<DomainRetrievedChild>
+        (@JvmSuppressWildcards ChildQuery) -> @JvmSuppressWildcards Criteria<RetrievedChild>
 
 internal fun childrenLooseCriteriaFactory(
         locationManager: Lazy<LocationManager>,
-        rules: DomainChildCriteriaRules
-): Criteria<DomainRetrievedChild> {
+        rules: ChildQuery
+): Criteria<RetrievedChild> {
     return LooseCriteria(rules, locationManager)
 }

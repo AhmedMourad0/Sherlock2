@@ -8,15 +8,16 @@ import arrow.core.Tuple2
 import com.bumptech.glide.Glide
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
+import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.Url
 import inc.ahmedmourad.sherlock.domain.platform.DateManager
-import inc.ahmedmourad.sherlock.model.children.AppSimpleRetrievedChild
 import inc.ahmedmourad.sherlock.utils.formatter.Formatter
 import splitties.init.appCtx
 import timber.log.Timber
 
 internal class ChildrenRemoteViewsFactory(
         private val context: Context,
-        private val results: List<Tuple2<AppSimpleRetrievedChild, Int>>,
+        private val results: List<Tuple2<SimpleRetrievedChild, Int>>,
         private val formatter: Lazy<Formatter>,
         private val dateManager: Lazy<DateManager>
 ) : RemoteViewsService.RemoteViewsFactory {
@@ -64,7 +65,7 @@ internal class ChildrenRemoteViewsFactory(
         return views
     }
 
-    private fun setPicture(views: RemoteViews, pictureUrl: String) {
+    private fun setPicture(views: RemoteViews, pictureUrl: Url?) {
 
         var bitmap: Bitmap?
 

@@ -22,9 +22,9 @@ import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.ResetPasswordViewModelQualifier
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.SignInControllerQualifier
 import inc.ahmedmourad.sherlock.domain.model.core.disposable
+import inc.ahmedmourad.sherlock.model.core.TaggedController
 import inc.ahmedmourad.sherlock.utils.defaults.DefaultTextWatcher
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
-import inc.ahmedmourad.sherlock.view.model.TaggedController
 import inc.ahmedmourad.sherlock.viewmodel.controllers.auth.ResetPasswordViewModel
 import timber.log.Timber
 import javax.inject.Inject

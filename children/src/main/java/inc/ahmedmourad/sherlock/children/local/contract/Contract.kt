@@ -22,10 +22,10 @@ internal object Contract {
         const val COLUMN_GENDER = "isSameGender"
         const val COLUMN_SKIN = "isSameSkin"
         const val COLUMN_HAIR = "isSameHair"
-        const val COLUMN_START_AGE = "start_age"
-        const val COLUMN_END_AGE = "end_age"
-        const val COLUMN_START_HEIGHT = "start_height"
-        const val COLUMN_END_HEIGHT = "end_height"
+        const val COLUMN_MIN_AGE = "min_age"
+        const val COLUMN_MAX_AGE = "max_age"
+        const val COLUMN_MIN_HEIGHT = "min_height"
+        const val COLUMN_MAX_HEIGHT = "max_height"
         const val COLUMN_SCORE = "score"
     }
 }

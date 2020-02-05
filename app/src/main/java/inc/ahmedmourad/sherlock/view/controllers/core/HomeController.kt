@@ -18,11 +18,11 @@ import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.factories.AppSectionsRecyclerAdapterFactory
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.AddChildControllerQualifier
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.FindChildrenControllerQualifier
+import inc.ahmedmourad.sherlock.model.core.AppSection
+import inc.ahmedmourad.sherlock.model.core.TaggedController
 import inc.ahmedmourad.sherlock.view.activity.MainActivity
 import inc.ahmedmourad.sherlock.view.controllers.children.AddChildController
 import inc.ahmedmourad.sherlock.view.controllers.children.ChildDetailsController
-import inc.ahmedmourad.sherlock.view.model.AppSection
-import inc.ahmedmourad.sherlock.view.model.TaggedController
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject

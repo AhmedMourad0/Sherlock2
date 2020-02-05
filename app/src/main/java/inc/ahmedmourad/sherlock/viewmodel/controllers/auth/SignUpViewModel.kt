@@ -1,5 +1,6 @@
 package inc.ahmedmourad.sherlock.viewmodel.controllers.auth
 
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import arrow.core.Either
 import arrow.core.right
@@ -9,12 +10,12 @@ import inc.ahmedmourad.sherlock.domain.interactors.auth.SignInWithTwitterInterac
 import inc.ahmedmourad.sherlock.domain.interactors.auth.SignUpInteractor
 import inc.ahmedmourad.sherlock.domain.model.auth.DomainIncompleteUser
 import inc.ahmedmourad.sherlock.domain.model.auth.DomainSignedInUser
+import inc.ahmedmourad.sherlock.domain.model.children.PicturePath
 import inc.ahmedmourad.sherlock.mapper.toAppIncompleteUser
 import inc.ahmedmourad.sherlock.mapper.toAppSignedInUser
 import inc.ahmedmourad.sherlock.model.auth.AppIncompleteUser
 import inc.ahmedmourad.sherlock.model.auth.AppSignUpUser
 import inc.ahmedmourad.sherlock.model.auth.AppSignedInUser
-import inc.ahmedmourad.sherlock.viewmodel.model.DefaultLiveData
 import io.reactivex.android.schedulers.AndroidSchedulers
 
 internal class SignUpViewModel(
@@ -24,12 +25,12 @@ internal class SignUpViewModel(
         private val signUpWithTwitterInteractor: SignInWithTwitterInteractor
 ) : ViewModel() {
 
-    val password by lazy { DefaultLiveData("") }
-    val passwordConfirmation by lazy { DefaultLiveData("") }
-    val email by lazy { DefaultLiveData("") }
-    val username by lazy { DefaultLiveData("") }
-    val phoneNumber by lazy { DefaultLiveData("") }
-    val picturePath by lazy { DefaultLiveData("") }
+    val password by lazy { MutableLiveData("") }
+    val passwordConfirmation by lazy { MutableLiveData("") }
+    val email by lazy { MutableLiveData("") }
+    val username by lazy { MutableLiveData("") }
+    val phoneNumber by lazy { MutableLiveData("") }
+    val picturePath by lazy { MutableLiveData<PicturePath?>() }
 
     fun onSignUp() = signUpInteractor(toAppSignUpUser().toDomainSignUpUser())
             .map { it.map(DomainSignedInUser::right) }
@@ -60,10 +61,10 @@ internal class SignUpViewModel(
     }
 
     private fun toAppSignUpUser() = AppSignUpUser(
-            password.value,
-            email.value.trim(),
-            username.value.trim(),
-            phoneNumber.value.trim(),
-            picturePath.value
+            password.value!!,
+            email.value!!.trim(),
+            username.value!!.trim(),
+            phoneNumber.value!!.trim(),
+            picturePath.value!!.value
     )
 }

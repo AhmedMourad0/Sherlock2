@@ -5,19 +5,19 @@ import arrow.core.Tuple2
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.domain.data.ChildrenRepository
 import inc.ahmedmourad.sherlock.domain.filter.Filter
-import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
-import inc.ahmedmourad.sherlock.domain.model.children.DomainRetrievedChild
-import inc.ahmedmourad.sherlock.domain.model.children.DomainSimpleRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.ChildQuery
+import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
 import io.reactivex.Flowable
 
 typealias FindChildrenInteractor =
-        (@JvmSuppressWildcards DomainChildCriteriaRules, @JvmSuppressWildcards Filter<DomainRetrievedChild>) ->
-        @JvmSuppressWildcards Flowable<Either<Throwable, List<Tuple2<DomainSimpleRetrievedChild, Int>>>>
+        (@JvmSuppressWildcards ChildQuery, @JvmSuppressWildcards Filter<RetrievedChild>) ->
+        @JvmSuppressWildcards Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Int>>>>
 
 internal fun findChildren(
         childrenRepository: Lazy<ChildrenRepository>,
-        rules: DomainChildCriteriaRules,
-        filter: Filter<DomainRetrievedChild>
-): Flowable<Either<Throwable, List<Tuple2<DomainSimpleRetrievedChild, Int>>>> {
-    return childrenRepository.get().findAll(rules, filter)
+        query: ChildQuery,
+        filter: Filter<RetrievedChild>
+): Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Int>>>> {
+    return childrenRepository.get().findAll(query, filter)
 }

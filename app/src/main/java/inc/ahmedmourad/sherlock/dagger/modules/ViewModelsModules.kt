@@ -28,8 +28,8 @@ internal object MainActivityViewModelModule {
     @MainActivityViewModelQualifier
     @JvmStatic
     fun provideMainActivityViewModel(
-            observeInternetConnectivityInteractor: ObserveInternetConnectivityInteractor,
-            observeUserAuthStateInteractor: ObserveUserAuthStateInteractor,
+            @ObserveInternetConnectivityInteractorQualifier observeInternetConnectivityInteractor: ObserveInternetConnectivityInteractor,
+            @ObserveUserAuthStateInteractorQualifier observeUserAuthStateInteractor: ObserveUserAuthStateInteractor,
             @FindSignedInUserInteractorQualifier findSignedInUserInteractor: FindSignedInUserInteractor,
             signOutInteractor: SignOutInteractor
     ): ViewModelProvider.NewInstanceFactory {
@@ -52,7 +52,7 @@ internal object AddChildViewModelModule {
     @JvmStatic
     fun provideAddChildViewModel(
             @SherlockServiceIntentQualifier serviceFactory: SherlockServiceIntentFactory,
-            observeInternetConnectivityInteractor: ObserveInternetConnectivityInteractor,
+            @ObserveInternetConnectivityInteractorQualifier observeInternetConnectivityInteractor: ObserveInternetConnectivityInteractor,
             @CheckInternetConnectivityInteractorQualifier checkInternetConnectivityInteractor: CheckInternetConnectivityInteractor,
             observeChildPublishingStateInteractor: ObserveChildPublishingStateInteractor,
             checkChildPublishingStateInteractor: CheckChildPublishingStateInteractor
@@ -74,7 +74,7 @@ internal object FindChildrenViewModelModule {
     @FindChildrenViewModelQualifier
     @JvmStatic
     fun provideFindChildrenViewModel(
-            observeInternetConnectivityInteractor: ObserveInternetConnectivityInteractor
+            @ObserveInternetConnectivityInteractorQualifier observeInternetConnectivityInteractor: ObserveInternetConnectivityInteractor
     ): ViewModelProvider.NewInstanceFactory {
         return FindChildrenViewModelFactory(
                 observeInternetConnectivityInteractor

@@ -27,6 +27,16 @@ internal class SherlockApplication : MultiDexApplication() {
 *
 * replace unnecessary folds with when
 *
+* search for and replace `criteria` and `rules`
+*
+* replace start/end for age/height with min/max
+*
+* replace exceptions with ADTs
+*
+* replace score with weight
+*
+* make domain models and their mirrors return Eithers instead of nullables
+*
 * DDD
 *
 *  / ** Done ** /

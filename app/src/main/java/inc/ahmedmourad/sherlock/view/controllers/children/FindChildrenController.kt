@@ -29,12 +29,13 @@ import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.FindChildrenViewModelQ
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
+import inc.ahmedmourad.sherlock.domain.model.children.Location
 import inc.ahmedmourad.sherlock.domain.model.core.disposable
+import inc.ahmedmourad.sherlock.model.core.TaggedController
 import inc.ahmedmourad.sherlock.utils.defaults.DefaultTextWatcher
 import inc.ahmedmourad.sherlock.utils.pickers.colors.ColorSelector
 import inc.ahmedmourad.sherlock.utils.pickers.places.PlacePicker
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
-import inc.ahmedmourad.sherlock.view.model.TaggedController
 import inc.ahmedmourad.sherlock.viewmodel.controllers.children.FindChildrenViewModel
 import timber.log.Timber
 import javax.inject.Inject
@@ -166,7 +167,7 @@ internal class FindChildrenController : LifecycleController(), View.OnClickListe
                 ColorSelector.newItem(Skin.WHITE, skinWhiteView, R.color.colorSkinWhite),
                 ColorSelector.newItem(Skin.WHEAT, skinWheatView, R.color.colorSkinWheat),
                 ColorSelector.newItem(Skin.DARK, skinDarkView, R.color.colorSkinDark),
-                default = viewModel.skin.value
+                default = viewModel.skin.value ?: Skin.WHITE
         ).apply {
             onSelectionChangeListeners.add { viewModel.skin.value = it }
         }
@@ -177,7 +178,7 @@ internal class FindChildrenController : LifecycleController(), View.OnClickListe
                 ColorSelector.newItem(Hair.BLONDE, hairBlondView, R.color.colorHairBlonde),
                 ColorSelector.newItem(Hair.BROWN, hairBrownView, R.color.colorHairBrown),
                 ColorSelector.newItem(Hair.DARK, hairDarkView, R.color.colorHairDark),
-                default = viewModel.hair.value
+                default = viewModel.hair.value ?: Hair.BLONDE
         ).apply {
             onSelectionChangeListeners.add { viewModel.hair.value = it }
         }
@@ -218,25 +219,27 @@ internal class FindChildrenController : LifecycleController(), View.OnClickListe
     }
 
     private fun initializeNumberPickers() {
-        ageNumberPicker.value = viewModel.age.value
-        heightNumberPicker.value = viewModel.height.value
+        ageNumberPicker.value = viewModel.age.value ?: 15
+        heightNumberPicker.value = viewModel.height.value ?: 120
         ageNumberPicker.setOnValueChangedListener { _, _, newVal -> viewModel.age.value = newVal }
         heightNumberPicker.setOnValueChangedListener { _, _, newVal -> viewModel.height.value = newVal }
     }
 
     private fun initializeLocationTextView() {
-        viewModel.location.observe(this, Observer { location ->
-            if (location.name.isBlank()) {
-                locationTextView.setText(R.string.no_location_specified)
-            } else {
+        viewModel.location.observe(this, Observer { location: Location? ->
+            if (location?.name?.isNotBlank() == true) {
                 locationTextView.text = location.name
+            } else {
+                locationTextView.setText(R.string.no_location_specified)
             }
         })
     }
 
     private fun search() {
-        val taggedController = childrenSearchResultsControllerFactory(viewModel.toAppChildCriteriaRules())
-        router.pushController(RouterTransaction.with(taggedController.controller).tag(taggedController.tag))
+        viewModel.toChildQuery()?.let {
+            val taggedController = childrenSearchResultsControllerFactory(it)
+            router.pushController(RouterTransaction.with(taggedController.controller).tag(taggedController.tag))
+        }
     }
 
     private fun startPlacePicker() {
@@ -259,7 +262,11 @@ internal class FindChildrenController : LifecycleController(), View.OnClickListe
             "Parameter data is null!"
         }
 
-        placePicker.get().handleActivityResult(requestCode, data, viewModel.location::setValue)
+        placePicker.get().handleActivityResult(requestCode, data) { locationEither ->
+            locationEither.fold(ifLeft = {
+                Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            }, ifRight = viewModel.location::setValue)
+        }
 
         super.onActivityResult(requestCode, resultCode, data)
     }

@@ -13,6 +13,7 @@ import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import arrow.core.Either
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
@@ -35,19 +36,21 @@ import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.PublishingState
 import inc.ahmedmourad.sherlock.domain.constants.Skin
+import inc.ahmedmourad.sherlock.domain.exceptions.ModelConversionException
+import inc.ahmedmourad.sherlock.domain.model.children.Location
+import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
 import inc.ahmedmourad.sherlock.domain.model.core.disposable
-import inc.ahmedmourad.sherlock.mapper.toAppChild
-import inc.ahmedmourad.sherlock.model.children.AppLocation
 import inc.ahmedmourad.sherlock.model.children.AppPublishedChild
-import inc.ahmedmourad.sherlock.model.children.AppRetrievedChild
+import inc.ahmedmourad.sherlock.model.core.DeeplyLinkedController
+import inc.ahmedmourad.sherlock.model.core.ParcelableWrapper
+import inc.ahmedmourad.sherlock.model.core.TaggedController
+import inc.ahmedmourad.sherlock.model.core.parcelize
 import inc.ahmedmourad.sherlock.utils.defaults.DefaultOnRangeChangedListener
 import inc.ahmedmourad.sherlock.utils.defaults.DefaultTextWatcher
 import inc.ahmedmourad.sherlock.utils.pickers.colors.ColorSelector
 import inc.ahmedmourad.sherlock.utils.pickers.images.ImagePicker
 import inc.ahmedmourad.sherlock.utils.pickers.places.PlacePicker
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
-import inc.ahmedmourad.sherlock.view.model.DeeplyLinkedController
-import inc.ahmedmourad.sherlock.view.model.TaggedController
 import inc.ahmedmourad.sherlock.viewmodel.controllers.children.AddChildViewModel
 import timber.log.Timber
 import javax.inject.Inject
@@ -147,12 +150,13 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
 
         viewModel = viewModelProvider(viewModelFactory)[AddChildViewModel::class.java]
 
-        val navigationChild = args.getParcelable<AppPublishedChild>(ARG_CHILD)
+        val navigationChild = args.getParcelable<ParcelableWrapper<AppPublishedChild>>(ARG_CHILD)?.value
 
-        if (navigationChild != null)
+        if (navigationChild != null) {
             handleExternalNavigation(navigationChild)
-        else
+        } else {
             setEnabledAndIdle(true)
+        }
 
         arrayOf(::createSkinColorViews,
                 ::createHairColorViews,
@@ -218,17 +222,27 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
 
     private fun handlePublishingStateValue(value: PublishingState) {
         when (value) {
-            is PublishingState.Success -> onPublishedSuccessfully(value.child.toAppChild())
+            is PublishingState.Success -> onPublishedSuccessfully(value.child)
             is PublishingState.Failure -> onPublishingFailed()
             is PublishingState.Ongoing -> onPublishingOngoing()
         }
     }
 
-    private fun onPublishedSuccessfully(child: AppRetrievedChild) {
+    private fun onPublishedSuccessfully(child: RetrievedChild) {
         publishingDisposable?.dispose()
-        val taggedController = childDetailsControllerFactory(child.simplify())
-        router.popCurrentController()
-        router.pushController(RouterTransaction.with(taggedController.controller).tag(taggedController.tag))
+        when (val simpleChild = child.simplify()) {
+
+            is Either.Left -> {
+                Timber.e(ModelConversionException(simpleChild.a.toString()))
+                router.popCurrentController()
+            }
+
+            is Either.Right -> {
+                val taggedController = childDetailsControllerFactory(simpleChild.b)
+                router.popCurrentController()
+                router.pushController(RouterTransaction.with(taggedController.controller).tag(taggedController.tag))
+            }
+        }
     }
 
     private fun onPublishingFailed() {
@@ -279,7 +293,7 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
                 ColorSelector.newItem(Skin.WHITE, skinWhiteView, R.color.colorSkinWhite),
                 ColorSelector.newItem(Skin.WHEAT, skinWheatView, R.color.colorSkinWheat),
                 ColorSelector.newItem(Skin.DARK, skinDarkView, R.color.colorSkinDark),
-                default = viewModel.skin.value
+                default = viewModel.skin.value ?: Skin.WHITE
         ).apply {
             onSelectionChangeListeners.add { viewModel.skin.value = it }
         }
@@ -290,7 +304,7 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
                 ColorSelector.newItem(Hair.BLONDE, hairBlondView, R.color.colorHairBlonde),
                 ColorSelector.newItem(Hair.BROWN, hairBrownView, R.color.colorHairBrown),
                 ColorSelector.newItem(Hair.DARK, hairDarkView, R.color.colorHairDark),
-                default = viewModel.hair.value
+                default = viewModel.hair.value ?: Hair.BLONDE
         ).apply {
             onSelectionChangeListeners.add { viewModel.hair.value = it }
         }
@@ -341,20 +355,26 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
     private fun initializeSeekBars() {
 
         ageSeekBar.setIndicatorTextDecimalFormat("##")
-        ageSeekBar.setValue(viewModel.startAge.value.toFloat(), viewModel.endAge.value.toFloat())
+        ageSeekBar.setValue(
+                viewModel.minAge.value?.toFloat() ?: 8f,
+                viewModel.maxAge.value?.toFloat() ?: 12f
+        )
         ageSeekBar.setOnRangeChangedListener(object : DefaultOnRangeChangedListener {
             override fun onRangeChanged(view: RangeSeekBar, min: Float, max: Float, isFromUser: Boolean) {
-                viewModel.startAge.value = min.roundToInt()
-                viewModel.endAge.value = max.roundToInt()
+                viewModel.minAge.value = min.roundToInt()
+                viewModel.maxAge.value = max.roundToInt()
             }
         })
 
         heightSeekBar.setIndicatorTextDecimalFormat("###")
-        heightSeekBar.setValue(viewModel.startHeight.value.toFloat(), viewModel.endHeight.value.toFloat())
+        heightSeekBar.setValue(
+                viewModel.minHeight.value?.toFloat() ?: 50f,
+                viewModel.maxHeight.value?.toFloat() ?: 70f
+        )
         heightSeekBar.setOnRangeChangedListener(object : DefaultOnRangeChangedListener {
             override fun onRangeChanged(view: RangeSeekBar?, min: Float, max: Float, isFromUser: Boolean) {
-                viewModel.startHeight.value = min.roundToInt()
-                viewModel.endHeight.value = max.roundToInt()
+                viewModel.minHeight.value = min.roundToInt()
+                viewModel.maxHeight.value = max.roundToInt()
             }
         })
     }
@@ -370,11 +390,11 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
     }
 
     private fun initializeLocationTextView() {
-        viewModel.location.observe(this, Observer { location: AppLocation ->
-            if (location.name.isBlank()) {
-                locationTextView.setText(R.string.no_location_specified)
-            } else {
+        viewModel.location.observe(this, Observer { location: Location? ->
+            if (location?.name?.isNotBlank() == true) {
                 locationTextView.text = location.name
+            } else {
+                locationTextView.setText(R.string.no_location_specified)
             }
         })
     }
@@ -414,8 +434,17 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
             "Parameter data is null!"
         }
 
-        placePicker.get().handleActivityResult(requestCode, data, viewModel.location::setValue)
-        imagePicker.get().handleActivityResult(requestCode, data, viewModel.picturePath::setValue, Timber::e)
+        placePicker.get().handleActivityResult(requestCode, data) { locationEither ->
+            locationEither.fold(ifLeft = {
+                Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            }, ifRight = viewModel.location::setValue)
+        }
+
+        imagePicker.get().handleActivityResult(requestCode, data) { pictureEither ->
+            pictureEither.fold(ifLeft = {
+                Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            }, ifRight = viewModel.picturePath::setValue)
+        }
 
         super.onActivityResult(requestCode, resultCode, data)
     }
@@ -478,12 +507,12 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
         fun newInstance() = TaggedController(AddChildController(), CONTROLLER_TAG)
 
         private fun newInstance(child: AppPublishedChild) = TaggedController(AddChildController(Bundle(1).apply {
-            putParcelable(ARG_CHILD, child)
+            putParcelable(ARG_CHILD, child.parcelize())
         }), CONTROLLER_TAG)
 
         fun createIntent(activityFactory: MainActivityIntentFactory, child: AppPublishedChild): Intent {
             return activityFactory(DESTINATION_ID).apply {
-                putExtra(EXTRA_CHILD, child)
+                putExtra(EXTRA_CHILD, child.parcelize())
             }
         }
 
@@ -498,7 +527,11 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
             if (addChildControllerBackstackInstance != null)
                 router.popController(addChildControllerBackstackInstance)
 
-            val taggedController = newInstance(requireNotNull(intent.getParcelableExtra(EXTRA_CHILD)))
+            val taggedController = newInstance(
+                    requireNotNull(
+                            intent.getParcelableExtra<ParcelableWrapper<AppPublishedChild>>(EXTRA_CHILD)
+                    ).value
+            )
 
             router.pushController(RouterTransaction.with(taggedController.controller).tag(taggedController.tag))
         }

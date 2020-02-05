@@ -3,17 +3,18 @@ package inc.ahmedmourad.sherlock.domain.filter.criteria
 import arrow.core.Tuple2
 import arrow.core.toT
 import dagger.Lazy
-import inc.ahmedmourad.sherlock.domain.model.children.DomainRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.ChildQuery
+import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
 import inc.ahmedmourad.sherlock.domain.platform.LocationManager
 import me.xdrop.fuzzywuzzy.FuzzySearch
 
 //TODO: date of losing and finding the child matters
 internal class LooseCriteria(
-        private val rules: DomainChildCriteriaRules,
+        private val query: ChildQuery,
         private val locationManager: Lazy<LocationManager>
-) : Criteria<DomainRetrievedChild> {
+) : Criteria<RetrievedChild> {
 
-    override fun apply(result: DomainRetrievedChild): Tuple2<DomainRetrievedChild, Criteria.Score> {
+    override fun apply(result: RetrievedChild): Tuple2<RetrievedChild, Criteria.Score> {
         return result toT Score(getFirstNameRatio(result),
                 getLastNameRatio(result),
                 getDistance(result),
@@ -25,69 +26,77 @@ internal class LooseCriteria(
         )
     }
 
-    private fun getFirstNameRatio(child: DomainRetrievedChild): Int {
-        return if (rules.name.first.isBlank() || child.name.first.isBlank())
-            50
-        else
-            FuzzySearch.ratio(rules.name.first, child.name.first)
+    private fun getFirstNameRatio(child: RetrievedChild): Int {
+        return child.name?.fold(ifLeft = {
+            FuzzySearch.ratio(query.fullName.first.value, it.value)
+        }, ifRight = {
+            FuzzySearch.ratio(query.fullName.first.value, it.first.value)
+        }) ?: 50
     }
 
-    private fun getLastNameRatio(child: DomainRetrievedChild): Int {
-        return if (rules.name.last.isBlank() || child.name.last.isBlank())
+    private fun getLastNameRatio(child: RetrievedChild): Int {
+        return child.name?.fold(ifLeft = {
             50
-        else
-            FuzzySearch.ratio(rules.name.last, child.name.last)
+        }, ifRight = {
+            FuzzySearch.ratio(query.fullName.last.value, it.last.value)
+        }) ?: 50
     }
 
-    private fun getDistance(child: DomainRetrievedChild): Long {
+    private fun getDistance(child: RetrievedChild): Long {
 
-        if (!rules.location.coordinates.isValid())
+        if (child.location == null) {
             return MAX_DISTANCE.value / 2
+        }
 
-        if (!child.location.coordinates.isValid())
-            return MAX_DISTANCE.value / 2
-
-        return locationManager.get().distanceBetween(rules.location.coordinates.latitude,
-                rules.location.coordinates.longitude,
+        return locationManager.get().distanceBetween(query.location.coordinates.latitude,
+                query.location.coordinates.longitude,
                 child.location.coordinates.latitude,
                 child.location.coordinates.longitude
         )
     }
 
-    private fun isSameGender(child: DomainRetrievedChild): Boolean {
-        return rules.appearance.gender == child.appearance.gender
+    private fun isSameGender(child: RetrievedChild): Boolean {
+        return query.appearance.gender == child.appearance.gender
     }
 
-    private fun isSameSkin(child: DomainRetrievedChild): Boolean {
-        return rules.appearance.skin == child.appearance.skin
+    private fun isSameSkin(child: RetrievedChild): Boolean {
+        return query.appearance.skin == child.appearance.skin
     }
 
-    private fun isSameHair(child: DomainRetrievedChild): Boolean {
-        return rules.appearance.hair == child.appearance.hair
+    private fun isSameHair(child: RetrievedChild): Boolean {
+        return query.appearance.hair == child.appearance.hair
     }
 
     // the two-years padding is applied to account for user error when estimating age
-    private fun getAgeError(child: DomainRetrievedChild): Int {
+    private fun getAgeError(child: RetrievedChild): Int {
 
-        val min = child.appearance.age.from - 2
-        val max = child.appearance.age.to + 2
+        if (child.appearance.ageRange == null) {
+            return 0
+        }
+
+        val min = child.appearance.ageRange.min.value - 2
+        val max = child.appearance.ageRange.max.value + 2
 
         return when {
-            rules.appearance.age < min -> min - rules.appearance.age
-            rules.appearance.age > max -> rules.appearance.age - max
+            query.appearance.age.value < min -> min - query.appearance.age.value
+            query.appearance.age.value > max -> query.appearance.age.value - max
             else -> 0
         }
     }
 
     // the 15 cm padding is applied to account for user error when estimating height
-    private fun getHeightError(child: DomainRetrievedChild): Int {
+    private fun getHeightError(child: RetrievedChild): Int {
 
-        val min = child.appearance.height.from - 15
-        val max = child.appearance.height.to + 15
+        if (child.appearance.heightRange == null) {
+            return 0
+        }
+
+        val min = child.appearance.heightRange.min.value - 15
+        val max = child.appearance.heightRange.max.value + 15
 
         return when {
-            rules.appearance.height < min -> min - rules.appearance.height
-            rules.appearance.height > max -> rules.appearance.height - max
+            query.appearance.height.value < min -> min - query.appearance.height.value
+            query.appearance.height.value > max -> query.appearance.height.value - max
             else -> 0
         }
     }

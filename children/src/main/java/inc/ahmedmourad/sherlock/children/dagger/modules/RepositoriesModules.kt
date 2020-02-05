@@ -27,7 +27,8 @@ import inc.ahmedmourad.sherlock.domain.platform.ConnectivityManager
 
 @Module(includes = [
     ChildrenRemoteRepositoryModule::class,
-    ChildrenLocalRepositoryModule::class
+    ChildrenLocalRepositoryModule::class,
+    ChildrenImageRepositoryModule::class
 ])
 internal object ChildrenRepositoryModule {
     @Provides
@@ -36,6 +37,7 @@ internal object ChildrenRepositoryModule {
     fun provideChildrenRepository(
             childrenLocalRepository: Lazy<ChildrenLocalRepository>,
             childrenRemoteRepository: Lazy<ChildrenRemoteRepository>,
+            childrenImageRepository: Lazy<ChildrenImageRepository>,
             notifyChildPublishingStateChangeInteractor: NotifyChildPublishingStateChangeInteractor,
             @NotifyChildFindingStateChangeInteractorQualifier
             notifyChildFindingStateChangeInteractor: NotifyChildFindingStateChangeInteractor,
@@ -45,6 +47,7 @@ internal object ChildrenRepositoryModule {
         return SherlockChildrenRepository(
                 childrenLocalRepository,
                 childrenRemoteRepository,
+                childrenImageRepository,
                 notifyChildPublishingStateChangeInteractor,
                 notifyChildFindingStateChangeInteractor,
                 notifyChildrenFindingStateChangeInteractor
@@ -52,20 +55,18 @@ internal object ChildrenRepositoryModule {
     }
 }
 
-@Module(includes = [FirebaseFirestoreModule::class, ChildrenImageRepositoryModule::class])
+@Module(includes = [FirebaseFirestoreModule::class])
 internal object ChildrenRemoteRepositoryModule {
     @Provides
     @Reusable
     @JvmStatic
     fun provideChildrenRemoteRepository(
             @ChildrenFirebaseFirestoreQualifier db: Lazy<FirebaseFirestore>,
-            childrenImageRepository: Lazy<ChildrenImageRepository>,
             authManager: Lazy<AuthManager>,
             connectivityManager: Lazy<ConnectivityManager>
     ): ChildrenRemoteRepository {
         return ChildrenFirebaseFirestoreRemoteRepository(
                 db,
-                childrenImageRepository,
                 authManager,
                 connectivityManager
         )

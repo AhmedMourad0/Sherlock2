@@ -6,7 +6,7 @@ import androidx.room.RoomDatabase
 
 import inc.ahmedmourad.sherlock.children.local.contract.Contract
 import inc.ahmedmourad.sherlock.children.local.daos.SearchResultsDao
-import inc.ahmedmourad.sherlock.children.local.model.entities.RoomChildEntity
+import inc.ahmedmourad.sherlock.children.local.entities.RoomChildEntity
 import splitties.init.appCtx
 
 @Database(entities = [RoomChildEntity::class], version = 1)

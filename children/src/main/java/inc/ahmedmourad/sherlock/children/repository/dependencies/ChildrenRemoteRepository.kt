@@ -3,27 +3,26 @@ package inc.ahmedmourad.sherlock.children.repository.dependencies
 import arrow.core.Either
 import arrow.core.Tuple2
 import inc.ahmedmourad.sherlock.domain.filter.Filter
-import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
-import inc.ahmedmourad.sherlock.domain.model.children.DomainPublishedChild
-import inc.ahmedmourad.sherlock.domain.model.children.DomainRetrievedChild
-import inc.ahmedmourad.sherlock.domain.model.children.DomainSimpleRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.*
 import io.reactivex.Flowable
 import io.reactivex.Single
 
 internal interface ChildrenRemoteRepository {
 
     fun publish(
-            domainChild: DomainPublishedChild
-    ): Single<Either<Throwable, DomainRetrievedChild>>
+            childId: ChildId,
+            child: PublishedChild,
+            pictureUrl: Url?
+    ): Single<Either<Throwable, RetrievedChild>>
 
     fun find(
-            child: DomainSimpleRetrievedChild
-    ): Flowable<Either<Throwable, DomainRetrievedChild?>>
+            childId: ChildId
+    ): Flowable<Either<Throwable, RetrievedChild?>>
 
     fun findAll(
-            rules: DomainChildCriteriaRules,
-            filter: Filter<DomainRetrievedChild>
-    ): Flowable<Either<Throwable, List<Tuple2<DomainRetrievedChild, Int>>>>
+            query: ChildQuery,
+            filter: Filter<RetrievedChild>
+    ): Flowable<Either<Throwable, List<Tuple2<RetrievedChild, Int>>>>
 
     fun clear(): Single<Either<Throwable, Unit>>
 }

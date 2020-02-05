@@ -17,7 +17,7 @@ import inc.ahmedmourad.sherlock.domain.dagger.modules.*
     NotifyChildPublishingStateChangeInteractorModule::class,
     NotifyChildFindingStateChangeInteractorModule::class,
     NotifyChildrenFindingStateChangeInteractorModule::class,
-    CheckIsUserSignedInInteractorModule::class,
+    ObserveUserAuthStateInteractorModule::class,
     FindSignedInUserInteractorModule::class,
     SendPasswordResetEmailInteractorModule::class,
     SignInInteractorModule::class,

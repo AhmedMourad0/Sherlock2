@@ -1,5 +1,6 @@
 package inc.ahmedmourad.sherlock.viewmodel.controllers.auth
 
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import arrow.core.Either
 import inc.ahmedmourad.sherlock.domain.interactors.auth.SignInInteractor
@@ -12,7 +13,6 @@ import inc.ahmedmourad.sherlock.mapper.toAppIncompleteUser
 import inc.ahmedmourad.sherlock.mapper.toAppSignedInUser
 import inc.ahmedmourad.sherlock.model.auth.AppIncompleteUser
 import inc.ahmedmourad.sherlock.model.auth.AppSignedInUser
-import inc.ahmedmourad.sherlock.viewmodel.model.DefaultLiveData
 import io.reactivex.android.schedulers.AndroidSchedulers
 
 internal class SignInViewModel(
@@ -22,10 +22,10 @@ internal class SignInViewModel(
         private val signInWithTwitterInteractor: SignInWithTwitterInteractor
 ) : ViewModel() {
 
-    val email by lazy { DefaultLiveData("") }
-    val password by lazy { DefaultLiveData("") }
+    val email by lazy { MutableLiveData("") }
+    val password by lazy { MutableLiveData("") }
 
-    fun onSignIn() = signInInteractor(email.value.trim(), password.value.trim())
+    fun onSignIn() = signInInteractor(email.value!!.trim(), password.value!!.trim())
             .map(::toAppUserEither)
             .observeOn(AndroidSchedulers.mainThread())
 

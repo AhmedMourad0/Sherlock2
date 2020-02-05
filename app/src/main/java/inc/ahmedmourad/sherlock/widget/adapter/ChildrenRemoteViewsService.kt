@@ -10,7 +10,9 @@ import arrow.core.toMap
 import arrow.core.toTuple2
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.factories.ChildrenRemoteViewsFactoryFactory
-import inc.ahmedmourad.sherlock.model.children.AppSimpleRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
+import inc.ahmedmourad.sherlock.model.core.ParcelableWrapper
+import inc.ahmedmourad.sherlock.model.core.parcelize
 import splitties.init.appCtx
 import java.util.*
 import javax.inject.Inject
@@ -30,7 +32,9 @@ internal class ChildrenRemoteViewsService : RemoteViewsService() {
 
         val hackBundle = requireNotNull(intent.getBundleExtra(EXTRA_HACK_BUNDLE))
 
-        val children = requireNotNull(hackBundle.getParcelableArrayList<AppSimpleRetrievedChild>(EXTRA_CHILDREN))
+        val children = requireNotNull(
+                hackBundle.getParcelableArrayList<ParcelableWrapper<SimpleRetrievedChild>>(EXTRA_CHILDREN)
+        ).map(ParcelableWrapper<SimpleRetrievedChild>::value)
 
         val scores = requireNotNull(hackBundle.getIntegerArrayList(EXTRA_SCORES))
 
@@ -38,7 +42,7 @@ internal class ChildrenRemoteViewsService : RemoteViewsService() {
 
         return childrenRemoteViewsFactoryFactory(
                 applicationContext,
-                children.zip(scores).map(Pair<AppSimpleRetrievedChild, Int>::toTuple2)
+                children.zip(scores).map(Pair<SimpleRetrievedChild, Int>::toTuple2)
         )
     }
 
@@ -54,15 +58,18 @@ internal class ChildrenRemoteViewsService : RemoteViewsService() {
         const val EXTRA_CHILDREN = "inc.ahmedmourad.sherlock.external.adapter.extra.CHILDREN"
         const val EXTRA_SCORES = "inc.ahmedmourad.sherlock.external.adapter.extra.SCORES"
 
-        fun create(appWidgetId: Int, results: List<Tuple2<AppSimpleRetrievedChild, Int>>): Intent {
+        fun create(appWidgetId: Int, results: List<Tuple2<SimpleRetrievedChild, Int>>): Intent {
+
             val resultsMap = results.toMap()
+            val hackBundle = Bundle(2).apply {
+                putParcelableArrayList(EXTRA_CHILDREN, ArrayList(resultsMap.keys.map(SimpleRetrievedChild::parcelize)))
+                putIntegerArrayList(EXTRA_SCORES, ArrayList(resultsMap.values))
+            }
+
             return Intent(appCtx, ChildrenRemoteViewsService::class.java).also { intent ->
                 intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                 intent.data = getUniqueDataUri(appWidgetId)
-                intent.putExtra(EXTRA_HACK_BUNDLE, Bundle(2).apply {
-                    putParcelableArrayList(EXTRA_CHILDREN, ArrayList(resultsMap.keys))
-                    putIntegerArrayList(EXTRA_SCORES, ArrayList(resultsMap.values))
-                })
+                intent.putExtra(EXTRA_HACK_BUNDLE, hackBundle)
             }
         }
 

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import com.esafirm.imagepicker.features.ReturnMode
 import inc.ahmedmourad.sherlock.R
+import inc.ahmedmourad.sherlock.viewmodel.controllers.children.utils.validatePicturePath
 import splitties.init.appCtx
 import com.esafirm.imagepicker.features.ImagePicker as DelegateImagePicker
 
@@ -31,11 +32,10 @@ internal class EsafirmImagePicker : ImagePicker {
         }
     }
 
-    override fun handleActivityResult(requestCode: Int, data: Intent, onSuccess: OnSuccess, onError: OnError) {
+    override fun handleActivityResult(requestCode: Int, data: Intent, onHandled: OnHandled) {
         if (requestCode == this.requestCode) {
-            DelegateImagePicker.getFirstImageOrNull(data)?.path?.let {
-                onSuccess(it)
-            } ?: onError(IllegalStateException("No image is selected!"))
+            val path = DelegateImagePicker.getFirstImageOrNull(data)?.path ?: return
+            onHandled(validatePicturePath(path))
         }
     }
 }

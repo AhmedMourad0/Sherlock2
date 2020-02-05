@@ -18,7 +18,7 @@ import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
-import inc.ahmedmourad.sherlock.model.children.*
+import inc.ahmedmourad.sherlock.model.children.AppPublishedChild
 import inc.ahmedmourad.sherlock.utils.childAt
 import inc.ahmedmourad.sherlock.utils.nestedScrollTo
 import inc.ahmedmourad.sherlock.view.activity.MainActivity
@@ -113,10 +113,10 @@ class ChildDetailsControllerInstrumentedTests {
                         .setText(child.notes)
 
                 findViewById<RangeSeekBar>(R.id.add_child_age_seek_bar)
-                        .setValue(child.appearance.age.from.toFloat(), child.appearance.age.to.toFloat())
+                        .setValue(child.appearance.ageRange.min.toFloat(), child.appearance.ageRange.max.toFloat())
 
                 findViewById<RangeSeekBar>(R.id.add_child_height_seek_bar)
-                        .setValue(child.appearance.height.from.toFloat(), child.appearance.height.to.toFloat())
+                        .setValue(child.appearance.heightRange.min.toFloat(), child.appearance.heightRange.max.toFloat())
             }
         }
 
@@ -182,7 +182,7 @@ class ChildDetailsControllerInstrumentedTests {
 
         onView(withId(R.id.display_child_age))
                 .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
-                .check(matches(withText(formatter.formatAge(child.appearance.age))))
+                .check(matches(withText(formatter.formatAge(child.appearance.ageRange))))
 
         onView(withId(R.id.display_child_gender))
                 .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
@@ -190,7 +190,7 @@ class ChildDetailsControllerInstrumentedTests {
 
         onView(withId(R.id.display_child_height))
                 .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
-                .check(matches(withText(formatter.formatHeight(child.appearance.height))))
+                .check(matches(withText(formatter.formatHeight(child.appearance.heightRange))))
 
         onView(withId(R.id.display_child_skin))
                 .check(matches(withEffectiveVisibility(Visibility.VISIBLE)))

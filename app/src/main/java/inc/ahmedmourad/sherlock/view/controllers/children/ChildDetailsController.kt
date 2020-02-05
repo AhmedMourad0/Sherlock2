@@ -23,14 +23,16 @@ import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.factories.MainActivityIntentFactory
+import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
 import inc.ahmedmourad.sherlock.domain.model.core.disposable
-import inc.ahmedmourad.sherlock.model.children.AppRetrievedChild
-import inc.ahmedmourad.sherlock.model.children.AppSimpleRetrievedChild
+import inc.ahmedmourad.sherlock.model.core.DeeplyLinkedController
+import inc.ahmedmourad.sherlock.model.core.ParcelableWrapper
+import inc.ahmedmourad.sherlock.model.core.TaggedController
+import inc.ahmedmourad.sherlock.model.core.parcelize
 import inc.ahmedmourad.sherlock.utils.formatter.Formatter
 import inc.ahmedmourad.sherlock.utils.setSupportActionBar
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
-import inc.ahmedmourad.sherlock.view.model.DeeplyLinkedController
-import inc.ahmedmourad.sherlock.view.model.TaggedController
 import inc.ahmedmourad.sherlock.viewmodel.controllers.children.ChildDetailsViewModel
 import inc.ahmedmourad.sherlock.viewmodel.controllers.children.factories.ChildDetailsViewModelFactoryFactory
 import splitties.init.appCtx
@@ -96,7 +98,11 @@ internal class ChildDetailsController(args: Bundle) : LifecycleController(args) 
         setSupportActionBar(toolbar)
 
         viewModel = viewModelProvider(
-                viewModelFactoryFactory(requireNotNull(args.getParcelable(ARG_CHILD)))
+                viewModelFactoryFactory(
+                        requireNotNull(
+                                args.getParcelable<ParcelableWrapper<SimpleRetrievedChild>>(ARG_CHILD)
+                        ).value
+                )
         )[ChildDetailsViewModel::class.java]
 
         return view
@@ -130,7 +136,7 @@ internal class ChildDetailsController(args: Bundle) : LifecycleController(args) 
         super.onDetach(view)
     }
 
-    private fun populateUi(result: Tuple2<AppRetrievedChild, Int?>?) {
+    private fun populateUi(result: Tuple2<RetrievedChild, Int?>?) {
 
         if (result == null) {
             Toast.makeText(context, R.string.child_data_missing, Toast.LENGTH_LONG).show()
@@ -149,11 +155,11 @@ internal class ChildDetailsController(args: Bundle) : LifecycleController(args) 
         toolbar.title = name
         nameTextView.text = name
 
-        ageTextView.text = formatter.get().formatAge(result.a.appearance.age)
+        ageTextView.text = formatter.get().formatAge(result.a.appearance.ageRange)
 
         genderTextView.text = formatter.get().formatGender(result.a.appearance.gender)
 
-        heightTextView.text = formatter.get().formatHeight(result.a.appearance.height)
+        heightTextView.text = formatter.get().formatHeight(result.a.appearance.heightRange)
 
         skinTextView.text = formatter.get().formatSkin(result.a.appearance.skin)
 
@@ -181,13 +187,13 @@ internal class ChildDetailsController(args: Bundle) : LifecycleController(args) 
 
         private const val EXTRA_CHILD = "inc.ahmedmourad.sherlock.view.controllers.extra.CHILD"
 
-        fun newInstance(child: AppSimpleRetrievedChild) = TaggedController(ChildDetailsController(Bundle(1).apply {
-            putParcelable(ARG_CHILD, child)
+        fun newInstance(child: SimpleRetrievedChild) = TaggedController(ChildDetailsController(Bundle(1).apply {
+            putParcelable(ARG_CHILD, child.parcelize())
         }), CONTROLLER_TAG)
 
-        fun createIntent(activityFactory: MainActivityIntentFactory, child: AppSimpleRetrievedChild): Intent {
+        fun createIntent(activityFactory: MainActivityIntentFactory, child: SimpleRetrievedChild): Intent {
             return activityFactory(DESTINATION_ID).apply {
-                putExtra(EXTRA_CHILD, child)
+                putExtra(EXTRA_CHILD, child.parcelize())
             }
         }
 
@@ -197,7 +203,11 @@ internal class ChildDetailsController(args: Bundle) : LifecycleController(args) 
 
         override fun navigate(router: Router, intent: Intent) {
 
-            val taggedController = newInstance(requireNotNull(intent.getParcelableExtra(EXTRA_CHILD)))
+            val taggedController = newInstance(
+                    requireNotNull(
+                            intent.getParcelableExtra<ParcelableWrapper<SimpleRetrievedChild>>(EXTRA_CHILD)
+                    ).value
+            )
 
             router.pushController(RouterTransaction.with(taggedController.controller).tag(taggedController.tag))
         }

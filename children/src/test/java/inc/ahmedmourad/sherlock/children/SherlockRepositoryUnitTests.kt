@@ -9,8 +9,8 @@ import inc.ahmedmourad.sherlock.children.repository.dependencies.ChildrenRemoteR
 import inc.ahmedmourad.sherlock.domain.bus.Bus
 import inc.ahmedmourad.sherlock.domain.constants.*
 import inc.ahmedmourad.sherlock.domain.filter.Filter
-import inc.ahmedmourad.sherlock.domain.filter.criteria.DomainChildCriteriaRules
 import inc.ahmedmourad.sherlock.domain.model.children.*
+import inc.ahmedmourad.sherlock.domain.model.children.Range
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
@@ -47,20 +47,20 @@ object SherlockRepositoryUnitTests : Spek({
 
             it("should call publish on remote repository with the same parameters") {
 
-                val publishedChild = DomainPublishedChild(
-                        DomainName("", ""),
+                val publishedChild = PublishedChild(
+                        FullName("", ""),
                         "",
-                        DomainLocation("", "", "", DomainCoordinates(50.0, 50.0)),
-                        DomainEstimatedAppearance(
+                        Location("", "", "", Coordinates(50.0, 50.0)),
+                        ApproximateAppearance(
                                 Gender.MALE,
                                 Skin.DARK,
                                 Hair.BROWN,
-                                DomainRange(10, 15),
-                                DomainRange(100, 150)
+                                Range(10, 15),
+                                Range(100, 150)
                         ), ByteArray(0)
                 )
 
-                val retrievedChild = DomainRetrievedChild(
+                val retrievedChild = RetrievedChild(
                         UUID.randomUUID().toString(),
                         System.currentTimeMillis(),
                         publishedChild.name,
@@ -93,12 +93,12 @@ object SherlockRepositoryUnitTests : Spek({
 
             it("should call findAll on remote repository with the same parameters and return its results") {
 
-                val filter = mock<Filter<DomainRetrievedChild>>()
-                val list = listOf<Tuple2<DomainRetrievedChild, Int>>()
-                val rules = DomainChildCriteriaRules(
-                        DomainName("", ""),
-                        DomainLocation("", "", "", DomainCoordinates(50.0, 40.0)),
-                        DomainExactAppearance(
+                val filter = mock<Filter<RetrievedChild>>()
+                val list = listOf<Tuple2<RetrievedChild, Int>>()
+                val rules = ChildQuery(
+                        FullName("", ""),
+                        Location("", "", "", Coordinates(50.0, 40.0)),
+                        ExactAppearance(
                                 Gender.MALE,
                                 Skin.WHEAT,
                                 Hair.DARK,
@@ -127,12 +127,12 @@ object SherlockRepositoryUnitTests : Spek({
 
             it("should call replaceAll on local repository with the findAll results") {
 
-                val filter = mock<Filter<DomainRetrievedChild>>()
-                val list = listOf<Pair<DomainRetrievedChild, Int>>()
-                val rules = DomainChildCriteriaRules(
-                        DomainName("", ""),
-                        DomainLocation("", "", "", DomainCoordinates(50.0, 40.0)),
-                        DomainExactAppearance(
+                val filter = mock<Filter<RetrievedChild>>()
+                val list = listOf<Pair<RetrievedChild, Int>>()
+                val rules = ChildQuery(
+                        FullName("", ""),
+                        Location("", "", "", Coordinates(50.0, 40.0)),
+                        ExactAppearance(
                                 Gender.MALE,
                                 Skin.WHEAT,
                                 Hair.DARK,
@@ -167,18 +167,18 @@ object SherlockRepositoryUnitTests : Spek({
 
             it("should call find on remote repository with the same parameters and return its result") {
 
-                val child = DomainRetrievedChild(
+                val child = RetrievedChild(
                         UUID.randomUUID().toString(),
                         System.currentTimeMillis(),
-                        DomainName("", ""),
+                        FullName("", ""),
                         "",
-                        DomainLocation("", "", "", DomainCoordinates(50.0, 50.0)),
-                        DomainEstimatedAppearance(
+                        Location("", "", "", Coordinates(50.0, 50.0)),
+                        ApproximateAppearance(
                                 Gender.MALE,
                                 Skin.DARK,
                                 Hair.BROWN,
-                                DomainRange(10, 15),
-                                DomainRange(100, 150)
+                                Range(10, 15),
+                                Range(100, 150)
                         ), "url"
                 )
 
@@ -226,18 +226,18 @@ object SherlockRepositoryUnitTests : Spek({
 
             it("should call updateIfExists on local repository with the find result") {
 
-                val child = DomainRetrievedChild(
+                val child = RetrievedChild(
                         UUID.randomUUID().toString(),
                         System.currentTimeMillis(),
-                        DomainName("", ""),
+                        FullName("", ""),
                         "",
-                        DomainLocation("", "", "", DomainCoordinates(50.0, 50.0)),
-                        DomainEstimatedAppearance(
+                        Location("", "", "", Coordinates(50.0, 50.0)),
+                        ApproximateAppearance(
                                 Gender.MALE,
                                 Skin.DARK,
                                 Hair.BROWN,
-                                DomainRange(10, 15),
-                                DomainRange(100, 150)
+                                Range(10, 15),
+                                Range(100, 150)
                         ), "url"
                 )
 
@@ -296,13 +296,13 @@ object SherlockRepositoryUnitTests : Spek({
 
             it("should return flowable with the right values") {
 
-                val list = listOf<Pair<DomainRetrievedChild, Int>>()
+                val list = listOf<Pair<RetrievedChild, Int>>()
 
-                whenever(localRepository.findAll()).thenReturn(Flowable.fromArray(list.map { it.first.simplify() to it.second }))
+                whenever(localRepository.findAllWithWeight()).thenReturn(Flowable.fromArray(list.map { it.first.simplify() to it.second }))
 
                 sherlockRepository.findLastSearchResults().test().await().assertValues(list.map { it.first.simplify() to it.second })
 
-                verify(localRepository).findAll()
+                verify(localRepository).findAllWithWeight()
             }
         }
 

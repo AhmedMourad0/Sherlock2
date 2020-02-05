@@ -1,0 +1,17 @@
+package inc.ahmedmourad.sherlock.model.parcelers
+
+import android.os.Parcel
+import arrow.core.orNull
+import inc.ahmedmourad.sherlock.domain.model.children.PicturePath
+import kotlinx.android.parcel.Parceler
+
+internal object PicturePathParceler : Parceler<PicturePath> {
+
+    override fun create(parcel: Parcel): PicturePath {
+        return PicturePath.of(parcel.readString()!!).orNull()!!
+    }
+
+    override fun PicturePath.write(parcel: Parcel, flags: Int) {
+        parcel.writeString(this.value)
+    }
+}

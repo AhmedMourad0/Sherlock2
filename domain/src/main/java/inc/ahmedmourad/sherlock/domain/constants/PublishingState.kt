@@ -1,10 +1,10 @@
 package inc.ahmedmourad.sherlock.domain.constants
 
-import inc.ahmedmourad.sherlock.domain.model.children.DomainPublishedChild
-import inc.ahmedmourad.sherlock.domain.model.children.DomainRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.PublishedChild
+import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
 
 sealed class PublishingState {
-    data class Success(val child: DomainRetrievedChild) : PublishingState()
-    data class Ongoing(val child: DomainPublishedChild) : PublishingState()
-    data class Failure(val child: DomainPublishedChild) : PublishingState()
+    data class Success(val child: RetrievedChild) : PublishingState()
+    data class Ongoing(val child: PublishedChild) : PublishingState()
+    data class Failure(val child: PublishedChild) : PublishingState()
 }

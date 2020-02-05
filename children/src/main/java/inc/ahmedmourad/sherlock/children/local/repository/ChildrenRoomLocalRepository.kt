@@ -1,59 +1,68 @@
 package inc.ahmedmourad.sherlock.children.local.repository
 
-import arrow.core.Tuple2
+import arrow.core.*
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.children.local.database.SherlockDatabase
-import inc.ahmedmourad.sherlock.children.local.mapper.toDomainSimpleChild
+import inc.ahmedmourad.sherlock.children.local.entities.RoomChildEntity
 import inc.ahmedmourad.sherlock.children.local.mapper.toRoomChildEntity
-import inc.ahmedmourad.sherlock.children.local.model.entities.RoomChildEntity
 import inc.ahmedmourad.sherlock.children.repository.dependencies.ChildrenLocalRepository
-import inc.ahmedmourad.sherlock.domain.model.children.DomainRetrievedChild
-import inc.ahmedmourad.sherlock.domain.model.children.DomainSimpleRetrievedChild
-import io.reactivex.*
+import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
+import io.reactivex.Completable
+import io.reactivex.Flowable
+import io.reactivex.Maybe
+import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 
 internal class ChildrenRoomLocalRepository(private val db: Lazy<SherlockDatabase>) : ChildrenLocalRepository {
 
     override fun updateIfExists(
-            child: DomainRetrievedChild
-    ): Maybe<Tuple2<DomainRetrievedChild, Int>> {
+            child: RetrievedChild
+    ): Maybe<Either<Throwable, Tuple2<RetrievedChild, Int?>>> {
         return db.get()
                 .resultsDao()
-                .updateIfExists(child.toRoomChildEntity(-1))
+                .updateIfExists(child.toRoomChildEntity(null))
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .map(RoomChildEntity::toDomainRetrievedChild)
+                .map(RoomChildEntity::toRetrievedChild)
     }
 
-    override fun findAll(): Flowable<List<Tuple2<DomainSimpleRetrievedChild, Int>>> {
+    override fun findAllWithWeight(): Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Int>>>> {
         return db.get()
                 .resultsDao()
-                .findAll()
+                .findAllWithWeight()
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .distinctUntilChanged()
-                .flatMap { list ->
-                    Flowable.fromIterable(list)
-                            .map { it.simplify().toDomainSimpleChild() }
-                            .toList()
-                            .toFlowable()
+                .map { list ->
+                    list.mapNotNull { child ->
+                        child.simplify().getOrHandle {
+                            Timber.e(it)
+                            null
+                        }
+                    }.mapNotNull { tuple ->
+                        tuple.b?.let { tuple.a toT it }
+                    }.right()
                 }
     }
 
     override fun replaceAll(
-            results: List<Tuple2<DomainRetrievedChild, Int>>
-    ): Single<List<Tuple2<DomainSimpleRetrievedChild, Int>>> {
+            results: List<Tuple2<RetrievedChild, Int>>
+    ): Single<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Int?>>>> {
         return db.get()
                 .resultsDao()
-                .replaceAll(results.map(Tuple2<DomainRetrievedChild, Int>::toRoomChildEntity))
+                .replaceAll(results.map(Tuple2<RetrievedChild, Int>::toRoomChildEntity))
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .toSingleDefault(results)
-                .flatMap {
-                    Observable.fromIterable(it)
-                            .map { (child, score) ->
-                                child.toRoomChildEntity(score).simplify().toDomainSimpleChild()
-                            }.toList()
+                .map { newValues ->
+                    newValues.mapNotNull { (child, score) ->
+                        child.toRoomChildEntity(score).simplify().getOrHandle {
+                            Timber.e(it)
+                            null
+                        }
+                    }.right()
                 }
     }
 

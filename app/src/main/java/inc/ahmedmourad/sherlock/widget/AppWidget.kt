@@ -4,15 +4,12 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.widget.RemoteViews
-import arrow.core.extensions.tuple2.bifunctor.mapLeft
+import arrow.core.Either
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.factories.ChildrenRemoteViewsServiceIntentFactory
 import inc.ahmedmourad.sherlock.domain.interactors.children.FindLastSearchResultsInteractor
-import inc.ahmedmourad.sherlock.domain.model.children.DomainSimpleRetrievedChild
-import inc.ahmedmourad.sherlock.mapper.toAppSimpleChild
 import inc.ahmedmourad.sherlock.utils.DisposablesSparseArray
-import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import timber.log.Timber
@@ -49,13 +46,7 @@ internal class AppWidget : AppWidgetProvider() {
         return interactor()
                 .subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(AndroidSchedulers.mainThread())
-                .flatMap { resultsList ->
-                    Flowable.fromIterable(resultsList)
-                            .map { resultTuple ->
-                                resultTuple.mapLeft(DomainSimpleRetrievedChild::toAppSimpleChild)
-                            }.toList()
-                            .toFlowable()
-                }.subscribe({
+                .subscribe({ either ->
 
                     val views = RemoteViews(context.packageName, R.layout.app_widget)
 
@@ -63,9 +54,18 @@ internal class AppWidget : AppWidgetProvider() {
 
                     views.setEmptyView(R.id.widget_list_view, R.id.widget_empty_view)
 
-                    views.setRemoteAdapter(R.id.widget_list_view,
-                            childrenRemoteViewsServiceFactory(appWidgetId, it)
-                    )
+                    when (either) {
+
+                        is Either.Left -> {
+                            Timber.e(either.a)
+                        }
+
+                        is Either.Right -> {
+                            views.setRemoteAdapter(R.id.widget_list_view,
+                                    childrenRemoteViewsServiceFactory(appWidgetId, either.b)
+                            ) //TODO: show retry view
+                        }
+                    }
 
                     appWidgetManager.updateAppWidget(appWidgetId, views)
 

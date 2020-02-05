@@ -5,13 +5,14 @@ import androidx.room.Room
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.children.local.database.SherlockDatabase
-import inc.ahmedmourad.sherlock.children.local.model.entities.RoomChildEntity
+import inc.ahmedmourad.sherlock.children.local.entities.RoomChildEntity
 import inc.ahmedmourad.sherlock.children.local.repository.ChildrenRoomLocalRepository
 import inc.ahmedmourad.sherlock.children.repository.dependencies.ChildrenLocalRepository
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
 import inc.ahmedmourad.sherlock.domain.model.children.*
+import inc.ahmedmourad.sherlock.domain.model.children.Range
 import io.reactivex.Flowable
 import org.junit.After
 import org.junit.Before
@@ -32,48 +33,48 @@ class ChildrenRoomLocalRepositoryInstrumentedTests {
     private lateinit var db: SherlockDatabase
     private lateinit var repository: ChildrenLocalRepository
 
-    private val child0 = DomainRetrievedChild(
+    private val child0 = RetrievedChild(
             UUID.randomUUID().toString(),
             System.currentTimeMillis(),
-            DomainName("Ahmed", "Mourad"),
+            FullName("Ahmed", "Mourad"),
             "",
-            DomainLocation("1", "a", "a", DomainCoordinates(90.0, 140.0)),
-            DomainEstimatedAppearance(
+            Location("1", "a", "a", Coordinates(90.0, 140.0)),
+            ApproximateAppearance(
                     Gender.MALE,
                     Skin.WHEAT,
                     Hair.DARK,
-                    DomainRange(18, 22),
-                    DomainRange(170, 190)
+                    Range(18, 22),
+                    Range(170, 190)
             ), ""
     ) to 100
 
-    private val child1 = DomainRetrievedChild(
+    private val child1 = RetrievedChild(
             UUID.randomUUID().toString(),
             System.currentTimeMillis(),
-            DomainName("Yasmeen", "Mourad"),
+            FullName("Yasmeen", "Mourad"),
             "",
-            DomainLocation("11", "sh", "hs", DomainCoordinates(70.0, 120.0)),
-            DomainEstimatedAppearance(
+            Location("11", "sh", "hs", Coordinates(70.0, 120.0)),
+            ApproximateAppearance(
                     Gender.FEMALE,
                     Skin.WHITE,
                     Hair.DARK,
-                    DomainRange(16, 21),
-                    DomainRange(160, 180)
+                    Range(16, 21),
+                    Range(160, 180)
             ), ""
     ) to 200
 
-    private val child2 = DomainRetrievedChild(
+    private val child2 = RetrievedChild(
             UUID.randomUUID().toString(),
             System.currentTimeMillis(),
-            DomainName("Ahmed", "Shamakh"),
+            FullName("Ahmed", "Shamakh"),
             "",
-            DomainLocation("111", "b", "bb", DomainCoordinates(55.0, 99.0)),
-            DomainEstimatedAppearance(
+            Location("111", "b", "bb", Coordinates(55.0, 99.0)),
+            ApproximateAppearance(
                     Gender.MALE,
                     Skin.DARK,
                     Hair.BROWN,
-                    DomainRange(11, 23),
-                    DomainRange(150, 180)
+                    Range(11, 23),
+                    Range(150, 180)
             ), ""
     ) to 300
 
@@ -99,11 +100,11 @@ class ChildrenRoomLocalRepositoryInstrumentedTests {
                 .assertComplete()
 
         val resultsTestObserver = db.resultsDao()
-                .findAll()
+                .findAllWithWeight()
                 .distinctUntilChanged()
                 .flatMap {
                     Flowable.fromIterable(it)
-                            .map(RoomChildEntity::toDomainRetrievedChild)
+                            .map(RoomChildEntity::toRetrievedChild)
                             .toList()
                             .toFlowable()
                 }.test()
@@ -120,7 +121,7 @@ class ChildrenRoomLocalRepositoryInstrumentedTests {
                 listOf(child0)
         )
 
-        val newChild0 = child0.first.copy(name = DomainName("Yasmeen", "Shamakh")) to child0.second
+        val newChild0 = child0.first.copy(fullName = FullName("Yasmeen", "Shamakh")) to child0.second
 
         repository.updateIfExists(newChild0.first)
                 .test()
@@ -142,11 +143,11 @@ class ChildrenRoomLocalRepositoryInstrumentedTests {
         repository.replaceAll(listOf(child1, child2)).test().await()
 
         val resultsTestObserver = db.resultsDao()
-                .findAll()
+                .findAllWithWeight()
                 .distinctUntilChanged()
                 .flatMap {
                     Flowable.fromIterable(it)
-                            .map(RoomChildEntity::toDomainRetrievedChild)
+                            .map(RoomChildEntity::toRetrievedChild)
                             .toList()
                             .toFlowable()
                 }.test()
@@ -175,9 +176,9 @@ class ChildrenRoomLocalRepositoryInstrumentedTests {
     @Test
     fun findAll_shouldRetrieveAndObserveChangesToTheResultsInTheDatabase() {
 
-        db.resultsDao().replaceAll(listOf(child1, child2).map(Pair<DomainRetrievedChild, Int>::toRoomChildEntity)).test().await()
+        db.resultsDao().replaceAll(listOf(child1, child2).map(Pair<RetrievedChild, Int>::toRoomChildEntity)).test().await()
 
-        val resultsTestObserver = repository.findAll().test()
+        val resultsTestObserver = repository.findAllWithWeight().test()
 
         resultsTestObserver.awaitCount(1).assertValuesOnly(
                 listOf(child1, child2).map { (child, score) ->
@@ -186,10 +187,10 @@ class ChildrenRoomLocalRepositoryInstrumentedTests {
         )
 
         db.resultsDao().apply {
-            replaceAll(listOf(child0, child1, child2).map(Pair<DomainRetrievedChild, Int>::toRoomChildEntity))
-                    .andThen(replaceAll(listOf(child0).map(Pair<DomainRetrievedChild, Int>::toRoomChildEntity)))
-                    .andThen(replaceAll(listOf(child1, child2).map(Pair<DomainRetrievedChild, Int>::toRoomChildEntity)))
-                    .andThen(replaceAll(listOf(child0, child1, child2).map(Pair<DomainRetrievedChild, Int>::toRoomChildEntity)))
+            replaceAll(listOf(child0, child1, child2).map(Pair<RetrievedChild, Int>::toRoomChildEntity))
+                    .andThen(replaceAll(listOf(child0).map(Pair<RetrievedChild, Int>::toRoomChildEntity)))
+                    .andThen(replaceAll(listOf(child1, child2).map(Pair<RetrievedChild, Int>::toRoomChildEntity)))
+                    .andThen(replaceAll(listOf(child0, child1, child2).map(Pair<RetrievedChild, Int>::toRoomChildEntity)))
                     .test()
                     .assertNoErrors()
                     .assertComplete()
@@ -216,11 +217,11 @@ class ChildrenRoomLocalRepositoryInstrumentedTests {
         repository.replaceAll(listOf(child1, child2)).test().await()
 
         val resultsTestObserver = db.resultsDao()
-                .findAll()
+                .findAllWithWeight()
                 .distinctUntilChanged()
                 .flatMap {
                     Flowable.fromIterable(it)
-                            .map(RoomChildEntity::toDomainRetrievedChild)
+                            .map(RoomChildEntity::toRetrievedChild)
                             .toList()
                             .toFlowable()
                 }.test()
