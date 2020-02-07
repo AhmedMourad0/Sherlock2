@@ -6,7 +6,7 @@ import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
-import inc.ahmedmourad.sherlock.domain.model.children.*
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.*
 import inc.ahmedmourad.sherlock.domain.platform.TextManager
 import splitties.init.appCtx
 import java.util.*

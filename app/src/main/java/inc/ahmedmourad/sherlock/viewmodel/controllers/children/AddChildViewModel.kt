@@ -17,8 +17,8 @@ import inc.ahmedmourad.sherlock.domain.interactors.core.CheckChildPublishingStat
 import inc.ahmedmourad.sherlock.domain.interactors.core.CheckInternetConnectivityInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.core.ObserveChildPublishingStateInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.core.ObserveInternetConnectivityInteractor
-import inc.ahmedmourad.sherlock.domain.model.children.Location
-import inc.ahmedmourad.sherlock.domain.model.children.PicturePath
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Location
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.PicturePath
 import inc.ahmedmourad.sherlock.model.children.AppPublishedChild
 import inc.ahmedmourad.sherlock.viewmodel.controllers.children.utils.*
 import io.reactivex.Flowable

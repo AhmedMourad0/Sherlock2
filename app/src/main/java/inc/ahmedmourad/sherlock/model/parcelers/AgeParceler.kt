@@ -3,7 +3,7 @@ package inc.ahmedmourad.sherlock.model.parcelers
 import android.os.Parcel
 import arrow.core.getOrHandle
 import inc.ahmedmourad.sherlock.domain.exceptions.ModelCreationException
-import inc.ahmedmourad.sherlock.domain.model.children.Age
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Age
 import kotlinx.android.parcel.Parceler
 
 internal object AgeParceler : Parceler<Age> {

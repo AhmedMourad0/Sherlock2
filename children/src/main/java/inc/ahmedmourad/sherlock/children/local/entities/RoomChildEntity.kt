@@ -12,6 +12,7 @@ import inc.ahmedmourad.sherlock.domain.constants.Skin
 import inc.ahmedmourad.sherlock.domain.constants.findEnum
 import inc.ahmedmourad.sherlock.domain.exceptions.ModelConversionException
 import inc.ahmedmourad.sherlock.domain.model.children.*
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.*
 import timber.log.Timber
 
 //TODO: maybe move weight to a different table

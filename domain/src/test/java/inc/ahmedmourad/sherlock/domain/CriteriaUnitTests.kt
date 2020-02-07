@@ -13,6 +13,7 @@ import inc.ahmedmourad.sherlock.domain.filter.criteria.Criteria
 import inc.ahmedmourad.sherlock.domain.filter.criteria.LooseCriteria
 import inc.ahmedmourad.sherlock.domain.model.children.*
 import inc.ahmedmourad.sherlock.domain.model.children.Range
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.*
 import inc.ahmedmourad.sherlock.domain.platform.LocationManager
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertTrue

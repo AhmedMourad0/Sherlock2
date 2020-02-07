@@ -1,7 +1,7 @@
 package inc.ahmedmourad.sherlock.domain.filter.criteria
 
 import arrow.core.Tuple2
-import inc.ahmedmourad.sherlock.domain.model.children.Weight
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Weight
 
 interface Criteria<T> {
 

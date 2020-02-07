@@ -1,4 +1,4 @@
-package inc.ahmedmourad.sherlock.domain.model.children
+package inc.ahmedmourad.sherlock.domain.model.children.submodel
 
 import arrow.core.Either
 import arrow.core.right

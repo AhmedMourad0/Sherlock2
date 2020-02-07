@@ -3,6 +3,10 @@ package inc.ahmedmourad.sherlock.domain.model.children
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.ChildId
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.FullName
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Name
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Url
 
 //TODO: follow PublishedChild's rules
 class SimpleRetrievedChild private constructor(

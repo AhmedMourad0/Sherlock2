@@ -4,6 +4,9 @@ import arrow.core.Either
 import arrow.core.Tuple2
 import inc.ahmedmourad.sherlock.domain.filter.Filter
 import inc.ahmedmourad.sherlock.domain.model.children.*
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.ChildId
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Url
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Weight
 import io.reactivex.Flowable
 import io.reactivex.Single
 

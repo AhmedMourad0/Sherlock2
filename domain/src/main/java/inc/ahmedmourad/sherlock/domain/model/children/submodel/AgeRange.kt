@@ -1,10 +1,10 @@
-package inc.ahmedmourad.sherlock.domain.model.children
+package inc.ahmedmourad.sherlock.domain.model.children.submodel
 
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 
-class HeightRange private constructor(val min: Height, val max: Height) {
+class AgeRange private constructor(val min: Age, val max: Age) {
 
     fun component1() = min
 
@@ -18,7 +18,7 @@ class HeightRange private constructor(val min: Height, val max: Height) {
         if (javaClass != other?.javaClass)
             return false
 
-        other as HeightRange
+        other as AgeRange
 
         if (min != other.min)
             return false
@@ -36,13 +36,13 @@ class HeightRange private constructor(val min: Height, val max: Height) {
     }
 
     override fun toString(): String {
-        return "HeightRange(min=$min, max=$max)"
+        return "AgeRange(min=$min, max=$max)"
     }
 
     companion object {
-        fun of(min: Height, max: Height): Either<Exception, HeightRange> {
-            return if (min.value < max.value) {
-                HeightRange(min, max).right()
+        fun of(from: Age, to: Age): Either<Exception, AgeRange> {
+            return if (from.value < to.value) {
+                AgeRange(from, to).right()
             } else {
                 Exception.MinExceedsMaxException.left()
             }

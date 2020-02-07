@@ -4,7 +4,7 @@ import arrow.core.Either
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
-import inc.ahmedmourad.sherlock.domain.model.children.*
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.*
 
 internal interface Formatter {
 

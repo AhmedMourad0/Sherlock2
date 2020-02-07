@@ -9,7 +9,7 @@ import com.bumptech.glide.Glide
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
-import inc.ahmedmourad.sherlock.domain.model.children.Url
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Url
 import inc.ahmedmourad.sherlock.domain.platform.DateManager
 import inc.ahmedmourad.sherlock.utils.formatter.Formatter
 import splitties.init.appCtx

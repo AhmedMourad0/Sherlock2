@@ -20,6 +20,7 @@ import inc.ahmedmourad.sherlock.domain.constants.Skin
 import inc.ahmedmourad.sherlock.domain.filter.Filter
 import inc.ahmedmourad.sherlock.domain.model.children.*
 import inc.ahmedmourad.sherlock.domain.model.children.Range
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.*
 import io.reactivex.Single
 import org.junit.After
 import org.junit.Assert.assertEquals

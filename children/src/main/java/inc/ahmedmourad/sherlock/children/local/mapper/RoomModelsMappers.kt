@@ -5,7 +5,7 @@ import arrow.core.Tuple2
 import arrow.core.toT
 import inc.ahmedmourad.sherlock.children.local.entities.RoomChildEntity
 import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
-import inc.ahmedmourad.sherlock.domain.model.children.Weight
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Weight
 
 internal fun Tuple2<RetrievedChild, Weight?>.toRoomChildEntity(): RoomChildEntity {
 

@@ -3,6 +3,7 @@ package inc.ahmedmourad.sherlock.domain.model.children
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.*
 
 //TODO: make the rules a little stricter
 //TODO: add finding date

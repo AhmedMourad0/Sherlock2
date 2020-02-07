@@ -8,7 +8,7 @@ import inc.ahmedmourad.sherlock.domain.filter.Filter
 import inc.ahmedmourad.sherlock.domain.model.children.ChildQuery
 import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
 import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
-import inc.ahmedmourad.sherlock.domain.model.children.Weight
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Weight
 import io.reactivex.Flowable
 
 typealias FindChildrenInteractor =

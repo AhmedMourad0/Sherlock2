@@ -4,7 +4,7 @@ import arrow.core.Either
 import arrow.core.Tuple2
 import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
 import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
-import inc.ahmedmourad.sherlock.domain.model.children.Weight
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Weight
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe

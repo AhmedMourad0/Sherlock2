@@ -8,7 +8,7 @@ import inc.ahmedmourad.sherlock.children.local.mapper.toRoomChildEntity
 import inc.ahmedmourad.sherlock.children.repository.dependencies.ChildrenLocalRepository
 import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
 import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
-import inc.ahmedmourad.sherlock.domain.model.children.Weight
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Weight
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe

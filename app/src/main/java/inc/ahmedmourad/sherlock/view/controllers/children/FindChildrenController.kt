@@ -29,7 +29,7 @@ import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.FindChildrenViewModelQ
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
-import inc.ahmedmourad.sherlock.domain.model.children.Location
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Location
 import inc.ahmedmourad.sherlock.domain.model.core.disposable
 import inc.ahmedmourad.sherlock.model.core.TaggedController
 import inc.ahmedmourad.sherlock.utils.defaults.DefaultTextWatcher

@@ -14,8 +14,8 @@ import inc.ahmedmourad.sherlock.domain.data.AuthManager
 import inc.ahmedmourad.sherlock.domain.exceptions.ModelCreationException
 import inc.ahmedmourad.sherlock.domain.exceptions.NoInternetConnectionException
 import inc.ahmedmourad.sherlock.domain.exceptions.NoSignedInUserException
-import inc.ahmedmourad.sherlock.domain.model.children.ChildId
-import inc.ahmedmourad.sherlock.domain.model.children.Url
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.ChildId
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Url
 import inc.ahmedmourad.sherlock.domain.platform.ConnectivityManager
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers

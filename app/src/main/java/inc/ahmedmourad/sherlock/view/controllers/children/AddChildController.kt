@@ -37,7 +37,7 @@ import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.PublishingState
 import inc.ahmedmourad.sherlock.domain.constants.Skin
 import inc.ahmedmourad.sherlock.domain.exceptions.ModelConversionException
-import inc.ahmedmourad.sherlock.domain.model.children.Location
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Location
 import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
 import inc.ahmedmourad.sherlock.domain.model.core.disposable
 import inc.ahmedmourad.sherlock.model.children.AppPublishedChild

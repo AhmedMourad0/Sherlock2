@@ -1,8 +1,8 @@
 package inc.ahmedmourad.sherlock.children.repository.dependencies
 
 import arrow.core.Either
-import inc.ahmedmourad.sherlock.domain.model.children.ChildId
-import inc.ahmedmourad.sherlock.domain.model.children.Url
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.ChildId
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Url
 import io.reactivex.Single
 
 internal interface ChildrenImageRepository {

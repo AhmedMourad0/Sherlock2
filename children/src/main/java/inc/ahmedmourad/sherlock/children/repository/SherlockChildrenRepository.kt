@@ -15,6 +15,8 @@ import inc.ahmedmourad.sherlock.domain.interactors.core.NotifyChildFindingStateC
 import inc.ahmedmourad.sherlock.domain.interactors.core.NotifyChildPublishingStateChangeInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.core.NotifyChildrenFindingStateChangeInteractor
 import inc.ahmedmourad.sherlock.domain.model.children.*
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.ChildId
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Weight
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers

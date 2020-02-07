@@ -3,7 +3,7 @@ package inc.ahmedmourad.sherlock.model.parcelers
 import android.os.Parcel
 import arrow.core.getOrHandle
 import inc.ahmedmourad.sherlock.domain.exceptions.ModelCreationException
-import inc.ahmedmourad.sherlock.domain.model.children.Location
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Location
 import inc.ahmedmourad.sherlock.model.parcelers.utils.write
 import kotlinx.android.parcel.Parceler
 

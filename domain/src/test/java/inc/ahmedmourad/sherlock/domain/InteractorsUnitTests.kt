@@ -16,6 +16,7 @@ import inc.ahmedmourad.sherlock.domain.interactors.children.FindChildrenInteract
 import inc.ahmedmourad.sherlock.domain.interactors.children.FindLastSearchResultsInteractor
 import inc.ahmedmourad.sherlock.domain.model.children.*
 import inc.ahmedmourad.sherlock.domain.model.children.Range
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.*
 import io.reactivex.Flowable
 import io.reactivex.Single
 import junit.framework.TestCase.assertSame

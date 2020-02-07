@@ -11,6 +11,7 @@ import inc.ahmedmourad.sherlock.domain.constants.*
 import inc.ahmedmourad.sherlock.domain.filter.Filter
 import inc.ahmedmourad.sherlock.domain.model.children.*
 import inc.ahmedmourad.sherlock.domain.model.children.Range
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.*
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe

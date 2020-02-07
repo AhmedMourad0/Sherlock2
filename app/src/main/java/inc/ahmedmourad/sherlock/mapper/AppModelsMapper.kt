@@ -1,13 +1,13 @@
 package inc.ahmedmourad.sherlock.mapper
 
-import inc.ahmedmourad.sherlock.domain.model.auth.DomainIncompleteUser
-import inc.ahmedmourad.sherlock.domain.model.auth.DomainSignedInUser
-import inc.ahmedmourad.sherlock.domain.model.auth.DomainUser
+import inc.ahmedmourad.sherlock.domain.model.auth.IncompleteUser
+import inc.ahmedmourad.sherlock.domain.model.auth.SignedInUser
+import inc.ahmedmourad.sherlock.domain.model.auth.User
 import inc.ahmedmourad.sherlock.model.auth.AppIncompleteUser
 import inc.ahmedmourad.sherlock.model.auth.AppSignedInUser
 import inc.ahmedmourad.sherlock.model.auth.AppUser
 
-internal fun DomainSignedInUser.toAppSignedInUser() = AppSignedInUser(
+internal fun SignedInUser.toAppSignedInUser() = AppSignedInUser(
         id,
         registrationDate,
         email,
@@ -16,7 +16,7 @@ internal fun DomainSignedInUser.toAppSignedInUser() = AppSignedInUser(
         pictureUrl
 )
 
-internal fun DomainUser.toAppUser() = AppUser(
+internal fun User.toAppUser() = AppUser(
         id,
         registrationDate,
         lastLoginDate,
@@ -26,7 +26,7 @@ internal fun DomainUser.toAppUser() = AppUser(
         pictureUrl
 )
 
-internal fun DomainIncompleteUser.toAppIncompleteUser() = AppIncompleteUser(
+internal fun IncompleteUser.toAppIncompleteUser() = AppIncompleteUser(
         id,
         email,
         name,

@@ -13,6 +13,10 @@ import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
 import inc.ahmedmourad.sherlock.domain.model.children.*
 import inc.ahmedmourad.sherlock.domain.model.children.Range
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.ApproximateAppearance
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Coordinates
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.FullName
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Location
 import io.reactivex.Flowable
 import org.junit.After
 import org.junit.Before

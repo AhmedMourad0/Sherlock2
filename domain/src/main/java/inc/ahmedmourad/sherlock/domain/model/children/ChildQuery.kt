@@ -2,6 +2,9 @@ package inc.ahmedmourad.sherlock.domain.model.children
 
 import arrow.core.Either
 import arrow.core.right
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.ExactAppearance
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.FullName
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Location
 
 //TODO: add picture and lost date
 class ChildQuery private constructor(

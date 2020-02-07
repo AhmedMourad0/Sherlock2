@@ -1,7 +1,7 @@
 package inc.ahmedmourad.sherlock.domain.filter
 
 import arrow.core.Tuple2
-import inc.ahmedmourad.sherlock.domain.model.children.Weight
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Weight
 
 //TODO: should be a function
 interface Filter<T> {
