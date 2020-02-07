@@ -1,7 +1,8 @@
 package inc.ahmedmourad.sherlock.model.parcelers
 
 import android.os.Parcel
-import arrow.core.orNull
+import arrow.core.getOrHandle
+import inc.ahmedmourad.sherlock.domain.exceptions.ModelCreationException
 import inc.ahmedmourad.sherlock.domain.model.children.ApproximateAppearance
 import inc.ahmedmourad.sherlock.model.parcelers.utils.createNullable
 import inc.ahmedmourad.sherlock.model.parcelers.utils.writeNullable
@@ -16,7 +17,9 @@ internal object ApproximateAppearanceParceler : Parceler<ApproximateAppearance> 
                 HairParceler.createNullable(parcel),
                 AgeRangeParceler.createNullable(parcel),
                 HeightRangeParceler.createNullable(parcel)
-        ).orNull()!!
+        ).getOrHandle {
+            throw ModelCreationException(it.toString())
+        }
     }
 
     override fun ApproximateAppearance.write(parcel: Parcel, flags: Int) {

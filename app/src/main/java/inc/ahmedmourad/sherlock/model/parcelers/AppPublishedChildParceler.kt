@@ -1,7 +1,8 @@
 package inc.ahmedmourad.sherlock.model.parcelers
 
 import android.os.Parcel
-import arrow.core.orNull
+import arrow.core.getOrHandle
+import inc.ahmedmourad.sherlock.domain.exceptions.ModelCreationException
 import inc.ahmedmourad.sherlock.model.children.AppPublishedChild
 import inc.ahmedmourad.sherlock.model.parcelers.utils.*
 import kotlinx.android.parcel.Parceler
@@ -15,7 +16,9 @@ internal object AppPublishedChildParceler : Parceler<AppPublishedChild> {
                 LocationParceler.createNullable(parcel),
                 ApproximateAppearanceParceler.create(parcel),
                 PicturePathParceler.createNullable(parcel)
-        ).orNull()!!
+        ).getOrHandle {
+            throw ModelCreationException(it.toString())
+        }
     }
 
     override fun AppPublishedChild.write(parcel: Parcel, flags: Int) {
