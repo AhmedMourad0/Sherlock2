@@ -58,16 +58,16 @@ internal fun validateNameNullable(value: String?): Either<String, Name?> {
 }
 
 internal fun validateAgeRange(
-        startAge: Age?,
-        endAge: Age?
+        minAge: Age?,
+        maxAge: Age?
 ): Either<String, AgeRange?> {
 
-    if ((startAge == null) != (endAge == null)) {
+    if ((minAge == null) != (maxAge == null)) {
         return appCtx.getString(R.string.invalid_age_range).left()
     }
 
-    if (startAge != null && endAge != null) {
-        return AgeRange.of(startAge, endAge).mapLeft {
+    if (minAge != null && maxAge != null) {
+        return AgeRange.of(minAge, maxAge).mapLeft {
             when (it) {
                 AgeRange.Exception.MinExceedsMaxException -> appCtx.getString(R.string.age_min_exceeds_max)
             }
@@ -100,16 +100,16 @@ internal fun validateAgeNullable(value: Int?): Either<String, Age?> {
 }
 
 internal fun validateHeightRange(
-        startHeight: Height?,
-        endHeight: Height?
+        minHeight: Height?,
+        maxHeight: Height?
 ): Either<String, HeightRange?> {
 
-    if ((startHeight == null) != (endHeight == null)) {
+    if ((minHeight == null) != (maxHeight == null)) {
         return appCtx.getString(R.string.invalid_height_range).left()
     }
 
-    if (startHeight != null && endHeight != null) {
-        return HeightRange.of(startHeight, endHeight).mapLeft {
+    if (minHeight != null && maxHeight != null) {
+        return HeightRange.of(minHeight, maxHeight).mapLeft {
             when (it) {
                 HeightRange.Exception.MinExceedsMaxException -> appCtx.getString(R.string.height_min_exceeds_max)
             }

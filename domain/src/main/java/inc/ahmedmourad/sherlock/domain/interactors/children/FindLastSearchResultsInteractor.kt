@@ -5,13 +5,14 @@ import arrow.core.Tuple2
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.domain.data.ChildrenRepository
 import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.Weight
 import io.reactivex.Flowable
 
 typealias FindLastSearchResultsInteractor =
-        () -> @JvmSuppressWildcards Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Int>>>>
+        () -> @JvmSuppressWildcards Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Weight>>>>
 
 internal fun findLastSearchResults(
         childrenRepository: Lazy<ChildrenRepository>
-): Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Int>>>> {
+): Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Weight>>>> {
     return childrenRepository.get().findLastSearchResults()
 }

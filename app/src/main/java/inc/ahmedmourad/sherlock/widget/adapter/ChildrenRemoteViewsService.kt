@@ -36,13 +36,13 @@ internal class ChildrenRemoteViewsService : RemoteViewsService() {
                 hackBundle.getParcelableArrayList<ParcelableWrapper<SimpleRetrievedChild>>(EXTRA_CHILDREN)
         ).map(ParcelableWrapper<SimpleRetrievedChild>::value)
 
-        val scores = requireNotNull(hackBundle.getIntegerArrayList(EXTRA_SCORES))
+        val weights = requireNotNull(hackBundle.getIntegerArrayList(EXTRA_WEIGHT))
 
-        require(children.size == scores.size)
+        require(children.size == weights.size)
 
         return childrenRemoteViewsFactoryFactory(
                 applicationContext,
-                children.zip(scores).map(Pair<SimpleRetrievedChild, Int>::toTuple2)
+                children.zip(weights).map(Pair<SimpleRetrievedChild, Int>::toTuple2)
         )
     }
 
@@ -56,14 +56,14 @@ internal class ChildrenRemoteViewsService : RemoteViewsService() {
         /** This's as ridiculous as it looks, but it's the only way this works */
         const val EXTRA_HACK_BUNDLE = "inc.ahmedmourad.sherlock.external.adapter.extra.HACK_BUNDLE"
         const val EXTRA_CHILDREN = "inc.ahmedmourad.sherlock.external.adapter.extra.CHILDREN"
-        const val EXTRA_SCORES = "inc.ahmedmourad.sherlock.external.adapter.extra.SCORES"
+        const val EXTRA_WEIGHT = "inc.ahmedmourad.sherlock.external.adapter.extra.WEIGHT"
 
         fun create(appWidgetId: Int, results: List<Tuple2<SimpleRetrievedChild, Int>>): Intent {
 
             val resultsMap = results.toMap()
             val hackBundle = Bundle(2).apply {
                 putParcelableArrayList(EXTRA_CHILDREN, ArrayList(resultsMap.keys.map(SimpleRetrievedChild::parcelize)))
-                putIntegerArrayList(EXTRA_SCORES, ArrayList(resultsMap.values))
+                putIntegerArrayList(EXTRA_WEIGHT, ArrayList(resultsMap.values))
             }
 
             return Intent(appCtx, ChildrenRemoteViewsService::class.java).also { intent ->

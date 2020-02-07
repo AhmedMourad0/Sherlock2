@@ -29,20 +29,20 @@ internal abstract class SearchResultsDao {
             ${ChildrenEntry.COLUMN_MAX_AGE},
             ${ChildrenEntry.COLUMN_MIN_HEIGHT},
             ${ChildrenEntry.COLUMN_MAX_HEIGHT},
-            ${ChildrenEntry.COLUMN_SCORE}
+            ${ChildrenEntry.COLUMN_WEIGHT}
             FROM
             ${ChildrenEntry.TABLE_NAME}
             WHERE
-            ${ChildrenEntry.COLUMN_SCORE} IS NOT NULL""")
+            ${ChildrenEntry.COLUMN_WEIGHT} IS NOT NULL""")
     abstract fun findAllWithWeight(): Flowable<List<RoomChildEntity>>
 
     @Query("""SELECT
-            ${ChildrenEntry.COLUMN_SCORE}
+            ${ChildrenEntry.COLUMN_WEIGHT}
             FROM
             ${ChildrenEntry.TABLE_NAME}
             WHERE
             ${ChildrenEntry.COLUMN_ID} = :childId""")
-    protected abstract fun findScore(childId: String): Maybe<Int>
+    protected abstract fun findScore(childId: String): Maybe<Double>
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
     protected abstract fun update(child: RoomChildEntity): Completable
@@ -65,7 +65,7 @@ internal abstract class SearchResultsDao {
 
     fun updateIfExists(child: RoomChildEntity): Maybe<RoomChildEntity> {
         return findScore(child.id).map {
-            child.copy(score = it)
+            child.copy(weight = it)
         }.flatMap { update(it).andThen(Maybe.just(it)) }
     }
 }

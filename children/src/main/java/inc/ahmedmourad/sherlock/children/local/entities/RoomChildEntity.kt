@@ -14,7 +14,7 @@ import inc.ahmedmourad.sherlock.domain.exceptions.ModelConversionException
 import inc.ahmedmourad.sherlock.domain.model.children.*
 import timber.log.Timber
 
-//TODO: maybe move score to a different table
+//TODO: maybe move weight to a different table
 @Entity(tableName = ChildrenEntry.TABLE_NAME)
 internal data class RoomChildEntity(
 
@@ -73,11 +73,11 @@ internal data class RoomChildEntity(
         @ColumnInfo(name = ChildrenEntry.COLUMN_PICTURE_URL)
         val pictureUrl: String?,
 
-        @ColumnInfo(name = ChildrenEntry.COLUMN_SCORE)
-        val score: Int?
+        @ColumnInfo(name = ChildrenEntry.COLUMN_WEIGHT)
+        val weight: Double?
 ) {
 
-    fun toRetrievedChild(): Either<Throwable, Tuple2<RetrievedChild, Int?>> {
+    fun toRetrievedChild(): Either<Throwable, Tuple2<RetrievedChild, Weight?>> {
 
         val name = extractName().getOrHandle {
             Timber.e(it)
@@ -90,6 +90,13 @@ internal data class RoomChildEntity(
         }
 
         val url = pictureUrl?.let(Url.Companion::of)
+                ?.mapLeft { ModelConversionException(it.toString()) }
+                ?.getOrHandle {
+                    Timber.e(it)
+                    null
+                }
+
+        val weight = this@RoomChildEntity.weight?.let(Weight.Companion::of)
                 ?.mapLeft { ModelConversionException(it.toString()) }
                 ?.getOrHandle {
                     Timber.e(it)
@@ -110,14 +117,14 @@ internal data class RoomChildEntity(
                     url
             ).bimap(
                     leftOperation = { ModelConversionException(it.toString()) },
-                    rightOperation = { it toT score }
+                    rightOperation = { it toT weight }
             )
 
             return@fx child
         }
     }
 
-    fun simplify(): Either<Throwable, Tuple2<SimpleRetrievedChild, Int?>> {
+    fun simplify(): Either<Throwable, Tuple2<SimpleRetrievedChild, Weight?>> {
 
         val name = extractName().getOrHandle {
             Timber.e(it)
@@ -125,6 +132,13 @@ internal data class RoomChildEntity(
         }
 
         val url = pictureUrl?.let(Url.Companion::of)
+                ?.mapLeft { ModelConversionException(it.toString()) }
+                ?.getOrHandle {
+                    Timber.e(it)
+                    null
+                }
+
+        val weight = this@RoomChildEntity.weight?.let(Weight.Companion::of)
                 ?.mapLeft { ModelConversionException(it.toString()) }
                 ?.getOrHandle {
                     Timber.e(it)
@@ -141,7 +155,7 @@ internal data class RoomChildEntity(
                 url
         ).bimap(
                 leftOperation = { ModelConversionException(it.toString()) },
-                rightOperation = { it toT score }
+                rightOperation = { it toT weight }
         )
     }
 

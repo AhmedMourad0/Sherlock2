@@ -59,12 +59,12 @@ internal class SherlockChildrenRepository(
 
     override fun find(
             child: SimpleRetrievedChild
-    ): Flowable<Either<Throwable, Tuple2<RetrievedChild, Int?>?>> {
+    ): Flowable<Either<Throwable, Tuple2<RetrievedChild, Weight?>?>> {
         return childrenRemoteRepository.get()
                 .find(child.id)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .flatMap<Either<Throwable, Tuple2<RetrievedChild, Int?>?>> { childEither ->
+                .flatMap<Either<Throwable, Tuple2<RetrievedChild, Weight?>?>> { childEither ->
                     childEither.fold(ifLeft = {
                         Flowable.just(it.left())
                     }, ifRight = { child ->
@@ -75,7 +75,7 @@ internal class SherlockChildrenRepository(
                                     .updateIfExists(child)
                                     .subscribeOn(Schedulers.io())
                                     .observeOn(Schedulers.io())
-                                    .toSingle((child toT null).right<Tuple2<RetrievedChild, Int?>>())
+                                    .toSingle((child toT null).right<Tuple2<RetrievedChild, Weight?>>())
                                     .toFlowable()
                         }
                     })
@@ -87,7 +87,7 @@ internal class SherlockChildrenRepository(
     override fun findAll(
             query: ChildQuery,
             filter: Filter<RetrievedChild>
-    ): Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Int>>>> {
+    ): Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Weight>>>> {
         return childrenRemoteRepository.get()
                 .findAll(query, filter)
                 .subscribeOn(Schedulers.io())
@@ -118,7 +118,7 @@ internal class SherlockChildrenRepository(
                 .doOnError { notifyChildrenFindingStateChangeInteractor(BackgroundState.FAILURE) }
     }
 
-    override fun findLastSearchResults(): Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Int>>>> {
+    override fun findLastSearchResults(): Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Weight>>>> {
         return childrenLocalRepository.get()
                 .findAllWithWeight()
                 .subscribeOn(Schedulers.io())

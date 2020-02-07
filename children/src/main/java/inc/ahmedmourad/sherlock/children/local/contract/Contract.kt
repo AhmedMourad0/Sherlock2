@@ -26,6 +26,6 @@ internal object Contract {
         const val COLUMN_MAX_AGE = "max_age"
         const val COLUMN_MIN_HEIGHT = "min_height"
         const val COLUMN_MAX_HEIGHT = "max_height"
-        const val COLUMN_SCORE = "score"
+        const val COLUMN_WEIGHT = "weight"
     }
 }

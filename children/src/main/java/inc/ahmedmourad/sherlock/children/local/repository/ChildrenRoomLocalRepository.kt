@@ -8,6 +8,7 @@ import inc.ahmedmourad.sherlock.children.local.mapper.toRoomChildEntity
 import inc.ahmedmourad.sherlock.children.repository.dependencies.ChildrenLocalRepository
 import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
 import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.Weight
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
@@ -19,7 +20,7 @@ internal class ChildrenRoomLocalRepository(private val db: Lazy<SherlockDatabase
 
     override fun updateIfExists(
             child: RetrievedChild
-    ): Maybe<Either<Throwable, Tuple2<RetrievedChild, Int?>>> {
+    ): Maybe<Either<Throwable, Tuple2<RetrievedChild, Weight?>>> {
         return db.get()
                 .resultsDao()
                 .updateIfExists(child.toRoomChildEntity(null))
@@ -28,7 +29,7 @@ internal class ChildrenRoomLocalRepository(private val db: Lazy<SherlockDatabase
                 .map(RoomChildEntity::toRetrievedChild)
     }
 
-    override fun findAllWithWeight(): Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Int>>>> {
+    override fun findAllWithWeight(): Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Weight>>>> {
         return db.get()
                 .resultsDao()
                 .findAllWithWeight()
@@ -48,17 +49,17 @@ internal class ChildrenRoomLocalRepository(private val db: Lazy<SherlockDatabase
     }
 
     override fun replaceAll(
-            results: List<Tuple2<RetrievedChild, Int>>
-    ): Single<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Int?>>>> {
+            results: List<Tuple2<RetrievedChild, Weight>>
+    ): Single<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Weight?>>>> {
         return db.get()
                 .resultsDao()
-                .replaceAll(results.map(Tuple2<RetrievedChild, Int>::toRoomChildEntity))
+                .replaceAll(results.map(Tuple2<RetrievedChild, Weight>::toRoomChildEntity))
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .toSingleDefault(results)
                 .map { newValues ->
-                    newValues.mapNotNull { (child, score) ->
-                        child.toRoomChildEntity(score).simplify().getOrHandle {
+                    newValues.mapNotNull { (child, weight) ->
+                        child.toRoomChildEntity(weight).simplify().getOrHandle {
                             Timber.e(it)
                             null
                         }

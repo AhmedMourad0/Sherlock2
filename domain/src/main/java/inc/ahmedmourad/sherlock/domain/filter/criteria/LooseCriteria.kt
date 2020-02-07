@@ -1,10 +1,13 @@
 package inc.ahmedmourad.sherlock.domain.filter.criteria
 
 import arrow.core.Tuple2
+import arrow.core.getOrHandle
 import arrow.core.toT
 import dagger.Lazy
+import inc.ahmedmourad.sherlock.domain.exceptions.ModelCreationException
 import inc.ahmedmourad.sherlock.domain.model.children.ChildQuery
 import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.Weight
 import inc.ahmedmourad.sherlock.domain.platform.LocationManager
 import me.xdrop.fuzzywuzzy.FuzzySearch
 
@@ -105,47 +108,62 @@ internal class LooseCriteria(
         val MAX_DISTANCE = MaxDistance(5000L, 100L)
     }
 
-    class Score(private val firstNameRatio: Int,
-                private val lastNameRatio: Int,
-                private val distance: Long,
-                private val isSameGender: Boolean,
-                private val isSameHair: Boolean,
-                private val isSameSkin: Boolean,
-                private val ageError: Int,
-                private val heightError: Int) : Criteria.Score {
+    class Score(
+            private val firstNameRatio: Int,
+            private val lastNameRatio: Int,
+            private val distance: Long,
+            private val isSameGender: Boolean,
+            private val isSameHair: Boolean,
+            private val isSameSkin: Boolean,
+            private val ageError: Int,
+            private val heightError: Int
+    ) : Criteria.Score {
 
         override fun passes() = true
 
-        override fun calculate(): Int {
-            return getFirstNameRank() +
-                    getLastNameRank() +
-                    getDistanceRank() +
-                    getGenderRank() +
-                    getHairRank() +
-                    getSkinRank() +
-                    getAgeRank() +
-                    getHeightRank()
+        override fun calculate(): Weight {
+
+            val score = getFirstNameScore() +
+                    getLastNameScore() +
+                    getDistanceScore() +
+                    getGenderScore() +
+                    getHairScore() +
+                    getSkinScore() +
+                    getAgeScore() +
+                    getHeightScore()
+
+            return Weight.of(score / MAX_SCORE).getOrHandle {
+                throw ModelCreationException(it.toString())
+            }
         }
 
-        private fun getFirstNameRank() = firstNameRatio
+        private fun getFirstNameScore() = firstNameRatio
 
-        private fun getLastNameRank() = lastNameRatio
+        private fun getLastNameScore() = lastNameRatio
 
-        private fun getDistanceRank(): Int {
-            return if (distance <= MAX_DISTANCE.value)
-                100 else
-                (100 - ((distance - MAX_DISTANCE.value) / MAX_DISTANCE.factor)).toInt().coerceAtLeast(0)
+        private fun getDistanceScore(): Int {
+            return if (distance <= MAX_DISTANCE.value) {
+                100
+            } else {
+                (100 - ((distance - MAX_DISTANCE.value) / MAX_DISTANCE.factor))
+                        .toInt()
+                        .coerceAtLeast(0)
+            }
         }
 
-        private fun getGenderRank() = if (isSameGender) 100 else 0
+        private fun getGenderScore() = if (isSameGender) 100 else 0
 
-        private fun getHairRank() = if (isSameHair) 50 else 0
+        private fun getHairScore() = if (isSameHair) 50 else 0
 
-        private fun getSkinRank() = if (isSameSkin) 50 else 0
+        private fun getSkinScore() = if (isSameSkin) 50 else 0
 
-        private fun getAgeRank() = (100 - (20 * ageError)).coerceAtLeast(0)
+        private fun getAgeScore() = (100 - (20 * ageError)).coerceAtLeast(0)
 
-        private fun getHeightRank() = (100 - (5 * heightError)).coerceAtLeast(0)
+        private fun getHeightScore() = (100 - (5 * heightError)).coerceAtLeast(0)
+
+        companion object {
+            const val MAX_SCORE = 700.0
+        }
     }
 
     class MaxDistance(val value: Long, val factor: Long)

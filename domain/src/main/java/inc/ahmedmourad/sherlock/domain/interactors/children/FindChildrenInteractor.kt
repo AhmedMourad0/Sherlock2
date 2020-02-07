@@ -8,16 +8,17 @@ import inc.ahmedmourad.sherlock.domain.filter.Filter
 import inc.ahmedmourad.sherlock.domain.model.children.ChildQuery
 import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
 import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.Weight
 import io.reactivex.Flowable
 
 typealias FindChildrenInteractor =
         (@JvmSuppressWildcards ChildQuery, @JvmSuppressWildcards Filter<RetrievedChild>) ->
-        @JvmSuppressWildcards Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Int>>>>
+        @JvmSuppressWildcards Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Weight>>>>
 
 internal fun findChildren(
         childrenRepository: Lazy<ChildrenRepository>,
         query: ChildQuery,
         filter: Filter<RetrievedChild>
-): Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Int>>>> {
+): Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Weight>>>> {
     return childrenRepository.get().findAll(query, filter)
 }

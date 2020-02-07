@@ -163,7 +163,7 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
     override fun findAll(
             query: ChildQuery,
             filter: Filter<RetrievedChild>
-    ): Flowable<Either<Throwable, List<Tuple2<RetrievedChild, Int>>>> {
+    ): Flowable<Either<Throwable, List<Tuple2<RetrievedChild, Weight>>>> {
         return connectivityManager.get()
                 .observeInternetConnectivity()
                 .subscribeOn(Schedulers.io())
@@ -189,9 +189,9 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
 
     private fun createFindAllFlowable(
             filter: Filter<RetrievedChild>
-    ): Flowable<Either<Throwable, List<Tuple2<RetrievedChild, Int>>>> {
+    ): Flowable<Either<Throwable, List<Tuple2<RetrievedChild, Weight>>>> {
 
-        return Flowable.create<Either<Throwable, List<Tuple2<RetrievedChild, Int>>>>({ emitter ->
+        return Flowable.create<Either<Throwable, List<Tuple2<RetrievedChild, Weight>>>>({ emitter ->
 
             val snapshotListener = { snapshot: QuerySnapshot?, exception: FirebaseFirestoreException? ->
 

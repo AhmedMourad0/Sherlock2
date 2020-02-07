@@ -35,8 +35,8 @@ internal fun childDetailsControllerIntentFactory(activityFactory: MainActivityIn
 internal typealias ChildrenSearchResultsControllerFactory =
         (@JvmSuppressWildcards ChildQuery) -> @JvmSuppressWildcards TaggedController
 
-internal fun childrenSearchResultsControllerFactory(rules: ChildQuery): TaggedController {
-    return ChildrenSearchResultsController.newInstance(rules)
+internal fun childrenSearchResultsControllerFactory(query: ChildQuery): TaggedController {
+    return ChildrenSearchResultsController.newInstance(query)
 }
 
 internal typealias CompleteSignUpControllerFactory =

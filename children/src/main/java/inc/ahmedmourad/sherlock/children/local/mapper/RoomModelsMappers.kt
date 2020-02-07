@@ -5,8 +5,9 @@ import arrow.core.Tuple2
 import arrow.core.toT
 import inc.ahmedmourad.sherlock.children.local.entities.RoomChildEntity
 import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.Weight
 
-internal fun Tuple2<RetrievedChild, Int?>.toRoomChildEntity(): RoomChildEntity {
+internal fun Tuple2<RetrievedChild, Weight?>.toRoomChildEntity(): RoomChildEntity {
 
     val (firstName, lastName) = when (val name = a.name) {
         is Either.Left -> name.a.value to null
@@ -33,10 +34,10 @@ internal fun Tuple2<RetrievedChild, Int?>.toRoomChildEntity(): RoomChildEntity {
             a.appearance.heightRange?.min?.value,
             a.appearance.heightRange?.max?.value,
             a.pictureUrl?.value,
-            b
+            b?.value
     )
 }
 
-internal fun RetrievedChild.toRoomChildEntity(score: Int?): RoomChildEntity {
-    return (this toT score).toRoomChildEntity()
+internal fun RetrievedChild.toRoomChildEntity(weight: Weight?): RoomChildEntity {
+    return (this toT weight).toRoomChildEntity()
 }

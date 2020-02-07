@@ -3,10 +3,7 @@ package inc.ahmedmourad.sherlock.domain.data
 import arrow.core.Either
 import arrow.core.Tuple2
 import inc.ahmedmourad.sherlock.domain.filter.Filter
-import inc.ahmedmourad.sherlock.domain.model.children.ChildQuery
-import inc.ahmedmourad.sherlock.domain.model.children.PublishedChild
-import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
-import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.*
 import io.reactivex.Flowable
 import io.reactivex.Single
 
@@ -16,14 +13,14 @@ interface ChildrenRepository {
 
     fun find(
             child: SimpleRetrievedChild
-    ): Flowable<Either<Throwable, Tuple2<RetrievedChild, Int?>?>>
+    ): Flowable<Either<Throwable, Tuple2<RetrievedChild, Weight?>?>>
 
     fun findAll(
             query: ChildQuery,
             filter: Filter<RetrievedChild>
-    ): Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Int>>>>
+    ): Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Weight>>>>
 
-    fun findLastSearchResults(): Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Int>>>>
+    fun findLastSearchResults(): Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Weight>>>>
 
     fun test(): Tester
 

@@ -22,7 +22,7 @@ internal interface ChildrenRemoteRepository {
     fun findAll(
             query: ChildQuery,
             filter: Filter<RetrievedChild>
-    ): Flowable<Either<Throwable, List<Tuple2<RetrievedChild, Int>>>>
+    ): Flowable<Either<Throwable, List<Tuple2<RetrievedChild, Weight>>>>
 
     fun clear(): Single<Either<Throwable, Unit>>
 }

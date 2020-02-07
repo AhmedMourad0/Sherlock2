@@ -1,6 +1,7 @@
 package inc.ahmedmourad.sherlock.domain.filter.criteria
 
 import arrow.core.Tuple2
+import inc.ahmedmourad.sherlock.domain.model.children.Weight
 
 interface Criteria<T> {
 
@@ -8,7 +9,7 @@ interface Criteria<T> {
 
     interface Score {
         fun passes(): Boolean
-        fun calculate(): Int
+        fun calculate(): Weight
     }
 }
 

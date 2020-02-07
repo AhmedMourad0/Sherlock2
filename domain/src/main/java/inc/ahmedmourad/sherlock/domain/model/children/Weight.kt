@@ -4,7 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 
-class Weight private constructor(val value: Int) {
+class Weight private constructor(val value: Double) {
 
     fun component1() = value
 
@@ -25,7 +25,7 @@ class Weight private constructor(val value: Int) {
     }
 
     override fun hashCode(): Int {
-        return value
+        return value.hashCode()
     }
 
     override fun toString(): String {
@@ -33,16 +33,16 @@ class Weight private constructor(val value: Int) {
     }
 
     companion object {
-        fun of(value: Int): Either<Exception, Weight> {
-            return if (value in 0..100) {
+        fun of(value: Double): Either<Exception, Weight> {
+            return if (value in 0.0..1.0) {
                 Weight(value).right()
             } else {
-                Exception.WeightOutOfRangeException(0, 100).left()
+                Exception.WeightOutOfRangeException(0.0, 1.0).left()
             }
         }
     }
 
     sealed class Exception {
-        data class WeightOutOfRangeException(val min: Int, val max: Int) : Exception()
+        data class WeightOutOfRangeException(val min: Double, val max: Double) : Exception()
     }
 }
