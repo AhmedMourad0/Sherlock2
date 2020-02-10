@@ -57,11 +57,6 @@ android {
     }
 }
 
-// I realize Parcelize is no longer experimental, but it gives me an error whenever i remove this
-androidExtensions {
-    experimental = true
-}
-
 scabbard {
     enabled true
 }
@@ -69,19 +64,19 @@ scabbard {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     implementation "androidx.appcompat:appcompat:1.1.0"
     implementation "androidx.recyclerview:recyclerview:1.1.0"
     implementation "androidx.cardview:cardview:1.0.0"
     implementation "androidx.media:media:1.1.0"
-    implementation "androidx.lifecycle:lifecycle-extensions:2.1.0"
+    implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
     implementation "androidx.constraintlayout:constraintlayout:2.0.0-beta4"
     implementation "androidx.exifinterface:exifinterface:1.1.0"
     implementation "com.android.support:multidex:1.0.3"
     implementation "androidx.core:core-ktx:1.1.0"
 
-    implementation "com.google.android.material:material:1.2.0-alpha03"
+    implementation "com.google.android.material:material:1.2.0-alpha04"
 
     implementation "com.google.android.gms:play-services-places:17.0.0"
 
@@ -112,7 +107,7 @@ dependencies {
 
     debugImplementation "com.squareup.leakcanary:leakcanary-android:2.0"
 
-    testImplementation "junit:junit:4.12"
+    testImplementation "junit:junit:4.13"
     testImplementation "org.mockito:mockito-core:2.26.0"
     testImplementation "org.mockito:mockito-inline:2.26.0"
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.1.0"

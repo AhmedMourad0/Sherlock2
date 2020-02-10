@@ -19,6 +19,10 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
     sourceSets.each {
         it.java.srcDirs += "src/$it.name/kotlin"
     }
@@ -40,7 +44,7 @@ repositories {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     
     implementation "com.google.dagger:dagger:$daggerVersion"
     kapt "com.google.dagger:dagger-compiler:$daggerVersion"
@@ -51,7 +55,7 @@ dependencies {
 
     implementation "com.jakewharton.timber:timber:$timberVersion"
 
-    testImplementation "junit:junit:4.12"
+    testImplementation "junit:junit:4.13"
     androidTestImplementation "androidx.test:runner:1.2.0"
     androidTestImplementation "androidx.test:core:1.2.0"
     androidTestImplementation "androidx.test:rules:1.2.0"
