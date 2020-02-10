@@ -1,6 +1,6 @@
 package inc.ahmedmourad.sherlock.auth.model
 
-import inc.ahmedmourad.sherlock.domain.model.auth.DomainSignedInUser
+import inc.ahmedmourad.sherlock.domain.model.auth.SignedInUser
 
 data class AuthSignedInUser(
         val id: String,
@@ -10,7 +10,7 @@ data class AuthSignedInUser(
         val phoneNumber: String,
         val pictureUrl: String
 ) {
-    fun toDomainSignedInUser() = DomainSignedInUser(
+    fun toDomainSignedInUser() = SignedInUser(
             id,
             registrationDate,
             email,

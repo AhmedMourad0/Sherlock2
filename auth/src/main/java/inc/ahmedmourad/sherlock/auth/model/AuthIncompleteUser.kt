@@ -1,6 +1,6 @@
 package inc.ahmedmourad.sherlock.auth.model
 
-import inc.ahmedmourad.sherlock.domain.model.auth.DomainIncompleteUser
+import inc.ahmedmourad.sherlock.domain.model.auth.IncompleteUser
 
 data class AuthIncompleteUser(
         val id: String,
@@ -9,7 +9,7 @@ data class AuthIncompleteUser(
         val phoneNumber: String?,
         val pictureUrl: String?
 ) {
-    fun toDomainIncompleteUser() = DomainIncompleteUser(
+    fun toDomainIncompleteUser() = IncompleteUser(
             id,
             email,
             name,

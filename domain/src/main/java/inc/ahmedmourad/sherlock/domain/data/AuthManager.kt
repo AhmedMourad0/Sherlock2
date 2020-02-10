@@ -1,10 +1,10 @@
 package inc.ahmedmourad.sherlock.domain.data
 
 import arrow.core.Either
-import inc.ahmedmourad.sherlock.domain.model.auth.DomainCompletedUser
-import inc.ahmedmourad.sherlock.domain.model.auth.DomainIncompleteUser
-import inc.ahmedmourad.sherlock.domain.model.auth.DomainSignUpUser
-import inc.ahmedmourad.sherlock.domain.model.auth.DomainSignedInUser
+import inc.ahmedmourad.sherlock.domain.model.auth.CompletedUser
+import inc.ahmedmourad.sherlock.domain.model.auth.IncompleteUser
+import inc.ahmedmourad.sherlock.domain.model.auth.SignUpUser
+import inc.ahmedmourad.sherlock.domain.model.auth.SignedInUser
 import io.reactivex.Flowable
 import io.reactivex.Single
 
@@ -12,19 +12,19 @@ interface AuthManager {
 
     fun observeUserAuthState(): Flowable<Boolean>
 
-    fun findSignedInUser(): Flowable<Either<Throwable, Either<DomainIncompleteUser, DomainSignedInUser>>>
+    fun findSignedInUser(): Flowable<Either<Throwable, Either<IncompleteUser, SignedInUser>>>
 
-    fun signIn(email: String, password: String): Single<Either<Throwable, Either<DomainIncompleteUser, DomainSignedInUser>>>
+    fun signIn(email: String, password: String): Single<Either<Throwable, Either<IncompleteUser, SignedInUser>>>
 
-    fun signUp(user: DomainSignUpUser): Single<Either<Throwable, DomainSignedInUser>>
+    fun signUp(user: SignUpUser): Single<Either<Throwable, SignedInUser>>
 
-    fun completeSignUp(completedUser: DomainCompletedUser): Single<Either<Throwable, DomainSignedInUser>>
+    fun completeSignUp(completedUser: CompletedUser): Single<Either<Throwable, SignedInUser>>
 
-    fun signInWithGoogle(): Single<Either<Throwable, Either<DomainIncompleteUser, DomainSignedInUser>>>
+    fun signInWithGoogle(): Single<Either<Throwable, Either<IncompleteUser, SignedInUser>>>
 
-    fun signInWithFacebook(): Single<Either<Throwable, Either<DomainIncompleteUser, DomainSignedInUser>>>
+    fun signInWithFacebook(): Single<Either<Throwable, Either<IncompleteUser, SignedInUser>>>
 
-    fun signInWithTwitter(): Single<Either<Throwable, Either<DomainIncompleteUser, DomainSignedInUser>>>
+    fun signInWithTwitter(): Single<Either<Throwable, Either<IncompleteUser, SignedInUser>>>
 
     fun sendPasswordResetEmail(email: String): Single<Either<Throwable, Unit>>
 

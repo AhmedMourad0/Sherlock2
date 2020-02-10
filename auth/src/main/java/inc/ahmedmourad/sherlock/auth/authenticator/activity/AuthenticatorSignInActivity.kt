@@ -22,7 +22,7 @@ import inc.ahmedmourad.sherlock.auth.R
 import inc.ahmedmourad.sherlock.auth.authenticator.AuthActivityFactory
 import inc.ahmedmourad.sherlock.auth.authenticator.bus.AuthenticatorBus
 import inc.ahmedmourad.sherlock.domain.exceptions.SignInCancelledException
-import inc.ahmedmourad.sherlock.domain.model.core.disposable
+import inc.ahmedmourad.sherlock.domain.model.common.disposable
 import splitties.init.appCtx
 import timber.log.Timber
 

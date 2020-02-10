@@ -15,10 +15,10 @@ import inc.ahmedmourad.sherlock.auth.model.AuthCompletedUser
 import inc.ahmedmourad.sherlock.auth.model.AuthIncompleteUser
 import inc.ahmedmourad.sherlock.auth.model.AuthSignedInUser
 import inc.ahmedmourad.sherlock.domain.data.AuthManager
-import inc.ahmedmourad.sherlock.domain.model.auth.DomainCompletedUser
-import inc.ahmedmourad.sherlock.domain.model.auth.DomainIncompleteUser
-import inc.ahmedmourad.sherlock.domain.model.auth.DomainSignUpUser
-import inc.ahmedmourad.sherlock.domain.model.auth.DomainSignedInUser
+import inc.ahmedmourad.sherlock.domain.model.auth.CompletedUser
+import inc.ahmedmourad.sherlock.domain.model.auth.IncompleteUser
+import inc.ahmedmourad.sherlock.domain.model.auth.SignUpUser
+import inc.ahmedmourad.sherlock.domain.model.auth.SignedInUser
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -38,7 +38,7 @@ internal class SherlockAuthManager(
                 .observeOn(Schedulers.io())
     }
 
-    override fun findSignedInUser(): Flowable<Either<Throwable, Either<DomainIncompleteUser, DomainSignedInUser>>> {
+    override fun findSignedInUser(): Flowable<Either<Throwable, Either<IncompleteUser, SignedInUser>>> {
         return authenticator.get()
                 .getCurrentUser()
                 .subscribeOn(Schedulers.io())
@@ -86,7 +86,7 @@ internal class SherlockAuthManager(
                 }
     }
 
-    override fun signIn(email: String, password: String): Single<Either<Throwable, Either<DomainIncompleteUser, DomainSignedInUser>>> {
+    override fun signIn(email: String, password: String): Single<Either<Throwable, Either<IncompleteUser, SignedInUser>>> {
         return authenticator.get()
                 .signIn(email, password).subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
@@ -120,7 +120,7 @@ internal class SherlockAuthManager(
                 }
     }
 
-    override fun signUp(user: DomainSignUpUser): Single<Either<Throwable, DomainSignedInUser>> {
+    override fun signUp(user: SignUpUser): Single<Either<Throwable, SignedInUser>> {
         val picture = user.picture
         val signUpUser = user.toAuthSignUpUser()
         return authenticator.get()
@@ -161,7 +161,7 @@ internal class SherlockAuthManager(
                 }
     }
 
-    override fun completeSignUp(completedUser: DomainCompletedUser): Single<Either<Throwable, DomainSignedInUser>> {
+    override fun completeSignUp(completedUser: CompletedUser): Single<Either<Throwable, SignedInUser>> {
         return imageRepository.get()
                 .storeUserPicture(completedUser.id, completedUser.picture)
                 .subscribeOn(Schedulers.io())
@@ -188,21 +188,21 @@ internal class SherlockAuthManager(
                 }
     }
 
-    override fun signInWithGoogle(): Single<Either<Throwable, Either<DomainIncompleteUser, DomainSignedInUser>>> {
+    override fun signInWithGoogle(): Single<Either<Throwable, Either<IncompleteUser, SignedInUser>>> {
         return createSignInWithProvider(AuthAuthenticator::signInWithGoogle)
     }
 
-    override fun signInWithFacebook(): Single<Either<Throwable, Either<DomainIncompleteUser, DomainSignedInUser>>> {
+    override fun signInWithFacebook(): Single<Either<Throwable, Either<IncompleteUser, SignedInUser>>> {
         return createSignInWithProvider(AuthAuthenticator::signInWithFacebook)
     }
 
-    override fun signInWithTwitter(): Single<Either<Throwable, Either<DomainIncompleteUser, DomainSignedInUser>>> {
+    override fun signInWithTwitter(): Single<Either<Throwable, Either<IncompleteUser, SignedInUser>>> {
         return createSignInWithProvider(AuthAuthenticator::signInWithTwitter)
     }
 
     private fun createSignInWithProvider(
             signInWithProvider: AuthAuthenticator.() -> Single<Either<Throwable, Either<AuthIncompleteUser, AuthCompletedUser>>>
-    ): Single<Either<Throwable, Either<DomainIncompleteUser, DomainSignedInUser>>> {
+    ): Single<Either<Throwable, Either<IncompleteUser, SignedInUser>>> {
         return authenticator.get()
                 .signInWithProvider()
                 .subscribeOn(Schedulers.io())
