@@ -1,4 +1,4 @@
-package inc.ahmedmourad.sherlock.view.controllers.core
+package inc.ahmedmourad.sherlock.view.controllers
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -18,8 +18,8 @@ import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.factories.AppSectionsRecyclerAdapterFactory
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.AddChildControllerQualifier
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.FindChildrenControllerQualifier
-import inc.ahmedmourad.sherlock.model.core.AppSection
-import inc.ahmedmourad.sherlock.model.core.TaggedController
+import inc.ahmedmourad.sherlock.model.common.AppSection
+import inc.ahmedmourad.sherlock.model.common.TaggedController
 import inc.ahmedmourad.sherlock.view.activity.MainActivity
 import inc.ahmedmourad.sherlock.view.controllers.children.AddChildController
 import inc.ahmedmourad.sherlock.view.controllers.children.ChildDetailsController

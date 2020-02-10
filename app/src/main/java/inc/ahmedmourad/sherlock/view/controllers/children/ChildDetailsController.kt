@@ -25,11 +25,11 @@ import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.factories.MainActivityIntentFactory
 import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
 import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
-import inc.ahmedmourad.sherlock.domain.model.core.disposable
-import inc.ahmedmourad.sherlock.model.core.DeeplyLinkedController
-import inc.ahmedmourad.sherlock.model.core.ParcelableWrapper
-import inc.ahmedmourad.sherlock.model.core.TaggedController
-import inc.ahmedmourad.sherlock.model.core.parcelize
+import inc.ahmedmourad.sherlock.domain.model.common.disposable
+import inc.ahmedmourad.sherlock.model.common.DeeplyLinkedController
+import inc.ahmedmourad.sherlock.model.common.ParcelableWrapper
+import inc.ahmedmourad.sherlock.model.common.TaggedController
+import inc.ahmedmourad.sherlock.model.common.parcelize
 import inc.ahmedmourad.sherlock.utils.formatter.Formatter
 import inc.ahmedmourad.sherlock.utils.setSupportActionBar
 import inc.ahmedmourad.sherlock.utils.viewModelProvider

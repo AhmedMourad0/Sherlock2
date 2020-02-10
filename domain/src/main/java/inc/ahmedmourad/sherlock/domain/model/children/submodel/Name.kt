@@ -43,7 +43,7 @@ class Name private constructor(val value: String) {
             } else if (value.trim().length > 20) {
                 Exception.NameTooLongException(20).left()
             } else if (!value.trim().toCharArray().all(Char::isLetter)) {
-                Exception.NameContainsNumbersOrSymbols.left()
+                Exception.NameContainsNumbersOrSymbolsException.left()
             } else {
                 Name(value.trim()).right()
             }
@@ -55,6 +55,6 @@ class Name private constructor(val value: String) {
         object NameContainsWhiteSpacesException : Exception()
         data class NameTooShortException(val minLength: Int) : Exception()
         data class NameTooLongException(val maxLength: Int) : Exception()
-        object NameContainsNumbersOrSymbols : Exception()
+        object NameContainsNumbersOrSymbolsException : Exception()
     }
 }

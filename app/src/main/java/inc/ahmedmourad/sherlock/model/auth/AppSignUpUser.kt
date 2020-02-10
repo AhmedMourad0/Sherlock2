@@ -1,7 +1,7 @@
 package inc.ahmedmourad.sherlock.model.auth
 
 import inc.ahmedmourad.sherlock.R
-import inc.ahmedmourad.sherlock.domain.model.auth.DomainSignUpUser
+import inc.ahmedmourad.sherlock.domain.model.auth.SignUpUser
 import inc.ahmedmourad.sherlock.utils.getImageBitmap
 import inc.ahmedmourad.sherlock.utils.getImageBytes
 
@@ -13,7 +13,7 @@ internal data class AppSignUpUser(
         val picturePath: String
 ) {
 
-    fun toDomainSignUpUser() = DomainSignUpUser(
+    fun toDomainSignUpUser() = SignUpUser(
             password,
             email,
             name,

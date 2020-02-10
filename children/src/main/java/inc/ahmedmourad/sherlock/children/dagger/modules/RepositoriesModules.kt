@@ -20,9 +20,9 @@ import inc.ahmedmourad.sherlock.domain.dagger.modules.qualifiers.NotifyChildFind
 import inc.ahmedmourad.sherlock.domain.dagger.modules.qualifiers.NotifyChildrenFindingStateChangeInteractorQualifier
 import inc.ahmedmourad.sherlock.domain.data.AuthManager
 import inc.ahmedmourad.sherlock.domain.data.ChildrenRepository
-import inc.ahmedmourad.sherlock.domain.interactors.core.NotifyChildFindingStateChangeInteractor
-import inc.ahmedmourad.sherlock.domain.interactors.core.NotifyChildPublishingStateChangeInteractor
-import inc.ahmedmourad.sherlock.domain.interactors.core.NotifyChildrenFindingStateChangeInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.common.NotifyChildFindingStateChangeInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.common.NotifyChildPublishingStateChangeInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.common.NotifyChildrenFindingStateChangeInteractor
 import inc.ahmedmourad.sherlock.domain.platform.ConnectivityManager
 
 @Module(includes = [

@@ -25,10 +25,10 @@ import de.hdodenhof.circleimageview.CircleImageView
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.SignedInUserProfileControllerQualifier
-import inc.ahmedmourad.sherlock.domain.model.core.disposable
+import inc.ahmedmourad.sherlock.domain.model.common.disposable
 import inc.ahmedmourad.sherlock.model.auth.AppIncompleteUser
 import inc.ahmedmourad.sherlock.model.auth.AppSignedInUser
-import inc.ahmedmourad.sherlock.model.core.TaggedController
+import inc.ahmedmourad.sherlock.model.common.TaggedController
 import inc.ahmedmourad.sherlock.utils.defaults.DefaultTextWatcher
 import inc.ahmedmourad.sherlock.utils.pickers.images.ImagePicker
 import inc.ahmedmourad.sherlock.utils.viewModelProvider

@@ -1,4 +1,4 @@
-package inc.ahmedmourad.sherlock.domain.model.core
+package inc.ahmedmourad.sherlock.domain.model.common
 
 import io.reactivex.disposables.Disposable
 import kotlin.properties.ObservableProperty

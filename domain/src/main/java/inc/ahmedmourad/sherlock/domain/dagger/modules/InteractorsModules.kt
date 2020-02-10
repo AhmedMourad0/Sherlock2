@@ -11,7 +11,7 @@ import inc.ahmedmourad.sherlock.domain.data.AuthManager
 import inc.ahmedmourad.sherlock.domain.data.ChildrenRepository
 import inc.ahmedmourad.sherlock.domain.interactors.auth.*
 import inc.ahmedmourad.sherlock.domain.interactors.children.*
-import inc.ahmedmourad.sherlock.domain.interactors.core.*
+import inc.ahmedmourad.sherlock.domain.interactors.common.*
 import inc.ahmedmourad.sherlock.domain.platform.ConnectivityManager
 
 @Module

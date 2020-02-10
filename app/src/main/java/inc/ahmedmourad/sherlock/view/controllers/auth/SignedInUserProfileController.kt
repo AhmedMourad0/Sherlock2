@@ -22,10 +22,10 @@ import inc.ahmedmourad.sherlock.dagger.modules.factories.CompleteSignUpControlle
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.SignInControllerQualifier
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.SignedInUserProfileViewModelQualifier
 import inc.ahmedmourad.sherlock.domain.exceptions.NoSignedInUserException
-import inc.ahmedmourad.sherlock.domain.model.core.disposable
+import inc.ahmedmourad.sherlock.domain.model.common.disposable
 import inc.ahmedmourad.sherlock.domain.platform.DateManager
 import inc.ahmedmourad.sherlock.model.auth.AppSignedInUser
-import inc.ahmedmourad.sherlock.model.core.TaggedController
+import inc.ahmedmourad.sherlock.model.common.TaggedController
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
 import inc.ahmedmourad.sherlock.viewmodel.controllers.auth.SignedInUserProfileViewModel
 import splitties.init.appCtx

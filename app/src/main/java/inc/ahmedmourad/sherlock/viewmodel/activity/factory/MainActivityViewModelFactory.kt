@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import inc.ahmedmourad.sherlock.domain.interactors.auth.FindSignedInUserInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.auth.ObserveUserAuthStateInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.auth.SignOutInteractor
-import inc.ahmedmourad.sherlock.domain.interactors.core.ObserveInternetConnectivityInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.common.ObserveInternetConnectivityInteractor
 import inc.ahmedmourad.sherlock.viewmodel.activity.MainActivityViewModel
 
 internal class MainActivityViewModelFactory(

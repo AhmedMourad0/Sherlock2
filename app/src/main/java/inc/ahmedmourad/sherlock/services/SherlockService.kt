@@ -19,10 +19,10 @@ import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.AddChildControllerInte
 import inc.ahmedmourad.sherlock.domain.exceptions.ModelConversionException
 import inc.ahmedmourad.sherlock.domain.interactors.children.AddChildInteractor
 import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
-import inc.ahmedmourad.sherlock.domain.model.core.disposable
+import inc.ahmedmourad.sherlock.domain.model.common.disposable
 import inc.ahmedmourad.sherlock.model.children.AppPublishedChild
-import inc.ahmedmourad.sherlock.model.core.ParcelableWrapper
-import inc.ahmedmourad.sherlock.model.core.parcelize
+import inc.ahmedmourad.sherlock.model.common.ParcelableWrapper
+import inc.ahmedmourad.sherlock.model.common.parcelize
 import inc.ahmedmourad.sherlock.utils.backgroundContextChannelId
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers

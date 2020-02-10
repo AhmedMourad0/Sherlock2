@@ -4,8 +4,10 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.*
+import inc.ahmedmourad.sherlock.domain.model.common.Url
 
 //TODO: follow PublishedChild's rules
+//TODO: add user id
 class RetrievedChild private constructor(
         val id: ChildId,
         val publicationDate: Long,

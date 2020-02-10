@@ -11,8 +11,10 @@ import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
 import inc.ahmedmourad.sherlock.domain.constants.findEnum
 import inc.ahmedmourad.sherlock.domain.exceptions.ModelConversionException
-import inc.ahmedmourad.sherlock.domain.model.children.*
+import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.*
+import inc.ahmedmourad.sherlock.domain.model.common.Url
 import timber.log.Timber
 
 //TODO: maybe move weight to a different table

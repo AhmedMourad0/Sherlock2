@@ -10,8 +10,8 @@ import butterknife.ButterKnife
 import com.google.android.material.textview.MaterialTextView
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
-import inc.ahmedmourad.sherlock.model.core.AppSection
-import inc.ahmedmourad.sherlock.model.core.TaggedController
+import inc.ahmedmourad.sherlock.model.common.AppSection
+import inc.ahmedmourad.sherlock.model.common.TaggedController
 
 internal class AppSectionsRecyclerAdapter(
         private val sectionsList: List<AppSection>,

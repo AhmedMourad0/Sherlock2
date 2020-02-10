@@ -4,9 +4,11 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.*
+import inc.ahmedmourad.sherlock.domain.model.common.Url
 
 //TODO: make the rules a little stricter
 //TODO: add finding date
+//TODO: add user id
 class PublishedChild private constructor(
         val name: Either<Name, FullName>?,
         val notes: String?,

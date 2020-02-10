@@ -7,6 +7,7 @@ import inc.ahmedmourad.sherlock.domain.model.children.submodel.FullName
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.Location
 
 //TODO: add picture and lost date
+//TODO: add user id
 class ChildQuery private constructor(
         val fullName: FullName,
         val location: Location,

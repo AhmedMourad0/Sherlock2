@@ -41,11 +41,11 @@ import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.SignInControllerQualif
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.SignedInUserProfileControllerQualifier
 import inc.ahmedmourad.sherlock.domain.exceptions.NoInternetConnectionException
 import inc.ahmedmourad.sherlock.domain.exceptions.NoSignedInUserException
-import inc.ahmedmourad.sherlock.domain.model.core.disposable
+import inc.ahmedmourad.sherlock.domain.model.common.disposable
 import inc.ahmedmourad.sherlock.model.auth.AppIncompleteUser
 import inc.ahmedmourad.sherlock.model.auth.AppSignedInUser
-import inc.ahmedmourad.sherlock.model.core.Connectivity
-import inc.ahmedmourad.sherlock.model.core.TaggedController
+import inc.ahmedmourad.sherlock.model.common.Connectivity
+import inc.ahmedmourad.sherlock.model.common.TaggedController
 import inc.ahmedmourad.sherlock.utils.hideSoftKeyboard
 import inc.ahmedmourad.sherlock.viewmodel.activity.MainActivityViewModel
 import splitties.init.appCtx

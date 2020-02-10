@@ -5,7 +5,7 @@ import inc.ahmedmourad.sherlock.domain.model.children.ChildQuery
 import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
 import inc.ahmedmourad.sherlock.model.auth.AppIncompleteUser
 import inc.ahmedmourad.sherlock.model.children.AppPublishedChild
-import inc.ahmedmourad.sherlock.model.core.TaggedController
+import inc.ahmedmourad.sherlock.model.common.TaggedController
 import inc.ahmedmourad.sherlock.view.controllers.auth.CompleteSignUpController
 import inc.ahmedmourad.sherlock.view.controllers.children.AddChildController
 import inc.ahmedmourad.sherlock.view.controllers.children.ChildDetailsController

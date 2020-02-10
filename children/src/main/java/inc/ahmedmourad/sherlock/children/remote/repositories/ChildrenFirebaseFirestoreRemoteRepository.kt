@@ -20,8 +20,11 @@ import inc.ahmedmourad.sherlock.domain.exceptions.ModelCreationException
 import inc.ahmedmourad.sherlock.domain.exceptions.NoInternetConnectionException
 import inc.ahmedmourad.sherlock.domain.exceptions.NoSignedInUserException
 import inc.ahmedmourad.sherlock.domain.filter.Filter
-import inc.ahmedmourad.sherlock.domain.model.children.*
+import inc.ahmedmourad.sherlock.domain.model.children.ChildQuery
+import inc.ahmedmourad.sherlock.domain.model.children.PublishedChild
+import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.*
+import inc.ahmedmourad.sherlock.domain.model.common.Url
 import inc.ahmedmourad.sherlock.domain.platform.ConnectivityManager
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable

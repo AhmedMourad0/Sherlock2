@@ -13,10 +13,10 @@ import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.PublishingState
 import inc.ahmedmourad.sherlock.domain.constants.Skin
-import inc.ahmedmourad.sherlock.domain.interactors.core.CheckChildPublishingStateInteractor
-import inc.ahmedmourad.sherlock.domain.interactors.core.CheckInternetConnectivityInteractor
-import inc.ahmedmourad.sherlock.domain.interactors.core.ObserveChildPublishingStateInteractor
-import inc.ahmedmourad.sherlock.domain.interactors.core.ObserveInternetConnectivityInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.common.CheckChildPublishingStateInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.common.CheckInternetConnectivityInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.common.ObserveChildPublishingStateInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.common.ObserveInternetConnectivityInteractor
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.Location
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.PicturePath
 import inc.ahmedmourad.sherlock.model.children.AppPublishedChild

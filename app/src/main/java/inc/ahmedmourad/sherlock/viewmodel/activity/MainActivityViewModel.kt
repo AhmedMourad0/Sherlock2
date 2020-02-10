@@ -5,14 +5,14 @@ import arrow.core.Either
 import inc.ahmedmourad.sherlock.domain.interactors.auth.FindSignedInUserInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.auth.ObserveUserAuthStateInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.auth.SignOutInteractor
-import inc.ahmedmourad.sherlock.domain.interactors.core.ObserveInternetConnectivityInteractor
-import inc.ahmedmourad.sherlock.domain.model.auth.DomainIncompleteUser
-import inc.ahmedmourad.sherlock.domain.model.auth.DomainSignedInUser
+import inc.ahmedmourad.sherlock.domain.interactors.common.ObserveInternetConnectivityInteractor
+import inc.ahmedmourad.sherlock.domain.model.auth.IncompleteUser
+import inc.ahmedmourad.sherlock.domain.model.auth.SignedInUser
 import inc.ahmedmourad.sherlock.mapper.toAppIncompleteUser
 import inc.ahmedmourad.sherlock.mapper.toAppSignedInUser
 import inc.ahmedmourad.sherlock.model.auth.AppIncompleteUser
 import inc.ahmedmourad.sherlock.model.auth.AppSignedInUser
-import inc.ahmedmourad.sherlock.model.core.Connectivity
+import inc.ahmedmourad.sherlock.model.common.Connectivity
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 
@@ -34,7 +34,7 @@ internal class MainActivityViewModel(
     val findSignedInUserSingle: Flowable<Either<Throwable, Either<AppIncompleteUser, AppSignedInUser>>> =
             findSignedInUserInteractor().map { resultEither ->
                 resultEither.map {
-                    it.bimap(DomainIncompleteUser::toAppIncompleteUser, DomainSignedInUser::toAppSignedInUser)
+                    it.bimap(IncompleteUser::toAppIncompleteUser, SignedInUser::toAppSignedInUser)
                 }
             }.observeOn(AndroidSchedulers.mainThread())
 

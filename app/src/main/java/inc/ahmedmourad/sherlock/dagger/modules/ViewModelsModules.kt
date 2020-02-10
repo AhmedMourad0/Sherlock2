@@ -13,10 +13,10 @@ import inc.ahmedmourad.sherlock.domain.dagger.modules.qualifiers.*
 import inc.ahmedmourad.sherlock.domain.interactors.auth.*
 import inc.ahmedmourad.sherlock.domain.interactors.children.FindChildInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.children.FindChildrenInteractor
-import inc.ahmedmourad.sherlock.domain.interactors.core.CheckChildPublishingStateInteractor
-import inc.ahmedmourad.sherlock.domain.interactors.core.CheckInternetConnectivityInteractor
-import inc.ahmedmourad.sherlock.domain.interactors.core.ObserveChildPublishingStateInteractor
-import inc.ahmedmourad.sherlock.domain.interactors.core.ObserveInternetConnectivityInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.common.CheckChildPublishingStateInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.common.CheckInternetConnectivityInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.common.ObserveChildPublishingStateInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.common.ObserveInternetConnectivityInteractor
 import inc.ahmedmourad.sherlock.viewmodel.activity.factory.MainActivityViewModelFactory
 import inc.ahmedmourad.sherlock.viewmodel.controllers.auth.factories.*
 import inc.ahmedmourad.sherlock.viewmodel.controllers.children.factories.*

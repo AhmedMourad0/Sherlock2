@@ -7,8 +7,8 @@ import inc.ahmedmourad.sherlock.domain.interactors.auth.SignInInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.auth.SignInWithFacebookInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.auth.SignInWithGoogleInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.auth.SignInWithTwitterInteractor
-import inc.ahmedmourad.sherlock.domain.model.auth.DomainIncompleteUser
-import inc.ahmedmourad.sherlock.domain.model.auth.DomainSignedInUser
+import inc.ahmedmourad.sherlock.domain.model.auth.IncompleteUser
+import inc.ahmedmourad.sherlock.domain.model.auth.SignedInUser
 import inc.ahmedmourad.sherlock.mapper.toAppIncompleteUser
 import inc.ahmedmourad.sherlock.mapper.toAppSignedInUser
 import inc.ahmedmourad.sherlock.model.auth.AppIncompleteUser
@@ -42,12 +42,12 @@ internal class SignInViewModel(
             .observeOn(AndroidSchedulers.mainThread())
 
     private fun toAppUserEither(
-            resultEither: Either<Throwable, Either<DomainIncompleteUser, DomainSignedInUser>>
+            resultEither: Either<Throwable, Either<IncompleteUser, SignedInUser>>
     ): Either<Throwable, Either<AppIncompleteUser, AppSignedInUser>> {
         return resultEither.map { either ->
             either.bimap(
-                    leftOperation = DomainIncompleteUser::toAppIncompleteUser,
-                    rightOperation = DomainSignedInUser::toAppSignedInUser
+                    leftOperation = IncompleteUser::toAppIncompleteUser,
+                    rightOperation = SignedInUser::toAppSignedInUser
             )
         }
     }

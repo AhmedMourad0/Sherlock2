@@ -2,7 +2,7 @@ package inc.ahmedmourad.sherlock.viewmodel.controllers.children.factories
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import inc.ahmedmourad.sherlock.domain.interactors.core.ObserveInternetConnectivityInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.common.ObserveInternetConnectivityInteractor
 import inc.ahmedmourad.sherlock.viewmodel.controllers.children.FindChildrenViewModel
 
 internal class FindChildrenViewModelFactory(

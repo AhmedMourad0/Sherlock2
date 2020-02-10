@@ -3,10 +3,10 @@ package inc.ahmedmourad.sherlock.viewmodel.controllers.children.factories
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import inc.ahmedmourad.sherlock.dagger.modules.factories.SherlockServiceIntentFactory
-import inc.ahmedmourad.sherlock.domain.interactors.core.CheckChildPublishingStateInteractor
-import inc.ahmedmourad.sherlock.domain.interactors.core.CheckInternetConnectivityInteractor
-import inc.ahmedmourad.sherlock.domain.interactors.core.ObserveChildPublishingStateInteractor
-import inc.ahmedmourad.sherlock.domain.interactors.core.ObserveInternetConnectivityInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.common.CheckChildPublishingStateInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.common.CheckInternetConnectivityInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.common.ObserveChildPublishingStateInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.common.ObserveInternetConnectivityInteractor
 import inc.ahmedmourad.sherlock.viewmodel.controllers.children.AddChildViewModel
 
 internal class AddChildViewModelFactory(

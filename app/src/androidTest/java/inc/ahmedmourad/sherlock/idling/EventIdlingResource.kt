@@ -5,7 +5,7 @@ import androidx.test.espresso.IdlingResource.ResourceCallback
 import inc.ahmedmourad.sherlock.domain.bus.Event
 import inc.ahmedmourad.sherlock.domain.constants.BackgroundState
 import inc.ahmedmourad.sherlock.domain.constants.PublishingState
-import inc.ahmedmourad.sherlock.domain.model.core.disposable
+import inc.ahmedmourad.sherlock.domain.model.common.disposable
 import timber.log.Timber
 
 abstract class EventIdlingResource<T>(

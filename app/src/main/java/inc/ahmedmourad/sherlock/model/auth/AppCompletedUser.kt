@@ -1,7 +1,7 @@
 package inc.ahmedmourad.sherlock.model.auth
 
 import inc.ahmedmourad.sherlock.R
-import inc.ahmedmourad.sherlock.domain.model.auth.DomainCompletedUser
+import inc.ahmedmourad.sherlock.domain.model.auth.CompletedUser
 import inc.ahmedmourad.sherlock.utils.getImageBitmap
 import inc.ahmedmourad.sherlock.utils.getImageBytes
 
@@ -13,7 +13,7 @@ data class AppCompletedUser(
         val picturePath: String
 ) {
 
-    fun toDomainCompletedUser() = DomainCompletedUser(
+    fun toDomainCompletedUser() = CompletedUser(
             id,
             email,
             name,

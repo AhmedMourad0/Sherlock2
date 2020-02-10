@@ -1,4 +1,4 @@
-package inc.ahmedmourad.sherlock.model.core
+package inc.ahmedmourad.sherlock.model.common
 
 import android.content.Intent
 import com.bluelinelabs.conductor.Router

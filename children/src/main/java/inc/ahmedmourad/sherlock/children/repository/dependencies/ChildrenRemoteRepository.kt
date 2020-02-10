@@ -3,10 +3,12 @@ package inc.ahmedmourad.sherlock.children.repository.dependencies
 import arrow.core.Either
 import arrow.core.Tuple2
 import inc.ahmedmourad.sherlock.domain.filter.Filter
-import inc.ahmedmourad.sherlock.domain.model.children.*
+import inc.ahmedmourad.sherlock.domain.model.children.ChildQuery
+import inc.ahmedmourad.sherlock.domain.model.children.PublishedChild
+import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.ChildId
-import inc.ahmedmourad.sherlock.domain.model.children.submodel.Url
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.Weight
+import inc.ahmedmourad.sherlock.domain.model.common.Url
 import io.reactivex.Flowable
 import io.reactivex.Single
 

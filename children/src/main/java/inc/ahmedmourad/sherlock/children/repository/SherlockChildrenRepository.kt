@@ -11,10 +11,13 @@ import inc.ahmedmourad.sherlock.domain.constants.PublishingState
 import inc.ahmedmourad.sherlock.domain.data.ChildrenRepository
 import inc.ahmedmourad.sherlock.domain.exceptions.ModelConversionException
 import inc.ahmedmourad.sherlock.domain.filter.Filter
-import inc.ahmedmourad.sherlock.domain.interactors.core.NotifyChildFindingStateChangeInteractor
-import inc.ahmedmourad.sherlock.domain.interactors.core.NotifyChildPublishingStateChangeInteractor
-import inc.ahmedmourad.sherlock.domain.interactors.core.NotifyChildrenFindingStateChangeInteractor
-import inc.ahmedmourad.sherlock.domain.model.children.*
+import inc.ahmedmourad.sherlock.domain.interactors.common.NotifyChildFindingStateChangeInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.common.NotifyChildPublishingStateChangeInteractor
+import inc.ahmedmourad.sherlock.domain.interactors.common.NotifyChildrenFindingStateChangeInteractor
+import inc.ahmedmourad.sherlock.domain.model.children.ChildQuery
+import inc.ahmedmourad.sherlock.domain.model.children.PublishedChild
+import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.ChildId
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.Weight
 import io.reactivex.Flowable

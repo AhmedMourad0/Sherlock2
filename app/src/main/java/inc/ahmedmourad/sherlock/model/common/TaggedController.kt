@@ -1,4 +1,4 @@
-package inc.ahmedmourad.sherlock.model.core
+package inc.ahmedmourad.sherlock.model.common
 
 import com.bluelinelabs.conductor.Controller
 

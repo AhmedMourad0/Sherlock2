@@ -3,8 +3,8 @@ package inc.ahmedmourad.sherlock.viewmodel.controllers.auth
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import inc.ahmedmourad.sherlock.domain.interactors.auth.CompleteSignUpInteractor
-import inc.ahmedmourad.sherlock.domain.model.auth.DomainSignedInUser
-import inc.ahmedmourad.sherlock.domain.model.children.PicturePath
+import inc.ahmedmourad.sherlock.domain.model.auth.SignedInUser
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.PicturePath
 import inc.ahmedmourad.sherlock.mapper.toAppSignedInUser
 import inc.ahmedmourad.sherlock.model.auth.AppCompletedUser
 import inc.ahmedmourad.sherlock.model.auth.AppIncompleteUser
@@ -21,7 +21,7 @@ internal class CompleteSignUpViewModel(
     val picturePath by lazy { MutableLiveData<PicturePath?>() }
 
     fun onCompleteSignUp() = completeSignUpInteractor(toAppCompletedUser().toDomainCompletedUser())
-            .map { it.map(DomainSignedInUser::toAppSignedInUser) }
+            .map { it.map(SignedInUser::toAppSignedInUser) }
             .observeOn(AndroidSchedulers.mainThread())
 
     private fun toAppCompletedUser() = AppCompletedUser(

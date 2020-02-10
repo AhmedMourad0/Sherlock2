@@ -9,7 +9,8 @@ import com.bumptech.glide.Glide
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
-import inc.ahmedmourad.sherlock.domain.model.children.submodel.Url
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Weight
+import inc.ahmedmourad.sherlock.domain.model.common.Url
 import inc.ahmedmourad.sherlock.domain.platform.DateManager
 import inc.ahmedmourad.sherlock.utils.formatter.Formatter
 import splitties.init.appCtx
@@ -17,7 +18,7 @@ import timber.log.Timber
 
 internal class ChildrenRemoteViewsFactory(
         private val context: Context,
-        private val results: List<Tuple2<SimpleRetrievedChild, Int>>,
+        private val results: List<Tuple2<SimpleRetrievedChild, Weight>>,
         private val formatter: Lazy<Formatter>,
         private val dateManager: Lazy<DateManager>
 ) : RemoteViewsService.RemoteViewsFactory {

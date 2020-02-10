@@ -21,7 +21,7 @@ internal fun User.toAppUser() = AppUser(
         registrationDate,
         lastLoginDate,
         email,
-        name,
+        displayName,
         phoneNumber,
         pictureUrl
 )

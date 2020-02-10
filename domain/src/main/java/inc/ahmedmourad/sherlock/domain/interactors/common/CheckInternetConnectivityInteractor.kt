@@ -1,4 +1,4 @@
-package inc.ahmedmourad.sherlock.domain.interactors.core
+package inc.ahmedmourad.sherlock.domain.interactors.common
 
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.domain.platform.ConnectivityManager

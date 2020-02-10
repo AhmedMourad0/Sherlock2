@@ -2,12 +2,12 @@ package inc.ahmedmourad.sherlock.dagger.components
 
 import dagger.Subcomponent
 import inc.ahmedmourad.sherlock.dagger.modules.*
+import inc.ahmedmourad.sherlock.view.controllers.HomeController
 import inc.ahmedmourad.sherlock.view.controllers.auth.*
 import inc.ahmedmourad.sherlock.view.controllers.children.AddChildController
 import inc.ahmedmourad.sherlock.view.controllers.children.ChildDetailsController
 import inc.ahmedmourad.sherlock.view.controllers.children.ChildrenSearchResultsController
 import inc.ahmedmourad.sherlock.view.controllers.children.FindChildrenController
-import inc.ahmedmourad.sherlock.view.controllers.core.HomeController
 
 @Subcomponent(modules = [
     FindChildrenControllerModule::class,

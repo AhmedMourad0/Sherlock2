@@ -8,8 +8,8 @@ import inc.ahmedmourad.sherlock.adapters.ChildrenRecyclerAdapter
 import inc.ahmedmourad.sherlock.adapters.DynamicRecyclerAdapter
 import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
 import inc.ahmedmourad.sherlock.domain.platform.DateManager
-import inc.ahmedmourad.sherlock.model.core.AppSection
-import inc.ahmedmourad.sherlock.model.core.TaggedController
+import inc.ahmedmourad.sherlock.model.common.AppSection
+import inc.ahmedmourad.sherlock.model.common.TaggedController
 import inc.ahmedmourad.sherlock.utils.formatter.Formatter
 
 private typealias OnChildClickListener = (Tuple2<SimpleRetrievedChild, Int>) -> Unit
