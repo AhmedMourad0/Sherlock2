@@ -1,10 +1,12 @@
 package inc.ahmedmourad.sherlock.domain.data
 
 import arrow.core.Either
+import inc.ahmedmourad.sherlock.domain.model.UserCredentials
 import inc.ahmedmourad.sherlock.domain.model.auth.CompletedUser
 import inc.ahmedmourad.sherlock.domain.model.auth.IncompleteUser
 import inc.ahmedmourad.sherlock.domain.model.auth.SignUpUser
 import inc.ahmedmourad.sherlock.domain.model.auth.SignedInUser
+import inc.ahmedmourad.sherlock.domain.model.auth.submodel.Email
 import io.reactivex.Flowable
 import io.reactivex.Single
 
@@ -14,7 +16,7 @@ interface AuthManager {
 
     fun findSignedInUser(): Flowable<Either<Throwable, Either<IncompleteUser, SignedInUser>>>
 
-    fun signIn(email: String, password: String): Single<Either<Throwable, Either<IncompleteUser, SignedInUser>>>
+    fun signIn(credentials: UserCredentials): Single<Either<Throwable, Either<IncompleteUser, SignedInUser>>>
 
     fun signUp(user: SignUpUser): Single<Either<Throwable, SignedInUser>>
 
@@ -26,7 +28,7 @@ interface AuthManager {
 
     fun signInWithTwitter(): Single<Either<Throwable, Either<IncompleteUser, SignedInUser>>>
 
-    fun sendPasswordResetEmail(email: String): Single<Either<Throwable, Unit>>
+    fun sendPasswordResetEmail(email: Email): Single<Either<Throwable, Unit>>
 
     fun signOut(): Single<Either<Throwable, Unit>>
 }
