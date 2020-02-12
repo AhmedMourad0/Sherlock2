@@ -3,8 +3,8 @@ package inc.ahmedmourad.sherlock.model.parcelers
 import android.os.Parcel
 import arrow.core.getOrHandle
 import inc.ahmedmourad.sherlock.domain.exceptions.ModelCreationException
-import inc.ahmedmourad.sherlock.domain.model.children.submodel.ChildId
 import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.ids.ChildId
 import inc.ahmedmourad.sherlock.model.parcelers.utils.*
 import kotlinx.android.parcel.Parceler
 
