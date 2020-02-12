@@ -1,7 +1,5 @@
 <resources>
 	
-	<string name="app_name">Sherlock</string>
-	
 	<string name="white_skin">White skin</string>
 	<string name="wheatish_skin">Wheatish skin</string>
 	<string name="dark_skin">Dark skin</string>
