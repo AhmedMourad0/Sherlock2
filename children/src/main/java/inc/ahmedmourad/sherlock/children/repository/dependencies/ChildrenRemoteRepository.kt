@@ -6,9 +6,9 @@ import inc.ahmedmourad.sherlock.domain.filter.Filter
 import inc.ahmedmourad.sherlock.domain.model.children.ChildQuery
 import inc.ahmedmourad.sherlock.domain.model.children.PublishedChild
 import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
-import inc.ahmedmourad.sherlock.domain.model.children.submodel.ChildId
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.Weight
 import inc.ahmedmourad.sherlock.domain.model.common.Url
+import inc.ahmedmourad.sherlock.domain.model.ids.ChildId
 import io.reactivex.Flowable
 import io.reactivex.Single
 

@@ -1,9 +1,7 @@
-package inc.ahmedmourad.sherlock.domain.model
+package inc.ahmedmourad.sherlock.domain.model.auth.submodel
 
 import arrow.core.Either
 import arrow.core.right
-import inc.ahmedmourad.sherlock.domain.model.auth.submodel.Email
-import inc.ahmedmourad.sherlock.domain.model.auth.submodel.Password
 
 class UserCredentials private constructor(
         val email: Email,

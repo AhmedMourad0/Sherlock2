@@ -5,7 +5,7 @@ import arrow.core.right
 import inc.ahmedmourad.sherlock.domain.model.auth.submodel.DisplayName
 import inc.ahmedmourad.sherlock.domain.model.auth.submodel.Email
 import inc.ahmedmourad.sherlock.domain.model.auth.submodel.PhoneNumber
-import inc.ahmedmourad.sherlock.domain.model.auth.submodel.UserId
+import inc.ahmedmourad.sherlock.domain.model.ids.UserId
 
 class CompletedUser(
         val id: UserId,

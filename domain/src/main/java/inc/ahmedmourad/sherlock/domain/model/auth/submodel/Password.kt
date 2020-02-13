@@ -33,13 +33,17 @@ class Password private constructor(val value: String) {
     }
 
     companion object {
+
+        private const val MIN_LENGTH = 7
+        private const val MIN_DISTINCT_CHARACTERS = 4
+
         fun of(value: String): Either<Exception, Password> {
             val chars = value.toCharArray()
             return when {
 
                 value.isBlank() -> Exception.BlankPasswordException.left()
 
-                value.length < 7 -> Exception.PasswordTooShortException(7).left()
+                value.length < MIN_LENGTH -> Exception.PasswordTooShortException(value.length, MIN_LENGTH).left()
 
                 chars.none(Char::isLetter) -> Exception.NoLettersException.left()
 
@@ -47,7 +51,8 @@ class Password private constructor(val value: String) {
 
                 chars.all(Char::isLetterOrDigit) -> Exception.NoSymbolsException.left()
 
-                chars.distinct().size < 4 -> Exception.FewDistinctCharactersException(4).left()
+                chars.distinct().size < MIN_DISTINCT_CHARACTERS ->
+                    Exception.FewDistinctCharactersException(chars.distinct().size, MIN_DISTINCT_CHARACTERS).left()
 
                 else -> Password(value).right()
             }
@@ -56,10 +61,10 @@ class Password private constructor(val value: String) {
 
     sealed class Exception {
         object BlankPasswordException : Exception()
-        data class PasswordTooShortException(val minLength: Int) : Exception()
+        data class PasswordTooShortException(val length: Int, val minLength: Int) : Exception()
         object NoLettersException : Exception()
         object NoDigitsException : Exception()
         object NoSymbolsException : Exception()
-        data class FewDistinctCharactersException(val min: Int) : Exception()
+        data class FewDistinctCharactersException(val count: Int, val min: Int) : Exception()
     }
 }

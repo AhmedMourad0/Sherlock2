@@ -33,16 +33,20 @@ class Height private constructor(val value: Int) {
     }
 
     companion object {
+
+        private const val MIN_VALUE = 20
+        private const val MAX_VALUE = 300
+
         fun of(value: Int): Either<Exception, Height> {
-            return if (value in 20..300) {
+            return if (value in MIN_VALUE..MAX_VALUE) {
                 Height(value).right()
             } else {
-                Exception.HeightOutOfRangeException(20, 300).left()
+                Exception.HeightOutOfRangeException(value, MIN_VALUE, MAX_VALUE).left()
             }
         }
     }
 
     sealed class Exception {
-        data class HeightOutOfRangeException(val min: Int, val max: Int) : Exception()
+        data class HeightOutOfRangeException(val value: Int, val min: Int, val max: Int) : Exception()
     }
 }

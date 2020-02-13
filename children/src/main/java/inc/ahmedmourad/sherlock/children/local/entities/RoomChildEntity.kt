@@ -15,6 +15,7 @@ import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
 import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.*
 import inc.ahmedmourad.sherlock.domain.model.common.Url
+import inc.ahmedmourad.sherlock.domain.model.ids.ChildId
 import timber.log.Timber
 
 //TODO: maybe move weight to a different table

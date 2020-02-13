@@ -40,16 +40,16 @@ class AgeRange private constructor(val min: Age, val max: Age) {
     }
 
     companion object {
-        fun of(from: Age, to: Age): Either<Exception, AgeRange> {
-            return if (from.value < to.value) {
-                AgeRange(from, to).right()
+        fun of(min: Age, max: Age): Either<Exception, AgeRange> {
+            return if (min.value < max.value) {
+                AgeRange(min, max).right()
             } else {
-                Exception.MinExceedsMaxException.left()
+                Exception.MinExceedsMaxException(min, max).left()
             }
         }
     }
 
     sealed class Exception {
-        object MinExceedsMaxException : Exception()
+        data class MinExceedsMaxException(val min: Age, val max: Age) : Exception()
     }
 }

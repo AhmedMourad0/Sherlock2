@@ -14,8 +14,8 @@ import inc.ahmedmourad.sherlock.domain.data.AuthManager
 import inc.ahmedmourad.sherlock.domain.exceptions.ModelCreationException
 import inc.ahmedmourad.sherlock.domain.exceptions.NoInternetConnectionException
 import inc.ahmedmourad.sherlock.domain.exceptions.NoSignedInUserException
-import inc.ahmedmourad.sherlock.domain.model.children.submodel.ChildId
 import inc.ahmedmourad.sherlock.domain.model.common.Url
+import inc.ahmedmourad.sherlock.domain.model.ids.ChildId
 import inc.ahmedmourad.sherlock.domain.platform.ConnectivityManager
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -46,7 +46,7 @@ internal class ChildrenFirebaseStorageImageRepository(
                         Single.just(it.left())
                     }, ifRight = { isUserSignedIn ->
                         if (isUserSignedIn) {
-                            storePicture(Contract.Children.PATH, id.value, picture)
+                            storePicture(Contract.Children.PATH, id, picture)
                         } else {
                             Single.just(NoSignedInUserException().left())
                         }
@@ -60,10 +60,10 @@ internal class ChildrenFirebaseStorageImageRepository(
                 }
     }
 
-    private fun storePicture(path: String, id: String, picture: ByteArray): Single<Either<Throwable, StorageReference>> {
+    private fun storePicture(path: String, id: ChildId, picture: ByteArray): Single<Either<Throwable, StorageReference>> {
 
         val filePath = storage.get().getReference(path)
-                .child("$id.${Contract.FILE_FORMAT}")
+                .child("${id.value}.${Contract.FILE_FORMAT}")
 
         return Single.create<Either<Throwable, StorageReference>> { emitter ->
 

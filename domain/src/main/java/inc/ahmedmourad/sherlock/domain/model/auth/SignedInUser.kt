@@ -2,15 +2,19 @@ package inc.ahmedmourad.sherlock.domain.model.auth
 
 import arrow.core.Either
 import arrow.core.right
-import inc.ahmedmourad.sherlock.domain.model.auth.submodel.*
+import inc.ahmedmourad.sherlock.domain.model.auth.submodel.DisplayName
+import inc.ahmedmourad.sherlock.domain.model.auth.submodel.Email
+import inc.ahmedmourad.sherlock.domain.model.auth.submodel.PhoneNumber
+import inc.ahmedmourad.sherlock.domain.model.auth.submodel.Username
 import inc.ahmedmourad.sherlock.domain.model.common.Url
+import inc.ahmedmourad.sherlock.domain.model.ids.UserId
 
 class SignedInUser(
         val id: UserId,
         val registrationDate: Long,
         val email: Email,
         val displayName: DisplayName,
-        val userName: UserName,
+        val username: Username,
         val phoneNumber: PhoneNumber,
         val pictureUrl: Url?
 ) {
@@ -23,7 +27,7 @@ class SignedInUser(
 
     fun component4() = displayName
 
-    fun component5() = userName
+    fun component5() = username
 
     fun component6() = phoneNumber
 
@@ -51,7 +55,7 @@ class SignedInUser(
         if (displayName != other.displayName)
             return false
 
-        if (userName != other.userName)
+        if (username != other.username)
             return false
 
         if (phoneNumber != other.phoneNumber)
@@ -68,7 +72,7 @@ class SignedInUser(
         result = 31 * result + registrationDate.hashCode()
         result = 31 * result + email.hashCode()
         result = 31 * result + displayName.hashCode()
-        result = 31 * result + userName.hashCode()
+        result = 31 * result + username.hashCode()
         result = 31 * result + phoneNumber.hashCode()
         result = 31 * result + (pictureUrl?.hashCode() ?: 0)
         return result
@@ -80,7 +84,7 @@ class SignedInUser(
                 "registrationDate=$registrationDate, " +
                 "email=$email, " +
                 "displayName=$displayName, " +
-                "userName=$userName, " +
+                "username=$username, " +
                 "phoneNumber=$phoneNumber, " +
                 "pictureUrl=$pictureUrl" +
                 ")"
@@ -91,7 +95,7 @@ class SignedInUser(
                registrationDate: Long,
                email: Email,
                displayName: DisplayName,
-               userName: UserName,
+               username: Username,
                phoneNumber: PhoneNumber,
                pictureUrl: Url?
         ): Either<Exception, SignedInUser> {
@@ -100,7 +104,7 @@ class SignedInUser(
                     registrationDate,
                     email,
                     displayName,
-                    userName,
+                    username,
                     phoneNumber,
                     pictureUrl
             ).right()

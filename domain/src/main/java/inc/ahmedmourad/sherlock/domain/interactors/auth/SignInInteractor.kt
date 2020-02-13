@@ -3,9 +3,9 @@ package inc.ahmedmourad.sherlock.domain.interactors.auth
 import arrow.core.Either
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.domain.data.AuthManager
-import inc.ahmedmourad.sherlock.domain.model.UserCredentials
 import inc.ahmedmourad.sherlock.domain.model.auth.IncompleteUser
 import inc.ahmedmourad.sherlock.domain.model.auth.SignedInUser
+import inc.ahmedmourad.sherlock.domain.model.auth.submodel.UserCredentials
 import io.reactivex.Single
 
 typealias SignInInteractor =

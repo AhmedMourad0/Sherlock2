@@ -1,12 +1,12 @@
 package inc.ahmedmourad.sherlock.domain.data
 
 import arrow.core.Either
-import inc.ahmedmourad.sherlock.domain.model.UserCredentials
 import inc.ahmedmourad.sherlock.domain.model.auth.CompletedUser
 import inc.ahmedmourad.sherlock.domain.model.auth.IncompleteUser
 import inc.ahmedmourad.sherlock.domain.model.auth.SignUpUser
 import inc.ahmedmourad.sherlock.domain.model.auth.SignedInUser
 import inc.ahmedmourad.sherlock.domain.model.auth.submodel.Email
+import inc.ahmedmourad.sherlock.domain.model.auth.submodel.UserCredentials
 import io.reactivex.Flowable
 import io.reactivex.Single
 

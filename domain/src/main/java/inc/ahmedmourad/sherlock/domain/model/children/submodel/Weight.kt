@@ -33,16 +33,20 @@ class Weight private constructor(val value: Double) {
     }
 
     companion object {
+
+        private const val MIN_VALUE = 0.0
+        private const val MAX_VALUE = 1.0
+
         fun of(value: Double): Either<Exception, Weight> {
-            return if (value in 0.0..1.0) {
+            return if (value in MIN_VALUE..MAX_VALUE) {
                 Weight(value).right()
             } else {
-                Exception.WeightOutOfRangeException(0.0, 1.0).left()
+                Exception.WeightOutOfRangeException(value, MIN_VALUE, MAX_VALUE).left()
             }
         }
     }
 
     sealed class Exception {
-        data class WeightOutOfRangeException(val min: Double, val max: Double) : Exception()
+        data class WeightOutOfRangeException(val value: Double, val min: Double, val max: Double) : Exception()
     }
 }

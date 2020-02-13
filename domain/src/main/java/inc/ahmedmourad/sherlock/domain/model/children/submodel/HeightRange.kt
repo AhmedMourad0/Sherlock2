@@ -44,12 +44,12 @@ class HeightRange private constructor(val min: Height, val max: Height) {
             return if (min.value < max.value) {
                 HeightRange(min, max).right()
             } else {
-                Exception.MinExceedsMaxException.left()
+                Exception.MinExceedsMaxException(min, max).left()
             }
         }
     }
 
     sealed class Exception {
-        object MinExceedsMaxException : Exception()
+        data class MinExceedsMaxException(val min: Height, val max: Height) : Exception()
     }
 }

@@ -33,16 +33,20 @@ class Age private constructor(val value: Int) {
     }
 
     companion object {
+
+        private const val MIN_VALUE = 0
+        private const val MAX_VALUE = 200
+
         fun of(value: Int): Either<Exception, Age> {
-            return if (value in 0..200) {
+            return if (value in MIN_VALUE..MAX_VALUE) {
                 Age(value).right()
             } else {
-                Exception.AgeOutOfRangeException(0, 200).left()
+                Exception.AgeOutOfRangeException(value, MIN_VALUE, MAX_VALUE).left()
             }
         }
     }
 
     sealed class Exception {
-        data class AgeOutOfRangeException(val min: Int, val max: Int) : Exception()
+        data class AgeOutOfRangeException(val value: Int, val min: Int, val max: Int) : Exception()
     }
 }

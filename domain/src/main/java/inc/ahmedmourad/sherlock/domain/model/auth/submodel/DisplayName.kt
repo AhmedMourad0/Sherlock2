@@ -3,6 +3,7 @@ package inc.ahmedmourad.sherlock.domain.model.auth.submodel
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Name
 
 class DisplayName private constructor(val value: String) {
 
@@ -33,25 +34,41 @@ class DisplayName private constructor(val value: String) {
     }
 
     companion object {
+
+        private const val MAX_NAMES_COUNT = 3
+        const val MIN_LENGTH = Name.MIN_LENGTH
+        const val MAX_LENGTH = Name.MAX_LENGTH * MAX_NAMES_COUNT + (MAX_NAMES_COUNT - 1)
+
         fun of(value: String): Either<Exception, DisplayName> {
+            val trimmedName = value.trim()
             return if (value.isBlank()) {
                 Exception.BlankDisplayNameException.left()
-            } else if (value.trim().length < 2) {
-                Exception.DisplayNameTooShortException(2).left()
-            } else if (value.trim().length > 30) {
-                Exception.DisplayNameTooLongException(30).left()
-            } else if (!value.trim().toCharArray().all(Char::isLetter)) {
-                Exception.DisplayNameContainsNumbersOrSymbols.left()
+            } else if (trimmedName.length < MIN_LENGTH) {
+                Exception.DisplayNameTooShortException(trimmedName.length, MIN_LENGTH).left()
+            } else if (trimmedName.length > MAX_LENGTH) {
+                Exception.DisplayNameTooLongException(trimmedName.length, MAX_LENGTH).left()
+            } else if (!trimmedName.replace(" ", "").toCharArray().all(Char::isLetter)) {
+                Exception.DisplayNameContainsNumbersOrSymbolsException.left()
             } else {
-                DisplayName(value.trim()).right()
+
+                val illegalName = value.split(" ")
+                        .mapNotNull { name -> (Name.of(name) as? Either.Left)?.let { name to it } }
+                        .firstOrNull()
+
+                if (illegalName != null) {
+                    Exception.SingleNameException(illegalName.first, illegalName.second.a).left()
+                } else {
+                    DisplayName(trimmedName).right()
+                }
             }
         }
     }
 
     sealed class Exception {
         object BlankDisplayNameException : Exception()
-        data class DisplayNameTooShortException(val minLength: Int) : Exception()
-        data class DisplayNameTooLongException(val maxLength: Int) : Exception()
-        object DisplayNameContainsNumbersOrSymbols : Exception()
+        data class DisplayNameTooShortException(val length: Int, val minLength: Int) : Exception()
+        data class DisplayNameTooLongException(val length: Int, val maxLength: Int) : Exception()
+        object DisplayNameContainsNumbersOrSymbolsException : Exception()
+        data class SingleNameException(val value: String, val exception: Name.Exception) : Exception()
     }
 }

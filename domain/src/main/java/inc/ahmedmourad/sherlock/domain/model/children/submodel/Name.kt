@@ -33,19 +33,24 @@ class Name private constructor(val value: String) {
     }
 
     companion object {
+
+        const val MIN_LENGTH = 2
+        const val MAX_LENGTH = 10
+
         fun of(value: String): Either<Exception, Name> {
+            val trimmedValue = value.trim()
             return if (value.isBlank()) {
                 Exception.BlankNameException.left()
-            } else if (value.trim().contains(" ")) {
+            } else if (trimmedValue.contains(" ")) {
                 Exception.NameContainsWhiteSpacesException.left()
-            } else if (value.trim().length < 2) {
-                Exception.NameTooShortException(2).left()
-            } else if (value.trim().length > 20) {
-                Exception.NameTooLongException(20).left()
-            } else if (!value.trim().toCharArray().all(Char::isLetter)) {
+            } else if (trimmedValue.length < MIN_LENGTH) {
+                Exception.NameTooShortException(trimmedValue.length, MIN_LENGTH).left()
+            } else if (trimmedValue.length > MAX_LENGTH) {
+                Exception.NameTooLongException(trimmedValue.length, MAX_LENGTH).left()
+            } else if (!trimmedValue.toCharArray().all(Char::isLetter)) {
                 Exception.NameContainsNumbersOrSymbolsException.left()
             } else {
-                Name(value.trim()).right()
+                Name(trimmedValue).right()
             }
         }
     }
@@ -53,8 +58,8 @@ class Name private constructor(val value: String) {
     sealed class Exception {
         object BlankNameException : Exception()
         object NameContainsWhiteSpacesException : Exception()
-        data class NameTooShortException(val minLength: Int) : Exception()
-        data class NameTooLongException(val maxLength: Int) : Exception()
+        data class NameTooShortException(val length: Int, val minLength: Int) : Exception()
+        data class NameTooLongException(val length: Int, val maxLength: Int) : Exception()
         object NameContainsNumbersOrSymbolsException : Exception()
     }
 }

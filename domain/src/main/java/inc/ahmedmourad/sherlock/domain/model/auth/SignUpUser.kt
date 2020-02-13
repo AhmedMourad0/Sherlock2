@@ -2,9 +2,9 @@ package inc.ahmedmourad.sherlock.domain.model.auth
 
 import arrow.core.Either
 import arrow.core.right
-import inc.ahmedmourad.sherlock.domain.model.UserCredentials
 import inc.ahmedmourad.sherlock.domain.model.auth.submodel.DisplayName
 import inc.ahmedmourad.sherlock.domain.model.auth.submodel.PhoneNumber
+import inc.ahmedmourad.sherlock.domain.model.auth.submodel.UserCredentials
 
 class SignUpUser(
         val credentials: UserCredentials,
