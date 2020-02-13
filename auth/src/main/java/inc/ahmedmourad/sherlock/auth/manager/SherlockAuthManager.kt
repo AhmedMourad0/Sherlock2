@@ -3,22 +3,18 @@ package inc.ahmedmourad.sherlock.auth.manager
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import arrow.core.toT
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.auth.manager.dependencies.AuthAuthenticator
 import inc.ahmedmourad.sherlock.auth.manager.dependencies.AuthImageRepository
 import inc.ahmedmourad.sherlock.auth.manager.dependencies.AuthRemoteRepository
-import inc.ahmedmourad.sherlock.auth.mapper.toAuthCompletedUser
-import inc.ahmedmourad.sherlock.auth.mapper.toAuthSignUpUser
-import inc.ahmedmourad.sherlock.auth.mapper.toAuthStoredUserDetails
-import inc.ahmedmourad.sherlock.auth.model.AuthCompletedUser
-import inc.ahmedmourad.sherlock.auth.model.AuthIncompleteUser
-import inc.ahmedmourad.sherlock.auth.model.AuthSignedInUser
+import inc.ahmedmourad.sherlock.auth.mapper.toRemoteSignUpUser
 import inc.ahmedmourad.sherlock.domain.data.AuthManager
 import inc.ahmedmourad.sherlock.domain.model.auth.CompletedUser
 import inc.ahmedmourad.sherlock.domain.model.auth.IncompleteUser
 import inc.ahmedmourad.sherlock.domain.model.auth.SignUpUser
 import inc.ahmedmourad.sherlock.domain.model.auth.SignedInUser
+import inc.ahmedmourad.sherlock.domain.model.auth.submodel.Email
+import inc.ahmedmourad.sherlock.domain.model.auth.submodel.UserCredentials
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -46,22 +42,14 @@ internal class SherlockAuthManager(
                 .flatMap { incompleteUserEither ->
                     incompleteUserEither.fold(ifLeft = {
                         Flowable.just(it.left())
-                    }, ifRight = { userEither ->
-                        userEither.fold(ifLeft = { incompleteUser ->
-                            Flowable.just(incompleteUser.left().right())
-                        }, ifRight = { completedUser ->
-                            remoteRepository.get()
-                                    .findUser(completedUser.id)
-                                    .map { either ->
-                                        either.map { user ->
-                                            if (user == null) {
-                                                completedUser.incomplete().left()
-                                            } else {
-                                                completedUser.toAuthSignedInUser(user).right()
-                                            }
-                                        }
+                    }, ifRight = { incompleteUser ->
+                        remoteRepository.get()
+                                .findSignedInUser(incompleteUser.id)
+                                .map { userEither ->
+                                    userEither.map { user ->
+                                        user?.right() ?: incompleteUser.left()
                                     }
-                        })
+                                }
                     })
                 }.flatMap { either ->
                     either.fold(ifLeft = {
@@ -76,87 +64,52 @@ internal class SherlockAuthManager(
                                     .toFlowable()
                         })
                     })
-                }.map { either ->
-                    either.map { userEither ->
-                        userEither.bimap(
-                                AuthIncompleteUser::toDomainIncompleteUser,
-                                AuthSignedInUser::toDomainSignedInUser
-                        )
-                    }
                 }
     }
 
-    override fun signIn(email: String, password: String): Single<Either<Throwable, Either<IncompleteUser, SignedInUser>>> {
+    override fun signIn(credentials: UserCredentials): Single<Either<Throwable, Either<IncompleteUser, SignedInUser>>> {
         return authenticator.get()
-                .signIn(email, password).subscribeOn(Schedulers.io())
+                .signIn(credentials)
+                .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .flatMap { either ->
                     either.fold(ifLeft = {
                         Single.just(it.left())
-                    }, ifRight = { userEither ->
-                        userEither.fold(ifLeft = {
-                            Single.just(it.left().right())
-                        }, ifRight = { completedUser ->
-                            remoteRepository.get()
-                                    .findUser(completedUser.id)
-                                    .map { userEither ->
-                                        userEither.map { user ->
-                                            if (user == null) {
-                                                completedUser.incomplete().left()
-                                            } else {
-                                                completedUser.toAuthSignedInUser(user).right()
-                                            }
-                                        }
-                                    }.firstOrError()
-                        })
+                    }, ifRight = { incompleteUser ->
+                        remoteRepository.get()
+                                .findSignedInUser(incompleteUser.id)
+                                .map { userEither ->
+                                    userEither.map { user ->
+                                        user?.right() ?: incompleteUser.left()
+                                    }
+                                }.firstOrError()
                     })
-                }.map { either ->
-                    either.map { userEither ->
-                        userEither.bimap(
-                                AuthIncompleteUser::toDomainIncompleteUser,
-                                AuthSignedInUser::toDomainSignedInUser
-                        )
-                    }
                 }
     }
 
     override fun signUp(user: SignUpUser): Single<Either<Throwable, SignedInUser>> {
-        val picture = user.picture
-        val signUpUser = user.toAuthSignUpUser()
         return authenticator.get()
-                .signUp(signUpUser.email, signUpUser.password)
+                .signUp(user.credentials)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .flatMap { domainUserDetailsEither ->
-                    domainUserDetailsEither.fold(ifLeft = {
+                .flatMap { incompleteUserEither ->
+                    incompleteUserEither.fold(ifLeft = {
                         Single.just(it.left())
-                    }, ifRight = { userId ->
-                        remoteRepository.get()
-                                .storeUserDetails(signUpUser.toAuthUserDetails(userId))
-                    })
-                }.flatMap { detailsEither ->
-                    detailsEither.fold(ifLeft = {
-                        Single.just(it.left())
-                    }, ifRight = { userDetails ->
+                    }, ifRight = { incompleteUser ->
                         imageRepository.get()
-                                .storeUserPicture(userDetails.id, picture)
+                                .storeUserPicture(incompleteUser.id, user.picture)
                                 .map { urlEither ->
-                                    urlEither.map { url ->
-                                        signUpUser.toAuthCompletedUser(userDetails.id, url) toT userDetails
+                                    urlEither.map {
+                                        incompleteUser.id to it
                                     }
                                 }
                     })
-                }.flatMap { signedInUserEither ->
-                    signedInUserEither.fold(ifLeft = {
+                }.flatMap { idAndUrlEither ->
+                    idAndUrlEither.fold(ifLeft = {
                         Single.just(it.left())
-                    }, ifRight = { (completedUser, userDetails) ->
-                        authenticator.get()
-                                .completeUserData(completedUser)
-                                .map { either ->
-                                    either.map {
-                                        it.toAuthSignedInUser(userDetails).toDomainSignedInUser()
-                                    }
-                                }
+                    }, ifRight = { (id, url) ->
+                        remoteRepository.get()
+                                .storeSignUpUser(user.toRemoteSignUpUser(id, url))
                     })
                 }
     }
@@ -170,20 +123,8 @@ internal class SherlockAuthManager(
                     urlEither.fold(ifLeft = {
                         Single.just(it.left())
                     }, ifRight = { url ->
-                        authenticator.get()
-                                .completeUserData(completedUser.toAuthCompletedUser(url))
-                    })
-                }.flatMap { completedUserEither ->
-                    completedUserEither.fold(ifLeft = {
-                        Single.just(it.left())
-                    }, ifRight = { authCompletedUser ->
                         remoteRepository.get()
-                                .storeUserDetails(completedUser.toAuthStoredUserDetails())
-                                .map { detailsEither ->
-                                    detailsEither.map {
-                                        authCompletedUser.toAuthSignedInUser(it).toDomainSignedInUser()
-                                    }
-                                }
+                                .storeSignUpUser(completedUser.toRemoteSignUpUser(url))
                     })
                 }
     }
@@ -201,7 +142,7 @@ internal class SherlockAuthManager(
     }
 
     private fun createSignInWithProvider(
-            signInWithProvider: AuthAuthenticator.() -> Single<Either<Throwable, Either<AuthIncompleteUser, AuthCompletedUser>>>
+            signInWithProvider: AuthAuthenticator.() -> Single<Either<Throwable, IncompleteUser>>
     ): Single<Either<Throwable, Either<IncompleteUser, SignedInUser>>> {
         return authenticator.get()
                 .signInWithProvider()
@@ -210,34 +151,19 @@ internal class SherlockAuthManager(
                 .flatMap { either ->
                     either.fold(ifLeft = {
                         Single.just(it.left())
-                    }, ifRight = { userEither ->
-                        userEither.fold(ifLeft = {
-                            Single.just(it.left().right())
-                        }, ifRight = { completedUser ->
+                    }, ifRight = { incompleteUser ->
                             remoteRepository.get()
-                                    .findUser(completedUser.id)
+                                    .findSignedInUser(incompleteUser.id)
                                     .map { userEither ->
                                         userEither.map { user ->
-                                            if (user == null) {
-                                                completedUser.incomplete().left()
-                                            } else {
-                                                completedUser.toAuthSignedInUser(user).right()
-                                            }
+                                            user?.right() ?: incompleteUser.left()
                                         }
                                     }.firstOrError()
-                        })
                     })
-                }.map { either ->
-                    either.map { userEither ->
-                        userEither.bimap(
-                                AuthIncompleteUser::toDomainIncompleteUser,
-                                AuthSignedInUser::toDomainSignedInUser
-                        )
-                    }
                 }
     }
 
-    override fun sendPasswordResetEmail(email: String): Single<Either<Throwable, Unit>> {
+    override fun sendPasswordResetEmail(email: Email): Single<Either<Throwable, Unit>> {
         return authenticator.get()
                 .sendPasswordResetEmail(email)
                 .subscribeOn(Schedulers.io())

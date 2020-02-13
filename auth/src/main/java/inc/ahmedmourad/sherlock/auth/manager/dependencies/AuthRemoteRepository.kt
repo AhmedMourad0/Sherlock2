@@ -1,16 +1,17 @@
 package inc.ahmedmourad.sherlock.auth.manager.dependencies
 
 import arrow.core.Either
-import inc.ahmedmourad.sherlock.auth.model.AuthRetrievedUserDetails
-import inc.ahmedmourad.sherlock.auth.model.AuthStoredUserDetails
+import inc.ahmedmourad.sherlock.auth.model.RemoteSignUpUser
+import inc.ahmedmourad.sherlock.domain.model.auth.SignedInUser
+import inc.ahmedmourad.sherlock.domain.model.ids.UserId
 import io.reactivex.Flowable
 import io.reactivex.Single
 
 internal interface AuthRemoteRepository {
 
-    fun storeUserDetails(details: AuthStoredUserDetails): Single<Either<Throwable, AuthRetrievedUserDetails>>
+    fun storeSignUpUser(user: RemoteSignUpUser): Single<Either<Throwable, SignedInUser>>
 
-    fun findUser(id: String): Flowable<Either<Throwable, AuthRetrievedUserDetails?>>
+    fun findSignedInUser(id: UserId): Flowable<Either<Throwable, SignedInUser?>>
 
-    fun updateUserLastLoginDate(id: String): Single<Either<Throwable, Unit>>
+    fun updateUserLastLoginDate(id: UserId): Single<Either<Throwable, Unit>>
 }
