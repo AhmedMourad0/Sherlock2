@@ -27,6 +27,8 @@ internal class SherlockApplication : MultiDexApplication() {
 *
 * replace exceptions with ADTs
 *
+* replace all Timber usages with the new 5.0.0 syntax
+*
 *  / ** Done ** /
 *
 * ConstraintLayout
