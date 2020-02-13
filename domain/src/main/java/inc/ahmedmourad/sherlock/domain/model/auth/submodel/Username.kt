@@ -1,10 +1,12 @@
 package inc.ahmedmourad.sherlock.domain.model.auth.submodel
 
 import arrow.core.Either
+import arrow.core.getOrHandle
 import arrow.core.left
 import arrow.core.right
-import inc.ahmedmourad.sherlock.domain.model.children.submodel.Name
-import kotlin.math.min
+import inc.ahmedmourad.sherlock.domain.exceptions.ModelCreationException
+import timber.log.Timber
+import timber.log.error
 import kotlin.math.pow
 
 class Username private constructor(val value: String) {
@@ -42,36 +44,35 @@ class Username private constructor(val value: String) {
         private const val MAX_LENGTH_WITHOUT_SUFFIX = DisplayName.MAX_LENGTH
         private const val MAX_LENGTH = MAX_LENGTH_WITHOUT_SUFFIX + SUFFIX_LENGTH
 
-        fun from(displayName: DisplayName): Either<Exception, Username> {
-            val suffix = System.currentTimeMillis() % 10.0.pow(SUFFIX_LENGTH).toLong()
+        fun from(displayName: DisplayName): Username {
             return if (displayName.value.replace(" ", "").matches(Regex("[a-zA-Z]+"))) {
+                val suffix = System.currentTimeMillis() % 10.0.pow(SUFFIX_LENGTH).toLong()
                 of(displayName.value.replace(" ", "_") + suffix)
             } else {
-                of(createRandomName(suffix.toString()))
-            }
+                of(createRandomName())
+            }.getOrHandle {
+                Timber.error(ModelCreationException(it.toString()), it::toString)
+                null
+            }!!
         }
 
-        private fun createRandomName(suffix: String): String {
+        private fun createRandomName(): String {
+
+            val underscoresMaxLength = 2
+            val lettersMaxLength = MAX_LENGTH_WITHOUT_SUFFIX / 2 - underscoresMaxLength
+            val numbersMaxLength = SUFFIX_LENGTH
 
             val allowedCharacters = ('a'..'z') + ('A'..'Z')
+            val lettersLength = ((lettersMaxLength - 2)..lettersMaxLength).random()
+            val letters = (1..lettersLength).map { allowedCharacters.random() }
+            val underscoresLength = (1..underscoresMaxLength).random()
+            val underscores = (1..underscoresLength).map { '_' }
+            val numbersLength = ((numbersMaxLength - 2)..numbersMaxLength).random()
+            val numbers = 10.0.pow(numbersLength).toLong() + (0..10.0.pow(numbersLength - 1).toLong()).random()
 
-            fun randomName(maxLength: Int = Name.MAX_LENGTH): String {
-                val nameLength = (Name.MIN_LENGTH..maxLength).random()
-                return (1..nameLength).map { allowedCharacters.random() }.joinToString("")
-            }
+            val username = letters + underscores + numbers.toString().toCharArray().toList()
 
-            tailrec fun create(name: String = randomName()): String {
-
-                val maxAllowedWordLength = (MAX_LENGTH_WITHOUT_SUFFIX / 2) - name.length - 1
-                if (maxAllowedWordLength < Name.MIN_LENGTH) {
-                    return name
-                }
-
-                val nameLength = min(Name.MAX_LENGTH, maxAllowedWordLength).coerceIn(Name.MIN_LENGTH, Name.MAX_LENGTH)
-                return create(name + "_" + randomName(nameLength))
-            }
-
-            return (create() + suffix).toCharArray().toList().shuffled().joinToString("")
+            return username.shuffled().joinToString("")
         }
 
         fun of(value: String): Either<Exception, Username> {
