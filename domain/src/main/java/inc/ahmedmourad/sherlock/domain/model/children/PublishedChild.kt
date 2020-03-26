@@ -1,14 +1,18 @@
 package inc.ahmedmourad.sherlock.domain.model.children
 
 import arrow.core.Either
+import arrow.core.getOrHandle
 import arrow.core.left
 import arrow.core.right
+import inc.ahmedmourad.sherlock.domain.exceptions.ModelConversionException
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.ApproximateAppearance
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.FullName
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.Location
-import inc.ahmedmourad.sherlock.domain.model.children.submodel.Name
+import inc.ahmedmourad.sherlock.domain.model.common.Name
 import inc.ahmedmourad.sherlock.domain.model.common.Url
 import inc.ahmedmourad.sherlock.domain.model.ids.ChildId
+import timber.log.Timber
+import timber.log.error
 
 //TODO: make the rules a little stricter
 //TODO: add finding date
@@ -21,8 +25,19 @@ class PublishedChild private constructor(
         val picture: ByteArray?
 ) {
 
-    fun toRetrievedChild(id: ChildId, publicationDate: Long, pictureUrl: Url?): Either<RetrievedChild.Exception, RetrievedChild> {
-        return RetrievedChild.of(id, publicationDate, name, notes, location, appearance, pictureUrl)
+    fun toRetrievedChild(id: ChildId, publicationDate: Long, pictureUrl: Url?): RetrievedChild {
+        return RetrievedChild.of(
+                id,
+                publicationDate,
+                name,
+                notes,
+                location,
+                appearance,
+                pictureUrl
+        ).getOrHandle {
+            Timber.error(ModelConversionException(it.toString()), it::toString)
+            null
+        }!!
     }
 
     fun component1() = name
