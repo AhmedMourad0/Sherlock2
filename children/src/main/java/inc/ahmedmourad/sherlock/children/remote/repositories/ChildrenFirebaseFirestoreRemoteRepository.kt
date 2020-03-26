@@ -15,7 +15,6 @@ import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
 import inc.ahmedmourad.sherlock.domain.constants.findEnum
 import inc.ahmedmourad.sherlock.domain.data.AuthManager
-import inc.ahmedmourad.sherlock.domain.exceptions.ModelConversionException
 import inc.ahmedmourad.sherlock.domain.exceptions.ModelCreationException
 import inc.ahmedmourad.sherlock.domain.exceptions.NoInternetConnectionException
 import inc.ahmedmourad.sherlock.domain.exceptions.NoSignedInUserException
@@ -91,9 +90,7 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
                         childId,
                         System.currentTimeMillis(),
                         pictureUrl
-                ).mapLeft {
-                    ModelConversionException(it.toString()).also(Timber::e)
-                })
+                ).right())
             }
 
             val failureListener = { throwable: Throwable ->
