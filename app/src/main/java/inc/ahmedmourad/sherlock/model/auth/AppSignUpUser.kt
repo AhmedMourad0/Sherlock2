@@ -1,25 +1,44 @@
 package inc.ahmedmourad.sherlock.model.auth
 
+import arrow.core.Either
+import arrow.core.getOrHandle
+import arrow.core.right
 import inc.ahmedmourad.sherlock.R
+import inc.ahmedmourad.sherlock.domain.exceptions.ModelConversionException
 import inc.ahmedmourad.sherlock.domain.model.auth.SignUpUser
-import inc.ahmedmourad.sherlock.utils.getImageBitmap
+import inc.ahmedmourad.sherlock.domain.model.auth.submodel.DisplayName
+import inc.ahmedmourad.sherlock.domain.model.auth.submodel.PhoneNumber
+import inc.ahmedmourad.sherlock.domain.model.auth.submodel.UserCredentials
+import inc.ahmedmourad.sherlock.domain.model.common.PicturePath
 import inc.ahmedmourad.sherlock.utils.getImageBytes
+import timber.log.Timber
 
-internal data class AppSignUpUser(
-        val password: String,
-        val email: String,
-        val name: String,
-        val phoneNumber: String,
-        val picturePath: String
+internal class AppSignUpUser private constructor(
+        val credentials: UserCredentials,
+        val displayName: DisplayName,
+        val phoneNumber: PhoneNumber,
+        val picturePath: PicturePath?
 ) {
 
-    fun toDomainSignUpUser() = SignUpUser(
-            password,
-            email,
-            name,
-            phoneNumber,
-            getImageBytes(getImageBitmap(picturePath, R.drawable.placeholder))
-    )
+    fun component1() = credentials
+
+    fun component2() = displayName
+
+    fun component3() = phoneNumber
+
+    fun component4() = picturePath
+
+    fun toSignUpUser(): SignUpUser {
+        return SignUpUser.of(
+                credentials,
+                displayName,
+                phoneNumber,
+                getImageBytes(picturePath, R.drawable.placeholder)
+        ).getOrHandle {
+            Timber.e(ModelConversionException(it.toString()))
+            null
+        }!!
+    }
 
     override fun equals(other: Any?): Boolean {
 
@@ -31,13 +50,10 @@ internal data class AppSignUpUser(
 
         other as AppSignUpUser
 
-        if (password != other.password)
+        if (credentials != other.credentials)
             return false
 
-        if (email != other.email)
-            return false
-
-        if (name != other.name)
+        if (displayName != other.displayName)
             return false
 
         if (phoneNumber != other.phoneNumber)
@@ -50,11 +66,31 @@ internal data class AppSignUpUser(
     }
 
     override fun hashCode(): Int {
-        var result = password.hashCode()
-        result = 31 * result + email.hashCode()
-        result = 31 * result + name.hashCode()
+        var result = credentials.hashCode()
+        result = 31 * result + displayName.hashCode()
         result = 31 * result + phoneNumber.hashCode()
         result = 31 * result + picturePath.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "AppSignUpUser(" +
+                "credentials=$credentials, " +
+                "displayName=$displayName, " +
+                "phoneNumber=$phoneNumber, " +
+                "picturePath=$picturePath" +
+                ")"
+    }
+
+    companion object {
+        fun of(credentials: UserCredentials,
+               displayName: DisplayName,
+               phoneNumber: PhoneNumber,
+               picturePath: PicturePath?
+        ): Either<Exception, AppSignUpUser> {
+            return AppSignUpUser(credentials, displayName, phoneNumber, picturePath).right()
+        }
+    }
+
+    sealed class Exception
 }

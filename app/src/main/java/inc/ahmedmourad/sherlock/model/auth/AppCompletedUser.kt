@@ -1,25 +1,49 @@
 package inc.ahmedmourad.sherlock.model.auth
 
+import arrow.core.Either
+import arrow.core.getOrHandle
+import arrow.core.right
 import inc.ahmedmourad.sherlock.R
+import inc.ahmedmourad.sherlock.domain.exceptions.ModelConversionException
 import inc.ahmedmourad.sherlock.domain.model.auth.CompletedUser
-import inc.ahmedmourad.sherlock.utils.getImageBitmap
+import inc.ahmedmourad.sherlock.domain.model.auth.submodel.DisplayName
+import inc.ahmedmourad.sherlock.domain.model.auth.submodel.Email
+import inc.ahmedmourad.sherlock.domain.model.auth.submodel.PhoneNumber
+import inc.ahmedmourad.sherlock.domain.model.common.PicturePath
+import inc.ahmedmourad.sherlock.domain.model.ids.UserId
 import inc.ahmedmourad.sherlock.utils.getImageBytes
+import timber.log.Timber
 
-data class AppCompletedUser(
-        val id: String,
-        val email: String,
-        val name: String,
-        val phoneNumber: String,
-        val picturePath: String
+internal class AppCompletedUser private constructor(
+        val id: UserId,
+        val email: Email,
+        val displayName: DisplayName,
+        val phoneNumber: PhoneNumber,
+        val picturePath: PicturePath?
 ) {
 
-    fun toDomainCompletedUser() = CompletedUser(
-            id,
-            email,
-            name,
-            phoneNumber,
-            getImageBytes(getImageBitmap(picturePath, R.drawable.placeholder))
-    )
+    fun toCompletedUser(): CompletedUser {
+        return CompletedUser.of(
+                id,
+                email,
+                displayName,
+                phoneNumber,
+                getImageBytes(picturePath, R.drawable.placeholder)
+        ).getOrHandle {
+            Timber.e(ModelConversionException(it.toString()))
+            null
+        }!!
+    }
+
+    fun component1() = id
+
+    fun component2() = email
+
+    fun component3() = displayName
+
+    fun component4() = phoneNumber
+
+    fun component5() = picturePath
 
     override fun equals(other: Any?): Boolean {
 
@@ -37,13 +61,13 @@ data class AppCompletedUser(
         if (email != other.email)
             return false
 
-        if (name != other.name)
+        if (displayName != other.displayName)
             return false
 
         if (phoneNumber != other.phoneNumber)
             return false
 
-        if (!picturePath.contentEquals(other.picturePath))
+        if (picturePath != other.picturePath)
             return false
 
         return true
@@ -52,9 +76,32 @@ data class AppCompletedUser(
     override fun hashCode(): Int {
         var result = id.hashCode()
         result = 31 * result + email.hashCode()
-        result = 31 * result + name.hashCode()
+        result = 31 * result + displayName.hashCode()
         result = 31 * result + phoneNumber.hashCode()
         result = 31 * result + picturePath.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "AppCompletedUser(" +
+                "id=$id, " +
+                "email=$email, " +
+                "displayName=$displayName, " +
+                "phoneNumber=$phoneNumber, " +
+                "picturePath=$picturePath" +
+                ")"
+    }
+
+    companion object {
+        fun of(id: UserId,
+               email: Email,
+               displayName: DisplayName,
+               phoneNumber: PhoneNumber,
+               picturePath: PicturePath?
+        ): Either<Exception, AppCompletedUser> {
+            return AppCompletedUser(id, email, displayName, phoneNumber, picturePath).right()
+        }
+    }
+
+    sealed class Exception
 }
