@@ -18,9 +18,9 @@ import inc.ahmedmourad.sherlock.domain.interactors.common.CheckInternetConnectiv
 import inc.ahmedmourad.sherlock.domain.interactors.common.ObserveChildPublishingStateInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.common.ObserveInternetConnectivityInteractor
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.Location
-import inc.ahmedmourad.sherlock.domain.model.children.submodel.PicturePath
+import inc.ahmedmourad.sherlock.domain.model.common.PicturePath
 import inc.ahmedmourad.sherlock.model.children.AppPublishedChild
-import inc.ahmedmourad.sherlock.viewmodel.controllers.children.utils.*
+import inc.ahmedmourad.sherlock.viewmodel.controllers.validators.children.*
 import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers

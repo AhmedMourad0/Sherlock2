@@ -5,7 +5,7 @@ import android.graphics.drawable.BitmapDrawable
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
-import inc.ahmedmourad.sherlock.domain.model.children.submodel.PicturePath
+import inc.ahmedmourad.sherlock.domain.model.common.PicturePath
 import splitties.init.appCtx
 import java.io.ByteArrayOutputStream
 

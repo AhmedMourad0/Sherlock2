@@ -3,7 +3,7 @@ package inc.ahmedmourad.sherlock.utils.pickers.images
 import android.app.Activity
 import android.content.Intent
 import arrow.core.Either
-import inc.ahmedmourad.sherlock.domain.model.children.submodel.PicturePath
+import inc.ahmedmourad.sherlock.domain.model.common.PicturePath
 
 internal typealias OnHandled = (Either<String, PicturePath>) -> Unit
 internal typealias OnError = (Throwable) -> Unit
