@@ -29,6 +29,16 @@ internal class SherlockApplication : MultiDexApplication() {
 *
 * replace all Timber usages with the new 5.0.0 syntax
 *
+* simplify fx code with bind()
+*
+* replace RxJava and Coroutines Flow with Monads and Functors for more abstraction
+*
+* The Fragments refactoring stage (Fragments, Navigation, DataBinding)
+*
+* The Dagger refactoring stage (Qualifier, Binding, SingleComponent, Kotlin initiative)
+*
+* Have a view model shared across the activity and all fragments that holds shared data such as signed in user and internet connectivity .. etc
+*
 *  / ** Done ** /
 *
 * ConstraintLayout
