@@ -1,12 +1,19 @@
 package inc.ahmedmourad.sherlock.model.children
 
 import arrow.core.Either
+import arrow.core.getOrHandle
 import arrow.core.left
 import arrow.core.right
 import inc.ahmedmourad.sherlock.R
+import inc.ahmedmourad.sherlock.domain.exceptions.ModelConversionException
 import inc.ahmedmourad.sherlock.domain.model.children.PublishedChild
-import inc.ahmedmourad.sherlock.domain.model.children.submodel.*
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.ApproximateAppearance
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.FullName
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Location
+import inc.ahmedmourad.sherlock.domain.model.common.Name
+import inc.ahmedmourad.sherlock.domain.model.common.PicturePath
 import inc.ahmedmourad.sherlock.utils.getImageBytes
+import timber.log.Timber
 
 //TODO: follow PublishedChild's rules
 internal class AppPublishedChild private constructor(
@@ -17,13 +24,18 @@ internal class AppPublishedChild private constructor(
         val picturePath: PicturePath?
 ) {
 
-    fun toPublishedChild() = PublishedChild.of(
-            name,
-            notes,
-            location,
-            appearance,
-            getImageBytes(picturePath, R.drawable.placeholder)
-    )
+    fun toPublishedChild(): PublishedChild {
+        return PublishedChild.of(
+                name,
+                notes,
+                location,
+                appearance,
+                getImageBytes(picturePath, R.drawable.placeholder)
+        ).getOrHandle {
+            Timber.e(ModelConversionException(it.toString()))
+            null
+        }!!
+    }
 
     fun component1() = name
 
