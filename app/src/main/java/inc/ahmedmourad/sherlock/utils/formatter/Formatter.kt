@@ -4,7 +4,11 @@ import arrow.core.Either
 import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
-import inc.ahmedmourad.sherlock.domain.model.children.submodel.*
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.AgeRange
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.FullName
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.HeightRange
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Location
+import inc.ahmedmourad.sherlock.domain.model.common.Name
 
 internal interface Formatter {
 

@@ -3,7 +3,7 @@ package inc.ahmedmourad.sherlock.domain.model.auth.submodel
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import inc.ahmedmourad.sherlock.domain.model.children.submodel.Name
+import inc.ahmedmourad.sherlock.domain.model.common.Name
 
 class DisplayName private constructor(val value: String) {
 
