@@ -8,7 +8,7 @@ import inc.ahmedmourad.sherlock.domain.model.auth.submodel.PhoneNumber
 import inc.ahmedmourad.sherlock.domain.model.common.Url
 import inc.ahmedmourad.sherlock.domain.model.ids.UserId
 
-class IncompleteUser(
+class IncompleteUser private constructor(
         val id: UserId,
         val email: Email?,
         val displayName: DisplayName?,
@@ -56,10 +56,10 @@ class IncompleteUser(
 
     override fun hashCode(): Int {
         var result = id.hashCode()
-        result = 31 * result + (email?.hashCode() ?: 0)
-        result = 31 * result + (displayName?.hashCode() ?: 0)
-        result = 31 * result + (phoneNumber?.hashCode() ?: 0)
-        result = 31 * result + (pictureUrl?.hashCode() ?: 0)
+        result = 31 * result + email.hashCode()
+        result = 31 * result + displayName.hashCode()
+        result = 31 * result + phoneNumber.hashCode()
+        result = 31 * result + pictureUrl.hashCode()
         return result
     }
 

@@ -9,7 +9,7 @@ import inc.ahmedmourad.sherlock.domain.model.auth.submodel.Username
 import inc.ahmedmourad.sherlock.domain.model.common.Url
 import inc.ahmedmourad.sherlock.domain.model.ids.UserId
 
-class SignedInUser(
+class SignedInUser private constructor(
         val id: UserId,
         val registrationDate: Long,
         val email: Email,
@@ -74,7 +74,7 @@ class SignedInUser(
         result = 31 * result + displayName.hashCode()
         result = 31 * result + username.hashCode()
         result = 31 * result + phoneNumber.hashCode()
-        result = 31 * result + (pictureUrl?.hashCode() ?: 0)
+        result = 31 * result + pictureUrl.hashCode()
         return result
     }
 

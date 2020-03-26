@@ -6,7 +6,7 @@ import inc.ahmedmourad.sherlock.domain.model.auth.submodel.DisplayName
 import inc.ahmedmourad.sherlock.domain.model.auth.submodel.PhoneNumber
 import inc.ahmedmourad.sherlock.domain.model.auth.submodel.UserCredentials
 
-class SignUpUser(
+class SignUpUser private constructor(
         val credentials: UserCredentials,
         val displayName: DisplayName,
         val phoneNumber: PhoneNumber,
@@ -77,12 +77,7 @@ class SignUpUser(
                phoneNumber: PhoneNumber,
                picture: ByteArray?
         ): Either<Exception, SignUpUser> {
-            return SignUpUser(
-                    credentials,
-                    displayName,
-                    phoneNumber,
-                    picture
-            ).right()
+            return SignUpUser(credentials, displayName, phoneNumber, picture).right()
         }
     }
 

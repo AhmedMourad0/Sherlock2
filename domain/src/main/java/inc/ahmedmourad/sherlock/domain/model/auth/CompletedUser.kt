@@ -7,7 +7,7 @@ import inc.ahmedmourad.sherlock.domain.model.auth.submodel.Email
 import inc.ahmedmourad.sherlock.domain.model.auth.submodel.PhoneNumber
 import inc.ahmedmourad.sherlock.domain.model.ids.UserId
 
-class CompletedUser(
+class CompletedUser private constructor(
         val id: UserId,
         val email: Email,
         val displayName: DisplayName,
@@ -88,13 +88,7 @@ class CompletedUser(
                phoneNumber: PhoneNumber,
                picture: ByteArray?
         ): Either<Exception, CompletedUser> {
-            return CompletedUser(
-                    id,
-                    email,
-                    displayName,
-                    phoneNumber,
-                    picture
-            ).right()
+            return CompletedUser(id, email, displayName, phoneNumber, picture).right()
         }
     }
 

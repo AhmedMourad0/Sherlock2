@@ -9,7 +9,7 @@ import inc.ahmedmourad.sherlock.domain.model.auth.submodel.Username
 import inc.ahmedmourad.sherlock.domain.model.common.Url
 import inc.ahmedmourad.sherlock.domain.model.ids.UserId
 
-class User(
+class User private constructor(
         val id: UserId,
         val registrationDate: Long,
         val lastLoginDate: Long,
@@ -81,7 +81,7 @@ class User(
         result = 31 * result + displayName.hashCode()
         result = 31 * result + username.hashCode()
         result = 31 * result + phoneNumber.hashCode()
-        result = 31 * result + (pictureUrl?.hashCode() ?: 0)
+        result = 31 * result + pictureUrl.hashCode()
         return result
     }
 
@@ -108,16 +108,7 @@ class User(
                phoneNumber: PhoneNumber,
                pictureUrl: Url?
         ): Either<Exception, User> {
-            return User(
-                    id,
-                    registrationDate,
-                    lastLoginDate,
-                    email,
-                    displayName,
-                    username,
-                    phoneNumber,
-                    pictureUrl
-            ).right()
+            return User(id, registrationDate, lastLoginDate, email, displayName, username, phoneNumber, pictureUrl).right()
         }
     }
 
