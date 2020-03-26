@@ -1,4 +1,4 @@
-package inc.ahmedmourad.sherlock.viewmodel.controllers.children.utils
+package inc.ahmedmourad.sherlock.viewmodel.controllers.validators.children
 
 import arrow.core.Either
 import arrow.core.left
@@ -9,17 +9,17 @@ import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
 import inc.ahmedmourad.sherlock.domain.model.children.ChildQuery
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.*
-import inc.ahmedmourad.sherlock.domain.model.children.submodel.Name
+import inc.ahmedmourad.sherlock.domain.model.common.Name
+import inc.ahmedmourad.sherlock.domain.model.common.PicturePath
 import inc.ahmedmourad.sherlock.model.children.AppPublishedChild
+import inc.ahmedmourad.sherlock.model.localizedMessage
 import splitties.init.appCtx
 
 internal fun validateFullName(
         firstName: Name,
         lastName: Name
 ): Either<String, FullName> {
-    return FullName.of(firstName, lastName).mapLeft {
-        appCtx.getString(R.string.invalid_first_and_last_name)
-    }
+    return FullName.of(firstName, lastName).mapLeft(FullName.Exception::localizedMessage)
 }
 
 internal fun validateNameEitherNullable(
@@ -44,19 +44,11 @@ internal fun validateName(value: String?): Either<String, Name> {
         return appCtx.getString(R.string.invalid_name).left()
     }
 
-    return Name.of(value).mapLeft {
-        when (it) {
-            Name.Exception.BlankNameException -> appCtx.getString(R.string.name_empty_or_blank)
-            Name.Exception.NameContainsWhiteSpacesException -> appCtx.getString(R.string.name_contains_white_spaces)
-            is Name.Exception.NameTooShortException -> appCtx.getString(R.string.name_too_short, it.minLength)
-            is Name.Exception.NameTooLongException -> appCtx.getString(R.string.name_too_long, it.maxLength)
-            Name.Exception.NameContainsNumbersOrSymbols -> appCtx.getString(R.string.name_contains_numbers_or_symbols)
-        }
-    }
+    return Name.of(value).mapLeft(Name.Exception::localizedMessage)
 }
 
 internal fun validateNameNullable(value: String?): Either<String, Name?> {
-    return value?.let { validateName(it) } ?: null.right()
+    return value?.let(::validateName) ?: null.right()
 }
 
 internal fun validateAgeRange(
@@ -69,11 +61,7 @@ internal fun validateAgeRange(
     }
 
     if (minAge != null && maxAge != null) {
-        return AgeRange.of(minAge, maxAge).mapLeft {
-            when (it) {
-                AgeRange.Exception.MinExceedsMaxException -> appCtx.getString(R.string.age_min_exceeds_max)
-            }
-        }
+        return AgeRange.of(minAge, maxAge).mapLeft(AgeRange.Exception::localizedMessage)
     }
 
     return null.right()
@@ -85,12 +73,7 @@ internal fun validateAge(value: Int?): Either<String, Age> {
         return appCtx.getString(R.string.invalid_age).left()
     }
 
-    return Age.of(value).mapLeft {
-        when (it) {
-            is Age.Exception.AgeOutOfRangeException ->
-                appCtx.getString(R.string.age_out_of_range, it.min, it.max)
-        }
-    }
+    return Age.of(value).mapLeft(Age.Exception::localizedMessage)
 }
 
 internal fun validateAgeNullable(value: Int?): Either<String, Age?> {
@@ -111,11 +94,7 @@ internal fun validateHeightRange(
     }
 
     if (minHeight != null && maxHeight != null) {
-        return HeightRange.of(minHeight, maxHeight).mapLeft {
-            when (it) {
-                HeightRange.Exception.MinExceedsMaxException -> appCtx.getString(R.string.height_min_exceeds_max)
-            }
-        }
+        return HeightRange.of(minHeight, maxHeight).mapLeft(HeightRange.Exception::localizedMessage)
     }
 
     return null.right()
@@ -127,12 +106,7 @@ internal fun validateHeight(value: Int?): Either<String, Height> {
         return appCtx.getString(R.string.invalid_height).left()
     }
 
-    return Height.of(value).mapLeft {
-        when (it) {
-            is Height.Exception.HeightOutOfRangeException ->
-                appCtx.getString(R.string.height_out_of_range, it.min, it.max)
-        }
-    }
+    return Height.of(value).mapLeft(Height.Exception::localizedMessage)
 }
 
 internal fun validateHeightNullable(value: Int?): Either<String, Height?> {
@@ -156,16 +130,7 @@ internal fun validateHair(hair: Hair?): Either<String, Hair> {
 }
 
 internal fun validateCoordinates(latitude: Double, longitude: Double): Either<String, Coordinates> {
-    return Coordinates.of(latitude, longitude).mapLeft {
-        when (it) {
-            Coordinates.Exception.InvalidLatitudeException ->
-                appCtx.getString(R.string.invalid_latitude)
-            Coordinates.Exception.InvalidLongitudeException ->
-                appCtx.getString(R.string.invalid_longitude)
-            Coordinates.Exception.InvalidCoordinatesException ->
-                appCtx.getString(R.string.invalid_coordinates)
-        }
-    }
+    return Coordinates.of(latitude, longitude).mapLeft(Coordinates.Exception::localizedMessage)
 }
 
 internal fun validateLocation(location: Location?): Either<String, Location> {
@@ -182,9 +147,7 @@ internal fun validateLocation(
             name.trim(),
             address.trim(),
             coordinates
-    ).mapLeft {
-        appCtx.getString(R.string.invalid_location)
-    }
+    ).mapLeft(Location.Exception::localizedMessage)
 }
 
 internal fun validateApproximateAppearance(
@@ -200,12 +163,7 @@ internal fun validateApproximateAppearance(
             hair,
             ageRange,
             heightRange
-    ).mapLeft {
-        when (it) {
-            ApproximateAppearance.Exception.NotEnoughDetailsException ->
-                appCtx.getString(R.string.few_appearance_details)
-        }
-    }
+    ).mapLeft(ApproximateAppearance.Exception::localizedMessage)
 }
 
 internal fun validateExactAppearance(
@@ -221,30 +179,7 @@ internal fun validateExactAppearance(
             hair,
             age,
             height
-    ).mapLeft {
-        appCtx.getString(R.string.incomplete_child_appearance)
-    }
-}
-
-internal fun validatePicturePath(value: String): Either<String, PicturePath> {
-    return PicturePath.of(value).mapLeft {
-        when (it) {
-            PicturePath.Exception.BlankPathException ->
-                appCtx.getString(R.string.blank_picture_path)
-            PicturePath.Exception.NonExistentFileException ->
-                appCtx.getString(R.string.file_doesnt_exists_at_path)
-            PicturePath.Exception.NonFilePathException ->
-                appCtx.getString(R.string.path_not_a_file)
-            PicturePath.Exception.NonPicturePathException ->
-                appCtx.getString(R.string.path_not_a_picture)
-            PicturePath.Exception.GifPathException ->
-                appCtx.getString(R.string.gif_files_not_supported)
-            PicturePath.Exception.UnreadableFileException ->
-                appCtx.getString(R.string.unreadable_file)
-            PicturePath.Exception.SecurityException ->
-                appCtx.getString(R.string.no_permission_to_read_file)
-        }
-    }
+    ).mapLeft(ExactAppearance.Exception::localizedMessage)
 }
 
 internal fun validateAppPublishedChild(
@@ -260,12 +195,7 @@ internal fun validateAppPublishedChild(
             location,
             appearance,
             picturePath
-    ).mapLeft {
-        when (it) {
-            AppPublishedChild.Exception.NotEnoughDetailsException ->
-                appCtx.getString(R.string.child_not_enough_details)
-        }
-    }
+    ).mapLeft(AppPublishedChild.Exception::localizedMessage)
 }
 
 internal fun validateChildQuery(
@@ -277,7 +207,5 @@ internal fun validateChildQuery(
             fullName,
             location,
             appearance
-    ).mapLeft {
-        appCtx.getString(R.string.incomplete_child_query)
-    }
+    ).mapLeft(ChildQuery.Exception::localizedMessage)
 }
