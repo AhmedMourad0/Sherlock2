@@ -41,9 +41,9 @@ import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.SignInControllerQualif
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.SignedInUserProfileControllerQualifier
 import inc.ahmedmourad.sherlock.domain.exceptions.NoInternetConnectionException
 import inc.ahmedmourad.sherlock.domain.exceptions.NoSignedInUserException
+import inc.ahmedmourad.sherlock.domain.model.auth.IncompleteUser
+import inc.ahmedmourad.sherlock.domain.model.auth.SignedInUser
 import inc.ahmedmourad.sherlock.domain.model.common.disposable
-import inc.ahmedmourad.sherlock.model.auth.AppIncompleteUser
-import inc.ahmedmourad.sherlock.model.auth.AppSignedInUser
 import inc.ahmedmourad.sherlock.model.common.Connectivity
 import inc.ahmedmourad.sherlock.model.common.TaggedController
 import inc.ahmedmourad.sherlock.utils.hideSoftKeyboard
@@ -99,7 +99,7 @@ internal class MainActivity : AppCompatActivity() {
 
     private val foregroundAnimator by lazy(::createForegroundAnimator)
 
-    private var userAuthenticationState: Tuple2<Boolean, Either<Throwable, Either<AppIncompleteUser, AppSignedInUser>>>? = null
+    private var userAuthenticationState: Tuple2<Boolean, Either<Throwable, Either<IncompleteUser, SignedInUser>>>? = null
         set(value) {
             field = value
             invalidateOptionsMenu()
@@ -234,7 +234,7 @@ internal class MainActivity : AppCompatActivity() {
     }
 
     private fun setInitialBackdropController(
-            userState: Tuple2<Boolean, Either<Throwable, Either<AppIncompleteUser, AppSignedInUser>>>
+            userState: Tuple2<Boolean, Either<Throwable, Either<IncompleteUser, SignedInUser>>>
     ) {
 
         if (backdropRouter.hasRootController()) {
