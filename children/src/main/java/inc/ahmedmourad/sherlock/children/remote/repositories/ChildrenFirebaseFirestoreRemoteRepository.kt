@@ -24,6 +24,7 @@ import inc.ahmedmourad.sherlock.domain.model.children.ChildQuery
 import inc.ahmedmourad.sherlock.domain.model.children.PublishedChild
 import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.*
+import inc.ahmedmourad.sherlock.domain.model.common.Name
 import inc.ahmedmourad.sherlock.domain.model.common.Url
 import inc.ahmedmourad.sherlock.domain.model.ids.ChildId
 import inc.ahmedmourad.sherlock.domain.platform.ConnectivityManager

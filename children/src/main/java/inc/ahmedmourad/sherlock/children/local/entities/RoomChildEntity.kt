@@ -14,6 +14,7 @@ import inc.ahmedmourad.sherlock.domain.exceptions.ModelConversionException
 import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
 import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.*
+import inc.ahmedmourad.sherlock.domain.model.common.Name
 import inc.ahmedmourad.sherlock.domain.model.common.Url
 import inc.ahmedmourad.sherlock.domain.model.ids.ChildId
 import timber.log.Timber

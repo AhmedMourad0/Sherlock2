@@ -2,6 +2,7 @@ package inc.ahmedmourad.sherlock.domain.model.children.submodel
 
 import arrow.core.Either
 import arrow.core.right
+import inc.ahmedmourad.sherlock.domain.model.common.Name
 
 class FullName private constructor(val first: Name, val last: Name) {
 

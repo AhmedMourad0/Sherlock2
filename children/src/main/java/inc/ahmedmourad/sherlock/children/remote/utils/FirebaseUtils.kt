@@ -5,7 +5,7 @@ import com.google.firebase.firestore.FieldValue
 import inc.ahmedmourad.sherlock.children.remote.contract.Contract
 import inc.ahmedmourad.sherlock.domain.model.children.PublishedChild
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.FullName
-import inc.ahmedmourad.sherlock.domain.model.children.submodel.Name
+import inc.ahmedmourad.sherlock.domain.model.common.Name
 import inc.ahmedmourad.sherlock.domain.model.common.Url
 
 fun PublishedChild.toMap(pictureUrl: Url?): Map<String, Any?> = hashMapOf(
