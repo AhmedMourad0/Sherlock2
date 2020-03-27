@@ -3,16 +3,19 @@ package inc.ahmedmourad.sherlock.viewmodel.controllers.auth
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import arrow.core.Either
+import arrow.core.extensions.fx
+import arrow.core.orNull
 import inc.ahmedmourad.sherlock.domain.interactors.auth.SignInInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.auth.SignInWithFacebookInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.auth.SignInWithGoogleInteractor
 import inc.ahmedmourad.sherlock.domain.interactors.auth.SignInWithTwitterInteractor
 import inc.ahmedmourad.sherlock.domain.model.auth.IncompleteUser
 import inc.ahmedmourad.sherlock.domain.model.auth.SignedInUser
-import inc.ahmedmourad.sherlock.mapper.toAppIncompleteUser
-import inc.ahmedmourad.sherlock.mapper.toAppSignedInUser
-import inc.ahmedmourad.sherlock.model.auth.AppIncompleteUser
-import inc.ahmedmourad.sherlock.model.auth.AppSignedInUser
+import inc.ahmedmourad.sherlock.domain.model.auth.submodel.UserCredentials
+import inc.ahmedmourad.sherlock.viewmodel.controllers.validators.auth.validateEmail
+import inc.ahmedmourad.sherlock.viewmodel.controllers.validators.auth.validatePassword
+import inc.ahmedmourad.sherlock.viewmodel.controllers.validators.auth.validateUserCredentials
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 
 internal class SignInViewModel(
@@ -22,33 +25,40 @@ internal class SignInViewModel(
         private val signInWithTwitterInteractor: SignInWithTwitterInteractor
 ) : ViewModel() {
 
-    val email by lazy { MutableLiveData("") }
-    val password by lazy { MutableLiveData("") }
+    val email by lazy { MutableLiveData<String?>("") }
+    val password by lazy { MutableLiveData<String?>("") }
 
-    fun onSignIn() = signInInteractor(email.value!!.trim(), password.value!!.trim())
-            .map(::toAppUserEither)
-            .observeOn(AndroidSchedulers.mainThread())
+    val emailError by lazy { MutableLiveData<String?>() }
+    val passwordError by lazy { MutableLiveData<String?>() }
+    val credentailsError by lazy { MutableLiveData<String?>() }
 
     fun onSignInWithGoogle() = signInWithGoogleInteractor()
-            .map(::toAppUserEither)
             .observeOn(AndroidSchedulers.mainThread())
 
     fun onSignInWithFacebook() = signInWithFacebookInteractor()
-            .map(::toAppUserEither)
             .observeOn(AndroidSchedulers.mainThread())
 
     fun onSignInWithTwitter() = signInWithTwitterInteractor()
-            .map(::toAppUserEither)
             .observeOn(AndroidSchedulers.mainThread())
 
-    private fun toAppUserEither(
-            resultEither: Either<Throwable, Either<IncompleteUser, SignedInUser>>
-    ): Either<Throwable, Either<AppIncompleteUser, AppSignedInUser>> {
-        return resultEither.map { either ->
-            either.bimap(
-                    leftOperation = IncompleteUser::toAppIncompleteUser,
-                    rightOperation = SignedInUser::toAppSignedInUser
-            )
-        }
+    fun onSignIn(): Single<Either<Throwable, Either<IncompleteUser, SignedInUser>>>? {
+        return toUserCredentials()?.let(signInInteractor)?.observeOn(AndroidSchedulers.mainThread())
+    }
+
+    private fun toUserCredentials(): UserCredentials? {
+        return Either.fx<Unit, UserCredentials> {
+
+            val (email) = validateEmail(email.value).mapLeft(emailError::setValue)
+
+            val (password) = validatePassword(password.value).mapLeft(passwordError::setValue)
+
+            val (credentials) = validateUserCredentials(
+                    email,
+                    password
+            ).mapLeft(credentailsError::setValue)
+
+            return@fx credentials
+
+        }.orNull()
     }
 }
