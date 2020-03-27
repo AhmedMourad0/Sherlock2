@@ -1,8 +1,7 @@
 package inc.ahmedmourad.sherlock.model
 
 import inc.ahmedmourad.sherlock.R
-import inc.ahmedmourad.sherlock.domain.model.auth.submodel.DisplayName
-import inc.ahmedmourad.sherlock.domain.model.auth.submodel.Email
+import inc.ahmedmourad.sherlock.domain.model.auth.submodel.*
 import inc.ahmedmourad.sherlock.domain.model.children.ChildQuery
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.*
 import inc.ahmedmourad.sherlock.domain.model.common.Name
@@ -104,6 +103,17 @@ internal fun Email.Exception.localizedMessage(): String {
     }
 }
 
+internal fun Password.Exception.localizedMessage(): String {
+    return when (this) {
+        Password.Exception.BlankPasswordException -> TODO()
+        is Password.Exception.PasswordTooShortException -> TODO()
+        Password.Exception.NoLettersException -> TODO()
+        Password.Exception.NoDigitsException -> TODO()
+        Password.Exception.NoSymbolsException -> TODO()
+        is Password.Exception.FewDistinctCharactersException -> TODO()
+    }
+}
+
 internal fun DisplayName.Exception.localizedMessage(): String {
     return when (this) {
         DisplayName.Exception.BlankDisplayNameException ->
@@ -116,6 +126,34 @@ internal fun DisplayName.Exception.localizedMessage(): String {
             appCtx.getString(R.string.display_name_contains_numbers_or_symbols)
         is DisplayName.Exception.SingleNameException ->
             this.exception.localizedMessage()
+    }
+}
+
+internal fun PhoneNumber.Exception.localizedMessage(): String {
+    return when (this) {
+        PhoneNumber.Exception.BlankPhoneNumberException ->
+            appCtx.getString(R.string.invalid_phone_number)
+        PhoneNumber.Exception.PhoneNumberContainsWhiteSpacesException ->
+            appCtx.getString(R.string.phone_number_contains_whitespaces)
+        PhoneNumber.Exception.CountryCodeContainsWhiteSpacesException ->
+            appCtx.getString(R.string.country_code_contains_whitespaces)
+        PhoneNumber.Exception.PhoneNumberTooShortAfterIddException ->
+            appCtx.getString(R.string.international_phone_number_too_short)
+        PhoneNumber.Exception.PhoneNumberTooShortException ->
+            appCtx.getString(R.string.phone_number_too_short)
+        PhoneNumber.Exception.PhoneNumberTooLongException ->
+            appCtx.getString(R.string.phone_number_too_long)
+        PhoneNumber.Exception.InvalidCountryCodeException ->
+            appCtx.getString(R.string.invalid_country_code)
+        PhoneNumber.Exception.InvalidPhoneNumberException ->
+            appCtx.getString(R.string.invalid_phone_number)
+    }
+}
+
+@Suppress("unused")
+internal fun UserCredentials.Exception.localizedMessage(): String {
+    return when (this) {
+        UserCredentials.Exception.EmailIsUsedAsPasswordException -> TODO()
     }
 }
 
