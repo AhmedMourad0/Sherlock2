@@ -1,6 +1,7 @@
 package inc.ahmedmourad.sherlock.domain.model.auth
 
 import arrow.core.Either
+import arrow.core.left
 import arrow.core.right
 import inc.ahmedmourad.sherlock.domain.model.auth.submodel.DisplayName
 import inc.ahmedmourad.sherlock.domain.model.auth.submodel.PhoneNumber
@@ -77,9 +78,23 @@ class SignUpUser private constructor(
                phoneNumber: PhoneNumber,
                picture: ByteArray?
         ): Either<Exception, SignUpUser> {
-            return SignUpUser(credentials, displayName, phoneNumber, picture).right()
+            return when {
+
+                displayName.value == credentials.password.value ->
+                    Exception.DisplayNameIsUsedAsPasswordException.left()
+
+                credentials.password.value in arrayOf(
+                        phoneNumber.number,
+                        phoneNumber.countryCode + phoneNumber.number
+                ) -> Exception.PhoneNumberIsUsedAsPasswordException.left()
+
+                else -> SignUpUser(credentials, displayName, phoneNumber, picture).right()
+            }
         }
     }
 
-    sealed class Exception
+    sealed class Exception {
+        object DisplayNameIsUsedAsPasswordException : Exception()
+        object PhoneNumberIsUsedAsPasswordException : Exception()
+    }
 }

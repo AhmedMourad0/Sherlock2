@@ -1,6 +1,7 @@
 package inc.ahmedmourad.sherlock.domain.model.auth.submodel
 
 import arrow.core.Either
+import arrow.core.left
 import arrow.core.right
 
 class UserCredentials private constructor(
@@ -46,9 +47,14 @@ class UserCredentials private constructor(
 
     companion object {
         fun of(email: Email, password: Password): Either<Exception, UserCredentials> {
-            return UserCredentials(email, password).right()
+            return when (password.value) {
+                email.value -> Exception.EmailIsUsedAsPasswordException.left()
+                else -> UserCredentials(email, password).right()
+            }
         }
     }
 
-    sealed class Exception
+    sealed class Exception {
+        object EmailIsUsedAsPasswordException : Exception()
+    }
 }
