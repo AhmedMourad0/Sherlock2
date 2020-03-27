@@ -131,12 +131,19 @@
 	<string name="malformed_email">Please enter a valid email</string>
 	<string name="email_empty_or_blank">An email cannot be empty or whitespaces</string>
 	<string name="email_contains_whitespaces">An email cannot contain whitespaces</string>
-	<string name="invalid_phone_number">Please enter a valid phone number</string>
 	<string name="invalid_user">Please provide valid details</string>
 	<string name="invalid_display_name">Please enter a valid display name</string>
 	<string name="display_name_empty_or_blank">A display name cannot be empty or whitespaces</string>
 	<string name="display_name_too_short">A display name cannot be shorter than %1$d letters</string>
 	<string name="display_name_too_long">A display name cannot be longer than %1$d letters</string>
 	<string name="display_name_contains_numbers_or_symbols">A display name cannot contain numbers or symbols</string>
+	<string name="invalid_country_code">Please select a valid country code</string>
+	<string name="invalid_phone_number">Please enter a valid phone number</string>
+	<string name="phone_number_contains_whitespaces">A phone number cannot contain whitespaces</string>
+	<string name="country_code_contains_whitespaces">A country code cannot contain whitespaces</string>
+	<string name="international_phone_number_too_short">Phone number is too short for an international phone number</string>
+	<string name="phone_number_too_short">Phone number is too short</string>
+	<string name="phone_number_too_long">Phone number is too long</string>
+	<string name="phone_number_with_country_code">%1$s%2$s</string>
 
 </resources>
