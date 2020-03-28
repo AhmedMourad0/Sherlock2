@@ -105,7 +105,7 @@
 	<string name="incomplete_child_query">Please complete the child\'s details</string>
 	<string name="few_appearance_details">Please provide more details about the child\'s appearance</string>
 	<string name="name_empty_or_blank">A name cannot be empty or whitespaces</string>
-	<string name="name_contains_white_spaces">A name cannot contain white spaces</string>
+	<string name="name_contains_white_spaces">A name cannot contain whitespaces</string>
 	<string name="name_too_short">A name cannot be shorter than %1$d letters</string>
 	<string name="name_too_long">A name cannot be longer than %1$d letters</string>
 	<string name="name_contains_numbers_or_symbols">A name cannot contain numbers or symbols</string>
@@ -113,7 +113,7 @@
 	<string name="height_min_exceeds_max">Minimum height cannot exceed maximum age</string>
 	<string name="age_out_of_range">Age must be between %1$d and %2$d</string>
 	<string name="height_out_of_range">Height must be between %1$d and %2$d</string>
-	<string name="blank_picture_path">Picture path cannot be empty or white spaces</string>
+	<string name="blank_picture_path">Picture path cannot be empty or whitespaces</string>
 	<string name="file_doesnt_exists_at_path">No file exists at the given path</string>
 	<string name="path_not_a_file">This path does not point to a file</string>
 	<string name="path_not_a_picture">This path does not point to a valid picture</string>
@@ -145,5 +145,16 @@
 	<string name="phone_number_too_short">Phone number is too short</string>
 	<string name="phone_number_too_long">Phone number is too long</string>
 	<string name="phone_number_with_country_code">%1$s%2$s</string>
+	<string name="password_empty_or_blank">Password cannot be empty or whitespaces</string>
+	<string name="phone_number_empty_or_blank">Phone number cannot be empty or whitespaces</string>
+	<string name="password_too_short">Password cannot be shorter than %1$d characters</string>
+	<string name="password_no_capital_letters">Password must contain at least one capital letter</string>
+	<string name="password_no_small_letters">Password must contain at least one small letter</string>
+	<string name="password_no_digits">Password must contain at least one digit</string>
+	<string name="password_no_symbols">Password must contain at least one symbol</string>
+	<string name="password_few_distinct_characters">Password must contain at least %1$d distinct characters</string>
+	<string name="email_used_as_password">You cannot use your email as a password</string>
+	<string name="display_name_used_as_password">You cannot use your display name as a password</string>
+	<string name="phone_number_used_as_password">You cannot use your phone number as a password</string>
 
 </resources>
