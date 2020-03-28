@@ -8,6 +8,7 @@ import inc.ahmedmourad.sherlock.model.children.AppPublishedChild
 import inc.ahmedmourad.sherlock.model.parcelers.AppPublishedChildParceler
 import inc.ahmedmourad.sherlock.model.parcelers.ChildQueryParceler
 import inc.ahmedmourad.sherlock.model.parcelers.SimpleRetrievedChildParceler
+import inc.ahmedmourad.sherlock.model.parcelers.WeightParceler
 import kotlinx.android.parcel.Parcelize
 import kotlinx.android.parcel.RawValue
 import kotlinx.android.parcel.TypeParceler
