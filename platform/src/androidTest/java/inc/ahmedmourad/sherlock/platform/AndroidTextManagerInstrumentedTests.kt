@@ -9,6 +9,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import splitties.init.appCtx
 import timber.log.Timber
+import timber.log.error
 
 @RunWith(AndroidJUnit4::class)
 class AndroidTextManagerInstrumentedTests {
@@ -37,7 +38,7 @@ class AndroidTextManagerInstrumentedTests {
                 appCtx.getString(R.string.male) to manager.male(),
                 appCtx.getString(R.string.female) to manager.female()
         ).forEach { (systemValue, managerValue) ->
-            Timber.e("$systemValue  -  $managerValue")
+            Timber.error("$systemValue  -  $managerValue")
             assertEquals(systemValue, managerValue)
         }
     }

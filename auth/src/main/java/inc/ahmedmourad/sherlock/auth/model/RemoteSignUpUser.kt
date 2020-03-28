@@ -10,6 +10,7 @@ import inc.ahmedmourad.sherlock.domain.model.auth.submodel.Username
 import inc.ahmedmourad.sherlock.domain.model.common.Url
 import inc.ahmedmourad.sherlock.domain.model.ids.UserId
 import timber.log.Timber
+import timber.log.error
 
 internal data class RemoteSignUpUser(
         val id: UserId,
@@ -29,7 +30,7 @@ internal data class RemoteSignUpUser(
                 phoneNumber,
                 pictureUrl
         ).getOrHandle {
-            Timber.e(ModelConversionException(it.toString()))
+            Timber.error(ModelConversionException(it.toString()), it::toString)
             null
         }!!
     }

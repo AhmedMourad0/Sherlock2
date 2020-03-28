@@ -34,6 +34,7 @@ import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import splitties.init.appCtx
 import timber.log.Timber
+import timber.log.error
 
 internal class AuthFirebaseFirestoreRemoteRepository(
         private val db: Lazy<FirebaseFirestore>,
@@ -134,7 +135,7 @@ internal class AuthFirebaseFirestoreRemoteRepository(
 
                     if (snapshot.exists()) {
                         emitter.onNext(extractSignedInUser(snapshot).getOrHandle {
-                            Timber.e(it)
+                            Timber.error(it, it::toString)
                             null
                         }.right())
                     } else {

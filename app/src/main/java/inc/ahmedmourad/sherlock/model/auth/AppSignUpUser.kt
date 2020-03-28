@@ -2,7 +2,6 @@ package inc.ahmedmourad.sherlock.model.auth
 
 import arrow.core.Either
 import arrow.core.getOrHandle
-import arrow.core.right
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.domain.exceptions.ModelConversionException
 import inc.ahmedmourad.sherlock.domain.model.auth.SignUpUser
@@ -12,6 +11,7 @@ import inc.ahmedmourad.sherlock.domain.model.auth.submodel.UserCredentials
 import inc.ahmedmourad.sherlock.domain.model.common.PicturePath
 import inc.ahmedmourad.sherlock.utils.getImageBytes
 import timber.log.Timber
+import timber.log.error
 
 internal class AppSignUpUser private constructor(
         val credentials: UserCredentials,
@@ -35,7 +35,7 @@ internal class AppSignUpUser private constructor(
                 phoneNumber,
                 getImageBytes(picturePath, R.drawable.placeholder)
         ).getOrHandle {
-            Timber.e(ModelConversionException(it.toString()))
+            Timber.error(ModelConversionException(it.toString()), it::toString)
             null
         }!!
     }
@@ -87,8 +87,15 @@ internal class AppSignUpUser private constructor(
                displayName: DisplayName,
                phoneNumber: PhoneNumber,
                picturePath: PicturePath?
-        ): Either<Exception, AppSignUpUser> {
-            return AppSignUpUser(credentials, displayName, phoneNumber, picturePath).right()
+        ): Either<SignUpUser.Exception, AppSignUpUser> {
+            return SignUpUser.of(
+                    credentials,
+                    displayName,
+                    phoneNumber,
+                    getImageBytes(picturePath, R.drawable.placeholder)
+            ).map {
+                AppSignUpUser(credentials, displayName, phoneNumber, picturePath)
+            }
         }
     }
 

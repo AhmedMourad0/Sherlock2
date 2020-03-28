@@ -7,6 +7,7 @@ import inc.ahmedmourad.sherlock.domain.constants.BackgroundState
 import inc.ahmedmourad.sherlock.domain.constants.PublishingState
 import inc.ahmedmourad.sherlock.domain.model.common.disposable
 import timber.log.Timber
+import timber.log.error
 
 abstract class EventIdlingResource<T>(
         event: Event<T>,
@@ -23,7 +24,7 @@ abstract class EventIdlingResource<T>(
         eventDisposable = event.get().subscribe({
             isIdle = isIdleEvent(it)
         }, {
-            Timber.e(it)
+            Timber.error(it)
             isIdle = true
         })
     }

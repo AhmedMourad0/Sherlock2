@@ -10,6 +10,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import splitties.init.appCtx
 import timber.log.Timber
+import timber.log.error
 
 @RunWith(AndroidJUnit4::class)
 class AndroidDateManagerInstrumentedTests {
@@ -45,7 +46,7 @@ class AndroidDateManagerInstrumentedTests {
                     to
                     manager.getRelativeDateTimeString(it))
         }.forEach { (systemValue, managerValue) ->
-            Timber.e("$systemValue  -  $managerValue")
+            Timber.error("$systemValue  -  $managerValue")
             assertEquals(systemValue, managerValue)
         }
     }

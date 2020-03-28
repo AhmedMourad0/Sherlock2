@@ -33,6 +33,7 @@ import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import splitties.init.appCtx
 import timber.log.Timber
+import timber.log.error
 
 internal class ChildrenFirebaseFirestoreRemoteRepository(
         private val db: Lazy<FirebaseFirestore>,
@@ -208,7 +209,7 @@ internal class ChildrenFirebaseFirestoreRemoteRepository(
                             .filter(DocumentSnapshot::exists)
                             .mapNotNull { documentSnapshot ->
                                 extractRetrievedChild(documentSnapshot).getOrHandle {
-                                    Timber.e(it)
+                                    Timber.error(it, it::toString)
                                     null
                                 }
                             }
@@ -288,17 +289,17 @@ internal fun extractRetrievedChild(snapshot: DocumentSnapshot): Either<Throwable
             ?.let(Url.Companion::of)
             ?.mapLeft { ModelCreationException(it.toString()) }
             ?.getOrHandle {
-                Timber.e(it)
+                Timber.error(it, it::toString)
                 null
             }
 
     val name = extractName(snapshot).getOrHandle {
-        Timber.e(it)
+        Timber.error(it, it::toString)
         null
     }
 
     val location = extractLocation(snapshot).getOrHandle {
-        Timber.e(it)
+        Timber.error(it, it::toString)
         null
     }
 

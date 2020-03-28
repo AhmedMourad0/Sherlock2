@@ -24,6 +24,7 @@ import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
+import timber.log.error
 import java.util.*
 
 //TODO: if requireUserSignedIn doesn't fail and user is not signed in with FirebaseAuth
@@ -69,7 +70,7 @@ internal class SherlockChildrenRepository(
                 .find(child.id)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .flatMap<Either<Throwable, Tuple2<RetrievedChild, Weight?>?>> { childEither ->
+                .flatMap { childEither ->
                     childEither.fold(ifLeft = {
                         Flowable.just(it.left())
                     }, ifRight = { child ->
@@ -109,7 +110,7 @@ internal class SherlockChildrenRepository(
                                     results.map { tuple ->
                                         tuple.mapLeft { child ->
                                             child.simplify().getOrHandle {
-                                                Timber.e(ModelConversionException(it.toString()))
+                                                Timber.error(ModelConversionException(it.toString()), it::toString)
                                                 null
                                             }
                                         }

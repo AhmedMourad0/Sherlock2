@@ -18,6 +18,7 @@ import inc.ahmedmourad.sherlock.domain.model.common.Name
 import inc.ahmedmourad.sherlock.domain.model.common.Url
 import inc.ahmedmourad.sherlock.domain.model.ids.ChildId
 import timber.log.Timber
+import timber.log.error
 
 //TODO: maybe move weight to a different table
 @Entity(tableName = ChildrenEntry.TABLE_NAME)
@@ -85,26 +86,26 @@ internal data class RoomChildEntity(
     fun toRetrievedChild(): Either<Throwable, Tuple2<RetrievedChild, Weight?>> {
 
         val name = extractName().getOrHandle {
-            Timber.e(it)
+            Timber.error(it, it::toString)
             null
         }
 
         val location = extractLocation().getOrHandle {
-            Timber.e(it)
+            Timber.error(it, it::toString)
             null
         }
 
         val url = pictureUrl?.let(Url.Companion::of)
                 ?.mapLeft { ModelConversionException(it.toString()) }
                 ?.getOrHandle {
-                    Timber.e(it)
+                    Timber.error(it, it::toString)
                     null
                 }
 
         val weight = this@RoomChildEntity.weight?.let(Weight.Companion::of)
                 ?.mapLeft { ModelConversionException(it.toString()) }
                 ?.getOrHandle {
-                    Timber.e(it)
+                    Timber.error(it, it::toString)
                     null
                 }
 
@@ -132,21 +133,21 @@ internal data class RoomChildEntity(
     fun simplify(): Either<Throwable, Tuple2<SimpleRetrievedChild, Weight?>> {
 
         val name = extractName().getOrHandle {
-            Timber.e(it)
+            Timber.error(it, it::toString)
             null
         }
 
         val url = pictureUrl?.let(Url.Companion::of)
                 ?.mapLeft { ModelConversionException(it.toString()) }
                 ?.getOrHandle {
-                    Timber.e(it)
+                    Timber.error(it, it::toString)
                     null
                 }
 
         val weight = this@RoomChildEntity.weight?.let(Weight.Companion::of)
                 ?.mapLeft { ModelConversionException(it.toString()) }
                 ?.getOrHandle {
-                    Timber.e(it)
+                    Timber.error(it, it::toString)
                     null
                 }
 
@@ -188,12 +189,12 @@ internal data class RoomChildEntity(
         val hair = hair?.let { findEnum(it, Hair.values()) }
 
         val ageRange = extractAgeRange().getOrHandle {
-            Timber.e(it)
+            Timber.error(it, it::toString)
             null
         }
 
         val heightRange = extractHeightRange().getOrHandle {
-            Timber.e(it)
+            Timber.error(it, it::toString)
             null
         }
 

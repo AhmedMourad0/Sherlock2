@@ -6,6 +6,7 @@ import android.widget.NumberPicker
 
 import inc.ahmedmourad.sherlock.R
 import timber.log.Timber
+import timber.log.error
 
 internal class ProperNumberPicker : NumberPicker {
 
@@ -34,7 +35,7 @@ internal class ProperNumberPicker : NumberPicker {
             value = attributes.getInt(R.styleable.ProperNumberPicker_value, 50)
 
         } catch (e: Exception) {
-            Timber.e(e)
+            Timber.error(e, e::toString)
         } finally {
             attributes.recycle()
         }

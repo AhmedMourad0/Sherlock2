@@ -28,6 +28,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import splitties.init.appCtx
 import timber.log.Timber
+import timber.log.error
 import javax.inject.Inject
 
 //TODO: use WorkManager with Notifications (maybe ListenableWorker with progress?) and firebase authentication fallback instead
@@ -68,16 +69,7 @@ internal class SherlockService : Service() {
 
     private fun handleActionPublishFound(appChild: AppPublishedChild) {
 
-        val child = appChild.toPublishedChild().getOrHandle {
-            Timber.e(ModelConversionException(it.toString()))
-            showPublishingFailedNotification(
-                    IllegalArgumentException(getString(R.string.something_went_wrong)),
-                    appChild,
-                    false
-            )
-            stopSelf()
-            null
-        } ?: return
+        val child = appChild.toPublishedChild()
 
         startForeground(NOTIFICATION_ID_PUBLISH_CHILD, createPublishingNotification(appChild))
 
@@ -93,18 +85,18 @@ internal class SherlockService : Service() {
                     stopSelf()
                 }.subscribe({ childEither ->
                     childEither.fold(ifLeft = {
-                        Timber.e(it)
+                        Timber.error(it, it::toString)
                         showPublishingFailedNotification(it, appChild, true)
                     }, ifRight = { child ->
                         this.showPublishedSuccessfullyNotification(
                                 child.simplify().getOrHandle {
-                                    Timber.e(ModelConversionException(it.toString()))
+                                    Timber.error(ModelConversionException(it.toString()), it::toString)
                                     null
                                 }
                         )
                     })
                 }, {
-                    Timber.e(it)
+                    Timber.error(it, it::toString)
                     showPublishingFailedNotification(it, appChild, true)
                 })
     }

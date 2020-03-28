@@ -24,6 +24,7 @@ import inc.ahmedmourad.sherlock.view.activity.MainActivity
 import inc.ahmedmourad.sherlock.view.controllers.children.AddChildController
 import inc.ahmedmourad.sherlock.view.controllers.children.ChildDetailsController
 import timber.log.Timber
+import timber.log.error
 import java.util.*
 import javax.inject.Inject
 
@@ -73,7 +74,8 @@ internal class HomeController : Controller() {
             }?.navigate(
                     router,
                     activity.intent
-            ) ?: Timber.e(IllegalStateException("Destination is not supported: $destination!"))
+            )
+                    ?: IllegalStateException("Destination is not supported: $destination!").let { Timber.error(it, it::toString) }
         }
 
         return view

@@ -13,6 +13,7 @@ import inc.ahmedmourad.sherlock.domain.model.common.PicturePath
 import inc.ahmedmourad.sherlock.domain.model.ids.UserId
 import inc.ahmedmourad.sherlock.utils.getImageBytes
 import timber.log.Timber
+import timber.log.error
 
 internal class AppCompletedUser private constructor(
         val id: UserId,
@@ -30,7 +31,7 @@ internal class AppCompletedUser private constructor(
                 phoneNumber,
                 getImageBytes(picturePath, R.drawable.placeholder)
         ).getOrHandle {
-            Timber.e(ModelConversionException(it.toString()))
+            Timber.error(ModelConversionException(it.toString()), it::toString)
             null
         }!!
     }

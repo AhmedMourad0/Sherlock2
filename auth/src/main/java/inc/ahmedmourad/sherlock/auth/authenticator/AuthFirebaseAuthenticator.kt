@@ -27,6 +27,7 @@ import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import splitties.init.appCtx
 import timber.log.Timber
+import timber.log.error
 
 internal class AuthFirebaseAuthenticator(
         private val auth: Lazy<FirebaseAuth>,
@@ -491,36 +492,39 @@ private fun FirebaseUser.toIncompleteUser(): IncompleteUser {
     val email = this.email
             ?.let(Email.Companion::of)
             ?.getOrHandle {
-                Timber.e(ModelCreationException(it.toString()))
+                Timber.error(ModelCreationException(it.toString()), it::toString)
                 null
             }
 
     val displayName = this.displayName
             ?.let(DisplayName.Companion::of)
             ?.getOrHandle {
-                Timber.e(ModelCreationException(it.toString()))
+                Timber.error(ModelCreationException(it.toString()), it::toString)
                 null
             }
 
     val phoneNumber = this.phoneNumber
             ?.let { PhoneNumber.of(it) }
             ?.getOrHandle {
-                Timber.e(ModelCreationException(it.toString()))
+                Timber.error(ModelCreationException(it.toString()), it::toString)
                 null
             }
 
     val pictureUrl = this.photoUrl?.toString()
             ?.let(Url.Companion::of)
             ?.getOrHandle {
-                Timber.e(ModelCreationException(it.toString()))
+                Timber.error(ModelCreationException(it.toString()), it::toString)
                 null
             }
 
-    return IncompleteUser(
+    return IncompleteUser.of(
             id,
             email,
             displayName,
             phoneNumber,
             pictureUrl
-    )
+    ).getOrHandle {
+        Timber.error(ModelCreationException(it.toString()), it::toString)
+        null
+    }!!
 }

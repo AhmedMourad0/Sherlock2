@@ -1,13 +1,14 @@
 package inc.ahmedmourad.sherlock.application
 
 import androidx.multidex.MultiDexApplication
+import timber.log.LogcatTree
 import timber.log.Timber
 
 @Suppress("unused")
 internal class SherlockApplication : MultiDexApplication() {
     override fun onCreate() {
         super.onCreate()
-        Timber.plant(Timber.DebugTree())
+        Timber.plant(LogcatTree("Sherlock"))
     }
 }
 

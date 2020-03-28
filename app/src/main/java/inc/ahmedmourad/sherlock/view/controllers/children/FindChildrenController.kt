@@ -38,6 +38,7 @@ import inc.ahmedmourad.sherlock.utils.pickers.places.PlacePicker
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
 import inc.ahmedmourad.sherlock.viewmodel.controllers.children.FindChildrenViewModel
 import timber.log.Timber
+import timber.log.error
 import javax.inject.Inject
 
 internal class FindChildrenController : LifecycleController(), View.OnClickListener {
@@ -107,28 +108,13 @@ internal class FindChildrenController : LifecycleController(), View.OnClickListe
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup): View {
 
-        var time = System.currentTimeMillis()
         SherlockComponent.Controllers.findChildrenComponent.get().inject(this)
-        val injection = System.currentTimeMillis() - time
 
-        time = System.currentTimeMillis()
         val view = inflater.inflate(R.layout.controller_find_children, container, false)
-        val inflation = System.currentTimeMillis() - time
 
-        time = System.currentTimeMillis()
         unbinder = ButterKnife.bind(this, view)
-        val binding = System.currentTimeMillis() - time
-
-        val result = "Injection: $injection\niInflation: $inflation\nBinding: $binding"
 
         context = view.context
-
-        Timber.e(result)
-        Toast.makeText(
-                context.applicationContext,
-                result,
-                Toast.LENGTH_LONG
-        ).show()
 
         viewModel = viewModelProvider(viewModelFactory)[FindChildrenViewModel::class.java]
 
@@ -155,7 +141,9 @@ internal class FindChildrenController : LifecycleController(), View.OnClickListe
     override fun onAttach(view: View) {
         super.onAttach(view)
         internetConnectionDisposable = viewModel.internetConnectivityFlowable
-                .subscribe(this::handleConnectionStatusChange, Timber::e)
+                .subscribe(this::handleConnectionStatusChange) {
+                    Timber.error(it, it::toString)
+                }
     }
 
     private fun handleConnectionStatusChange(connected: Boolean) {
@@ -246,7 +234,7 @@ internal class FindChildrenController : LifecycleController(), View.OnClickListe
         setLocationEnabled(false)
         placePicker.get().start(checkNotNull(activity)) {
             setLocationEnabled(true)
-            Timber.e(it)
+            Timber.error(it, it::toString)
         }
     }
 

@@ -15,6 +15,7 @@ import inc.ahmedmourad.sherlock.domain.platform.DateManager
 import inc.ahmedmourad.sherlock.utils.formatter.Formatter
 import splitties.init.appCtx
 import timber.log.Timber
+import timber.log.error
 
 internal class ChildrenRemoteViewsFactory(
         private val context: Context,
@@ -78,7 +79,7 @@ internal class ChildrenRemoteViewsFactory(
                     .get()
         } catch (e: Exception) {
             bitmap = null
-            Timber.e(e)
+            Timber.error(e, e::toString)
         }
 
         if (bitmap != null)

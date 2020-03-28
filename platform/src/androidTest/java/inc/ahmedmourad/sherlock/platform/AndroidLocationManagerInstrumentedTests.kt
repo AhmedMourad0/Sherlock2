@@ -8,6 +8,7 @@ import org.junit.Test
 
 import org.junit.runner.RunWith
 import timber.log.Timber
+import timber.log.error
 
 @RunWith(AndroidJUnit4::class)
 class AndroidLocationManagerInstrumentedTests {
@@ -37,7 +38,7 @@ class AndroidLocationManagerInstrumentedTests {
                     coordinates.second.second
             )
         }.forEach { (systemDistance, managerDistance) ->
-            Timber.e("$systemDistance  -  $managerDistance")
+            Timber.error("$systemDistance  -  $managerDistance")
             assertEquals(systemDistance, managerDistance)
         }
     }

@@ -25,6 +25,7 @@ import inc.ahmedmourad.sherlock.domain.exceptions.SignInCancelledException
 import inc.ahmedmourad.sherlock.domain.model.common.disposable
 import splitties.init.appCtx
 import timber.log.Timber
+import timber.log.error
 
 private const val REQUEST_CODE_GOOGLE_SIGN_IN = 1364
 
@@ -41,7 +42,7 @@ internal class AuthSignInActivity : AppCompatActivity() {
         cancellationDisposable = AuthenticatorBus.signInCancellation.subscribe({
             finishAffinity()
         }, {
-            Timber.e(it)
+            Timber.error(it, it::toString)
         })
 
         signInStrategy = when (val action = intent.action) {

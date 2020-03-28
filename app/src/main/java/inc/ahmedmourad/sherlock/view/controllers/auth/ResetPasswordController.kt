@@ -27,6 +27,7 @@ import inc.ahmedmourad.sherlock.utils.defaults.DefaultTextWatcher
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
 import inc.ahmedmourad.sherlock.viewmodel.controllers.auth.ResetPasswordViewModel
 import timber.log.Timber
+import timber.log.error
 import javax.inject.Inject
 
 internal class ResetPasswordController(args: Bundle) : LifecycleController(args), View.OnClickListener {
@@ -84,12 +85,14 @@ internal class ResetPasswordController(args: Bundle) : LifecycleController(args)
     }
 
     private fun sendPasswordResetEmail() {
-        sendEmailDisposable = viewModel.onCompleteSignUp().subscribe(::onSendEmailSuccess, Timber::e)
+        sendEmailDisposable = viewModel.onCompleteSignUp()?.subscribe(::onSendEmailSuccess) {
+            Timber.error(it, it::toString)
+        }
     }
 
     private fun onSendEmailSuccess(resultEither: Either<Throwable, Unit>) {
         resultEither.fold(ifLeft = {
-            Timber.e(it)
+            Timber.error(it, it::toString)
             Toast.makeText(context, it.localizedMessage, Toast.LENGTH_LONG).show()
         }, ifRight = {
             router.setRoot(RouterTransaction.with(signInController.get().controller).tag(signInController.get().tag))

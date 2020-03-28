@@ -13,6 +13,7 @@ import inc.ahmedmourad.sherlock.utils.DisposablesSparseArray
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import timber.log.Timber
+import timber.log.error
 import javax.inject.Inject
 
 internal class AppWidget : AppWidgetProvider() {
@@ -57,7 +58,7 @@ internal class AppWidget : AppWidgetProvider() {
                     when (either) {
 
                         is Either.Left -> {
-                            Timber.e(either.a)
+                            Timber.error(either.a, either.a::toString)
                         }
 
                         is Either.Right -> {
@@ -69,7 +70,9 @@ internal class AppWidget : AppWidgetProvider() {
 
                     appWidgetManager.updateAppWidget(appWidgetId, views)
 
-                }, Timber::e) //TODO: show retry view
+                }, {
+                    Timber.error(it, it::toString)
+                }) //TODO: show retry view
     }
 
     private fun retry(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {

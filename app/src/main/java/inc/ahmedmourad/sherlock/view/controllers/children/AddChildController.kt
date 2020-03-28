@@ -53,6 +53,7 @@ import inc.ahmedmourad.sherlock.utils.pickers.places.PlacePicker
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
 import inc.ahmedmourad.sherlock.viewmodel.controllers.children.AddChildViewModel
 import timber.log.Timber
+import timber.log.error
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
@@ -196,14 +197,18 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
                     } else {
                         handlePublishingStateValue(publishingState)
                     }
-                }, Timber::e)
+                }, {
+                    Timber.error(it, it::toString)
+                })
     }
 
     private fun publish() {
 
         publishingDisposable = viewModel.publishingStateFlowable
                 .skip(1)
-                .subscribe(this::handlePublishingStateValue, Timber::e)
+                .subscribe(this::handlePublishingStateValue) {
+                    Timber.error(it, it::toString)
+                }
 
         setEnabledAndIdle(false)
         viewModel.onPublish()
@@ -216,7 +221,7 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
         publishingDisposable = viewModel.publishingStateFlowable
                 .subscribe(this::handlePublishingStateValue) {
                     Toast.makeText(context, R.string.something_went_wrong, Toast.LENGTH_LONG).show()
-                    Timber.e(it)
+                    Timber.error(it, it::toString)
                 }
     }
 
@@ -233,7 +238,7 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
         when (val simpleChild = child.simplify()) {
 
             is Either.Left -> {
-                Timber.e(ModelConversionException(simpleChild.a.toString()))
+                Timber.error(ModelConversionException(simpleChild.a.toString()), simpleChild.a::toString)
                 router.popCurrentController()
             }
 
@@ -280,7 +285,11 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
         internetConnectivitySingleDisposable = viewModel.internetConnectivitySingle
                 .map { enabled && !it }
                 .filter { it }
-                .subscribe({ handleConnectionStateChange(false) }, Timber::e)
+                .subscribe({
+                    handleConnectionStateChange(false)
+                }, {
+                    Timber.error(it, it::toString)
+                })
     }
 
     private fun handleConnectionStateChange(connected: Boolean) {
@@ -403,7 +412,7 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
         setPictureEnabled(false)
         imagePicker.get().start(checkNotNull(activity)) {
             setPictureEnabled(true)
-            Timber.e(it)
+            Timber.error(it, it::toString)
         }
     }
 
@@ -412,7 +421,7 @@ internal class AddChildController(args: Bundle) : LifecycleController(args), Vie
         setLocationEnabled(false)
         placePicker.get().start(checkNotNull(activity)) {
             setLocationEnabled(true)
-            Timber.e(it)
+            Timber.error(it, it::toString)
         }
     }
 

@@ -14,6 +14,7 @@ import inc.ahmedmourad.sherlock.domain.model.common.Name
 import inc.ahmedmourad.sherlock.domain.model.common.PicturePath
 import inc.ahmedmourad.sherlock.utils.getImageBytes
 import timber.log.Timber
+import timber.log.error
 
 //TODO: follow PublishedChild's rules
 internal class AppPublishedChild private constructor(
@@ -32,7 +33,7 @@ internal class AppPublishedChild private constructor(
                 appearance,
                 getImageBytes(picturePath, R.drawable.placeholder)
         ).getOrHandle {
-            Timber.e(ModelConversionException(it.toString()))
+            Timber.error(ModelConversionException(it.toString()), it::toString)
             null
         }!!
     }

@@ -15,6 +15,7 @@ import io.reactivex.Maybe
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
+import timber.log.error
 
 internal class ChildrenRoomLocalRepository(private val db: Lazy<SherlockDatabase>) : ChildrenLocalRepository {
 
@@ -39,7 +40,7 @@ internal class ChildrenRoomLocalRepository(private val db: Lazy<SherlockDatabase
                 .map { list ->
                     list.mapNotNull { child ->
                         child.simplify().getOrHandle {
-                            Timber.e(it)
+                            Timber.error(it, it::toString)
                             null
                         }
                     }.mapNotNull { tuple ->
@@ -60,7 +61,7 @@ internal class ChildrenRoomLocalRepository(private val db: Lazy<SherlockDatabase
                 .map { newValues ->
                     newValues.mapNotNull { (child, weight) ->
                         child.toRoomChildEntity(weight).simplify().getOrHandle {
-                            Timber.e(it)
+                            Timber.error(it, it::toString)
                             null
                         }
                     }.right()
