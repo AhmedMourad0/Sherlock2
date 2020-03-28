@@ -41,7 +41,7 @@ internal fun validateNameEitherNullable(
 internal fun validateName(value: String?): Either<String, Name> {
 
     if (value == null) {
-        return appCtx.getString(R.string.invalid_name).left()
+        return appCtx.getString(R.string.name_empty_or_blank).left()
     }
 
     return Name.of(value).mapLeft(Name.Exception::localizedMessage)
