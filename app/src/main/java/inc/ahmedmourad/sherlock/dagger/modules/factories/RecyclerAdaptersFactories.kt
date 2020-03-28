@@ -7,22 +7,23 @@ import inc.ahmedmourad.sherlock.adapters.AppSectionsRecyclerAdapter
 import inc.ahmedmourad.sherlock.adapters.ChildrenRecyclerAdapter
 import inc.ahmedmourad.sherlock.adapters.DynamicRecyclerAdapter
 import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Weight
 import inc.ahmedmourad.sherlock.domain.platform.DateManager
 import inc.ahmedmourad.sherlock.model.common.AppSection
 import inc.ahmedmourad.sherlock.model.common.TaggedController
 import inc.ahmedmourad.sherlock.utils.formatter.Formatter
 
-private typealias OnChildClickListener = (Tuple2<SimpleRetrievedChild, Int>) -> Unit
+private typealias OnChildClickListener = (Tuple2<SimpleRetrievedChild, Weight>) -> Unit
 
 internal typealias ChildrenRecyclerAdapterFactory =
         (@JvmSuppressWildcards OnChildClickListener) ->
-        @JvmSuppressWildcards DynamicRecyclerAdapter<List<Tuple2<SimpleRetrievedChild, Int>>, *>
+        @JvmSuppressWildcards DynamicRecyclerAdapter<List<Tuple2<SimpleRetrievedChild, Weight>>, *>
 
 internal fun childrenRecyclerAdapterFactory(
         dateManager: Lazy<DateManager>,
         formatter: Lazy<Formatter>,
-        onResultSelectedListener: (Tuple2<SimpleRetrievedChild, Int>) -> Unit
-): DynamicRecyclerAdapter<List<Tuple2<SimpleRetrievedChild, Int>>, *> {
+        onResultSelectedListener: (Tuple2<SimpleRetrievedChild, Weight>) -> Unit
+): DynamicRecyclerAdapter<List<Tuple2<SimpleRetrievedChild, Weight>>, *> {
     return ChildrenRecyclerAdapter(dateManager, formatter, onResultSelectedListener)
 }
 

@@ -14,6 +14,7 @@ import com.google.android.material.textview.MaterialTextView
 import dagger.Lazy
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Weight
 import inc.ahmedmourad.sherlock.domain.platform.DateManager
 import inc.ahmedmourad.sherlock.utils.formatter.Formatter
 import splitties.init.appCtx
@@ -22,10 +23,10 @@ import java.util.*
 internal class ChildrenRecyclerAdapter(
         private val dateManager: Lazy<DateManager>,
         private val formatter: Lazy<Formatter>,
-        private val onResultSelectedListener: (Tuple2<SimpleRetrievedChild, Int>) -> Unit
-) : DynamicRecyclerAdapter<List<Tuple2<SimpleRetrievedChild, Int>>, ChildrenRecyclerAdapter.ViewHolder>() {
+        private val onResultSelectedListener: (Tuple2<SimpleRetrievedChild, Weight>) -> Unit
+) : DynamicRecyclerAdapter<List<Tuple2<SimpleRetrievedChild, Weight>>, ChildrenRecyclerAdapter.ViewHolder>() {
 
-    private val resultsList = ArrayList<Tuple2<SimpleRetrievedChild, Int>>()
+    private val resultsList = ArrayList<Tuple2<SimpleRetrievedChild, Weight>>()
 
     override fun onCreateViewHolder(container: ViewGroup, viewType: Int) = ViewHolder(LayoutInflater.from(container.context).inflate(R.layout.item_result, container, false))
 
@@ -33,7 +34,7 @@ internal class ChildrenRecyclerAdapter(
 
     override fun getItemCount() = resultsList.size
 
-    override fun update(items: List<Tuple2<SimpleRetrievedChild, Int>>) {
+    override fun update(items: List<Tuple2<SimpleRetrievedChild, Weight>>) {
         resultsList.clear()
         resultsList.addAll(items)
         notifyDataSetChanged()
@@ -60,7 +61,7 @@ internal class ChildrenRecyclerAdapter(
             glide = Glide.with(appCtx)
         }
 
-        internal fun bind(result: Tuple2<SimpleRetrievedChild, Int>) {
+        internal fun bind(result: Tuple2<SimpleRetrievedChild, Weight>) {
 
             glide.load(result.a.pictureUrl)
                     .placeholder(R.drawable.placeholder)
