@@ -1,6 +1,7 @@
 package inc.ahmedmourad.sherlock.model
 
 import inc.ahmedmourad.sherlock.R
+import inc.ahmedmourad.sherlock.domain.model.auth.SignUpUser
 import inc.ahmedmourad.sherlock.domain.model.auth.submodel.*
 import inc.ahmedmourad.sherlock.domain.model.children.ChildQuery
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.*
@@ -38,7 +39,8 @@ internal fun Age.Exception.localizedMessage(): String {
 
 internal fun AgeRange.Exception.localizedMessage(): String {
     return when (this) {
-        is AgeRange.Exception.MinExceedsMaxException -> appCtx.getString(R.string.age_min_exceeds_max)
+        is AgeRange.Exception.MinExceedsMaxException ->
+            appCtx.getString(R.string.age_min_exceeds_max)
     }
 }
 
@@ -51,7 +53,8 @@ internal fun Height.Exception.localizedMessage(): String {
 
 internal fun HeightRange.Exception.localizedMessage(): String {
     return when (this) {
-        is HeightRange.Exception.MinExceedsMaxException -> appCtx.getString(R.string.height_min_exceeds_max)
+        is HeightRange.Exception.MinExceedsMaxException ->
+            appCtx.getString(R.string.height_min_exceeds_max)
     }
 }
 
@@ -97,20 +100,31 @@ internal fun ChildQuery.Exception.localizedMessage(): String {
 
 internal fun Email.Exception.localizedMessage(): String {
     return when (this) {
-        Email.Exception.BlankEmailException -> appCtx.getString(R.string.email_empty_or_blank)
-        Email.Exception.EmailContainsWhiteSpacesException -> appCtx.getString(R.string.email_contains_whitespaces)
-        Email.Exception.MalformedEmailException -> appCtx.getString(R.string.malformed_email)
+        Email.Exception.BlankEmailException ->
+            appCtx.getString(R.string.email_empty_or_blank)
+        Email.Exception.EmailContainsWhiteSpacesException ->
+            appCtx.getString(R.string.email_contains_whitespaces)
+        Email.Exception.MalformedEmailException ->
+            appCtx.getString(R.string.malformed_email)
     }
 }
 
 internal fun Password.Exception.localizedMessage(): String {
     return when (this) {
-        Password.Exception.BlankPasswordException -> TODO()
-        is Password.Exception.PasswordTooShortException -> TODO()
-        Password.Exception.NoLettersException -> TODO()
-        Password.Exception.NoDigitsException -> TODO()
-        Password.Exception.NoSymbolsException -> TODO()
-        is Password.Exception.FewDistinctCharactersException -> TODO()
+        Password.Exception.BlankPasswordException ->
+            appCtx.getString(R.string.password_empty_or_blank)
+        is Password.Exception.PasswordTooShortException ->
+            appCtx.getString(R.string.password_too_short, this.minLength)
+        Password.Exception.NoCapitalLettersException ->
+            appCtx.getString(R.string.password_no_capital_letters)
+        Password.Exception.NoSmallLettersException ->
+            appCtx.getString(R.string.password_no_small_letters)
+        Password.Exception.NoDigitsException ->
+            appCtx.getString(R.string.password_no_digits)
+        Password.Exception.NoSymbolsException ->
+            appCtx.getString(R.string.password_no_symbols)
+        is Password.Exception.FewDistinctCharactersException ->
+            appCtx.getString(R.string.password_few_distinct_characters, this.min)
     }
 }
 
@@ -150,10 +164,19 @@ internal fun PhoneNumber.Exception.localizedMessage(): String {
     }
 }
 
-@Suppress("unused")
 internal fun UserCredentials.Exception.localizedMessage(): String {
     return when (this) {
-        UserCredentials.Exception.EmailIsUsedAsPasswordException -> TODO()
+        UserCredentials.Exception.EmailIsUsedAsPasswordException ->
+            appCtx.getString(R.string.email_used_as_password)
+    }
+}
+
+internal fun SignUpUser.Exception.localizedMessage(): String {
+    return when (this) {
+        SignUpUser.Exception.DisplayNameIsUsedAsPasswordException ->
+            appCtx.getString(R.string.display_name_used_as_password)
+        SignUpUser.Exception.PhoneNumberIsUsedAsPasswordException ->
+            appCtx.getString(R.string.phone_number_used_as_password)
     }
 }
 
