@@ -6,6 +6,7 @@ import arrow.core.Tuple2
 import inc.ahmedmourad.sherlock.domain.interactors.children.FindChildInteractor
 import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
 import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Weight
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -15,7 +16,7 @@ internal class ChildDetailsViewModel(child: SimpleRetrievedChild, interactor: Fi
 
     private val refreshSubject = PublishSubject.create<Unit>()
 
-    val result: Flowable<Either<Throwable, Tuple2<RetrievedChild, Int?>?>>
+    val result: Flowable<Either<Throwable, Tuple2<RetrievedChild, Weight?>?>>
 
     init {
         result = interactor(child)

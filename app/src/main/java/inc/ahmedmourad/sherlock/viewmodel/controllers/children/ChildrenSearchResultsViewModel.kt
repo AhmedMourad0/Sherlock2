@@ -7,6 +7,7 @@ import inc.ahmedmourad.sherlock.domain.dagger.modules.factories.ChildrenFilterFa
 import inc.ahmedmourad.sherlock.domain.interactors.children.FindChildrenInteractor
 import inc.ahmedmourad.sherlock.domain.model.children.ChildQuery
 import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Weight
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -20,7 +21,7 @@ internal class ChildrenSearchResultsViewModel(
 
     private val refreshSubject = PublishSubject.create<Unit>()
 
-    val searchResultsFlowable: Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Int>>>>
+    val searchResultsFlowable: Flowable<Either<Throwable, List<Tuple2<SimpleRetrievedChild, Weight>>>>
 
     init {
         searchResultsFlowable = interactor(query, filterFactory(query))
