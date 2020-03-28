@@ -40,6 +40,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
     sourceSets.each {
         it.java.srcDirs += "src/$it.name/kotlin"
     }
@@ -61,10 +64,10 @@ dependencies {
 
     implementation "androidx.appcompat:appcompat:1.1.0"
 
-    implementation "com.google.firebase:firebase-core:17.2.2"
+    implementation "com.google.firebase:firebase-core:17.2.3"
     api "com.google.firebase:firebase-storage:19.1.1"
-    api "com.google.firebase:firebase-firestore-ktx:21.4.0"
-    api "com.google.firebase:firebase-auth:19.2.0"
+    api "com.google.firebase:firebase-firestore-ktx:21.4.1"
+    api "com.google.firebase:firebase-auth:19.3.0"
     implementation "com.google.android.gms:play-services-auth:17.0.0"
     implementation "com.facebook.android:facebook-login:5.0.0"
     implementation "androidx.browser:browser:1.2.0"
@@ -79,7 +82,7 @@ dependencies {
 
     implementation "com.louiscad.splitties:splitties-appctx:$splittiesVersion"
 
-    implementation "com.jakewharton.timber:timber:$timberVersion"
+    implementation "com.jakewharton.timber:timber-android:$timberVersion"
 
     testImplementation "junit:junit:4.13"
     testImplementation "org.mockito:mockito-core:2.26.0"

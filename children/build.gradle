@@ -33,6 +33,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
     sourceSets.each {
         it.java.srcDirs += "src/$it.name/kotlin"
     }
@@ -52,20 +55,20 @@ dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-    implementation "com.google.firebase:firebase-core:17.2.2"
+    implementation "com.google.firebase:firebase-core:17.2.3"
     api "com.google.firebase:firebase-storage:19.1.1"
-    api "com.google.firebase:firebase-firestore-ktx:21.4.0"
+    api "com.google.firebase:firebase-firestore-ktx:21.4.1"
 
     implementation "com.google.dagger:dagger:$daggerVersion"
     kapt "com.google.dagger:dagger-compiler:$daggerVersion"
 
     implementation "com.louiscad.splitties:splitties-appctx:$splittiesVersion"
 
-    api "androidx.room:room-runtime:2.2.3"
-    implementation "androidx.room:room-rxjava2:2.2.3"
+    api "androidx.room:room-runtime:2.2.5"
+    implementation "androidx.room:room-rxjava2:2.2.5"
     kapt "androidx.room:room-compiler:$roomVersion"
 
-    implementation "com.jakewharton.timber:timber:$timberVersion"
+    implementation "com.jakewharton.timber:timber-android:$timberVersion"
 
     testImplementation "junit:junit:4.13"
     testImplementation "org.mockito:mockito-core:2.26.0"

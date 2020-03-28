@@ -25,7 +25,7 @@ allprojects {
         roomVersion = "2.2.0-rc01"
         daggerVersion = "2.24"
         splittiesVersion = "2.1.0"
-        timberVersion = "4.7.1"
+        timberVersion = "5.0.0-SNAPSHOT"
         spek_version = "2.0.1"
         arrow_version = "0.10.4"
     }

@@ -43,6 +43,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
     sourceSets.each {
         it.java.srcDirs += "src/$it.name/kotlin"
     }
@@ -54,6 +57,9 @@ android {
                 }
             }
         }
+    }
+    configurations{
+        all*.exclude group: 'com.google.guava', module: 'listenablefuture'
     }
 }
 
@@ -74,9 +80,9 @@ dependencies {
     implementation "androidx.constraintlayout:constraintlayout:2.0.0-beta4"
     implementation "androidx.exifinterface:exifinterface:1.1.0"
     implementation "com.android.support:multidex:1.0.3"
-    implementation "androidx.core:core-ktx:1.1.0"
+    implementation "androidx.core:core-ktx:1.2.0"
 
-    implementation "com.google.android.material:material:1.2.0-alpha04"
+    implementation "com.google.android.material:material:1.2.0-alpha05"
 
     implementation "com.google.android.gms:play-services-places:17.0.0"
 
@@ -102,7 +108,8 @@ dependencies {
 
     implementation "com.louiscad.splitties:splitties-appctx:$splittiesVersion"
 
-    implementation "com.jakewharton.timber:timber:$timberVersion"
+    implementation "com.jakewharton.timber:timber-android:$timberVersion"
+
     implementation "com.github.florent37:shapeofview:1.4.7"
 
     debugImplementation "com.squareup.leakcanary:leakcanary-android:2.0"

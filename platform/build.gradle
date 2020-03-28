@@ -23,6 +23,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
     sourceSets.each {
         it.java.srcDirs += "src/$it.name/kotlin"
     }
@@ -53,7 +56,7 @@ dependencies {
 
     implementation "com.louiscad.splitties:splitties-appctx:$splittiesVersion"
 
-    implementation "com.jakewharton.timber:timber:$timberVersion"
+    implementation "com.jakewharton.timber:timber-android:$timberVersion"
 
     testImplementation "junit:junit:4.13"
     androidTestImplementation "androidx.test:runner:1.2.0"
