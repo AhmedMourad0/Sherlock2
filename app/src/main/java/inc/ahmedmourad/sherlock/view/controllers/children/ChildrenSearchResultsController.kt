@@ -22,6 +22,7 @@ import inc.ahmedmourad.sherlock.dagger.modules.factories.ChildDetailsControllerF
 import inc.ahmedmourad.sherlock.dagger.modules.factories.ChildrenRecyclerAdapterFactory
 import inc.ahmedmourad.sherlock.domain.model.children.ChildQuery
 import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Weight
 import inc.ahmedmourad.sherlock.domain.model.common.disposable
 import inc.ahmedmourad.sherlock.domain.platform.DateManager
 import inc.ahmedmourad.sherlock.model.common.ParcelableWrapper
@@ -32,6 +33,7 @@ import inc.ahmedmourad.sherlock.utils.viewModelProvider
 import inc.ahmedmourad.sherlock.viewmodel.controllers.children.ChildrenSearchResultsViewModel
 import inc.ahmedmourad.sherlock.viewmodel.controllers.children.factories.ChildrenSearchResultsViewModelFactoryFactory
 import timber.log.Timber
+import timber.log.error
 import javax.inject.Inject
 
 internal class ChildrenSearchResultsController(args: Bundle) : LifecycleController(args) {
@@ -58,7 +60,7 @@ internal class ChildrenSearchResultsController(args: Bundle) : LifecycleControll
 
     private lateinit var query: ChildQuery
 
-    private lateinit var adapter: DynamicRecyclerAdapter<List<Tuple2<SimpleRetrievedChild, Int>>, *>
+    private lateinit var adapter: DynamicRecyclerAdapter<List<Tuple2<SimpleRetrievedChild, Weight>>, *>
 
     private lateinit var viewModel: ChildrenSearchResultsViewModel
 
@@ -92,11 +94,11 @@ internal class ChildrenSearchResultsController(args: Bundle) : LifecycleControll
         //TODO: paginate
         findAllResultsDisposable = viewModel.searchResultsFlowable.subscribe({ resultsEither ->
             resultsEither.fold(ifLeft = {
-                Timber.e(it)
+                Timber.error(it, it::toString)
                 Toast.makeText(context, it.localizedMessage, Toast.LENGTH_LONG).show()
             }, ifRight = adapter::update)
         }, {
-            Timber.e(it)
+            Timber.error(it, it::toString)
             Toast.makeText(context, it.localizedMessage, Toast.LENGTH_LONG).show()
         })
     }
