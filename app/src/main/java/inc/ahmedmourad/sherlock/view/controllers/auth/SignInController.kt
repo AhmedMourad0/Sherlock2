@@ -26,14 +26,15 @@ import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.ResetPasswordControlle
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.SignInViewModelQualifier
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.SignUpControllerQualifier
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.SignedInUserProfileControllerQualifier
+import inc.ahmedmourad.sherlock.domain.model.auth.IncompleteUser
+import inc.ahmedmourad.sherlock.domain.model.auth.SignedInUser
 import inc.ahmedmourad.sherlock.domain.model.common.disposable
-import inc.ahmedmourad.sherlock.model.auth.AppIncompleteUser
-import inc.ahmedmourad.sherlock.model.auth.AppSignedInUser
 import inc.ahmedmourad.sherlock.model.common.TaggedController
 import inc.ahmedmourad.sherlock.utils.defaults.DefaultTextWatcher
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
 import inc.ahmedmourad.sherlock.viewmodel.controllers.auth.SignInViewModel
 import timber.log.Timber
+import timber.log.error
 import javax.inject.Inject
 
 internal class SignInController(args: Bundle) : LifecycleController(args), View.OnClickListener {
@@ -133,26 +134,34 @@ internal class SignInController(args: Bundle) : LifecycleController(args), View.
     }
 
     private fun signIn() {
-        signInDisposable = viewModel.onSignIn().subscribe(::onSignInSuccess, Timber::e)
+        signInDisposable = viewModel.onSignIn()?.subscribe(::onSignInSuccess) {
+            Timber.error(it, it::toString)
+        }
     }
 
     private fun signInWithGoogle() {
-        signInDisposable = viewModel.onSignInWithGoogle().subscribe(::onSignInSuccess, Timber::e)
+        signInDisposable = viewModel.onSignInWithGoogle().subscribe(::onSignInSuccess) {
+            Timber.error(it, it::toString)
+        }
 
     }
 
     private fun signInWithFacebook() {
-        signInDisposable = viewModel.onSignInWithFacebook().subscribe(::onSignInSuccess, Timber::e)
+        signInDisposable = viewModel.onSignInWithFacebook().subscribe(::onSignInSuccess) {
+            Timber.error(it, it::toString)
+        }
 
     }
 
     private fun signInWithTwitter() {
-        signInDisposable = viewModel.onSignInWithTwitter().subscribe(::onSignInSuccess, Timber::e)
+        signInDisposable = viewModel.onSignInWithTwitter().subscribe(::onSignInSuccess) {
+            Timber.error(it, it::toString)
+        }
     }
 
-    private fun onSignInSuccess(resultEither: Either<Throwable, Either<AppIncompleteUser, AppSignedInUser>>) {
+    private fun onSignInSuccess(resultEither: Either<Throwable, Either<IncompleteUser, SignedInUser>>) {
         resultEither.fold(ifLeft = {
-            Timber.e(it)
+            Timber.error(it, it::toString)
             Toast.makeText(context, it.localizedMessage, Toast.LENGTH_LONG).show()
         }, ifRight = { either ->
             either.fold(ifLeft = {

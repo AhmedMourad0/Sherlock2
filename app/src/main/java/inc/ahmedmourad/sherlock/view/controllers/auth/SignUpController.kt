@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import arrow.core.Either
+import arrow.core.right
 import butterknife.BindView
 import butterknife.ButterKnife
 import butterknife.Unbinder
@@ -30,15 +31,16 @@ import inc.ahmedmourad.sherlock.dagger.modules.factories.CompleteSignUpControlle
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.SignInControllerQualifier
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.SignUpViewModelQualifier
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.SignedInUserProfileControllerQualifier
+import inc.ahmedmourad.sherlock.domain.model.auth.IncompleteUser
+import inc.ahmedmourad.sherlock.domain.model.auth.SignedInUser
 import inc.ahmedmourad.sherlock.domain.model.common.disposable
-import inc.ahmedmourad.sherlock.model.auth.AppIncompleteUser
-import inc.ahmedmourad.sherlock.model.auth.AppSignedInUser
 import inc.ahmedmourad.sherlock.model.common.TaggedController
 import inc.ahmedmourad.sherlock.utils.defaults.DefaultTextWatcher
 import inc.ahmedmourad.sherlock.utils.pickers.images.ImagePicker
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
 import inc.ahmedmourad.sherlock.viewmodel.controllers.auth.SignUpViewModel
 import timber.log.Timber
+import timber.log.error
 import javax.inject.Inject
 
 internal class SignUpController(args: Bundle) : LifecycleController(args), View.OnClickListener {
@@ -134,7 +136,7 @@ internal class SignUpController(args: Bundle) : LifecycleController(args), View.
 
     private fun initializeEditTexts() {
 
-        usernameEditText.setText(viewModel.username.value)
+        usernameEditText.setText(viewModel.displayName.value)
         emailEditText.setText(viewModel.email.value)
         passwordEditText.setText(viewModel.password.value)
         confirmPasswordEditText.setText(viewModel.passwordConfirmation.value)
@@ -142,7 +144,7 @@ internal class SignUpController(args: Bundle) : LifecycleController(args), View.
 
         usernameEditText.addTextChangedListener(object : DefaultTextWatcher {
             override fun afterTextChanged(s: Editable) {
-                viewModel.username.value = s.toString()
+                viewModel.displayName.value = s.toString()
             }
         })
 
@@ -182,26 +184,34 @@ internal class SignUpController(args: Bundle) : LifecycleController(args), View.
     }
 
     private fun signUp() {
-        signUpDisposable = viewModel.onSignUp().subscribe(::onSignUpSuccess, Timber::e)
+        signUpDisposable = viewModel.onSignUp()?.map {
+            it.map(SignedInUser::right)
+        }?.subscribe(::onSignUpSuccess) {
+            Timber.error(it, it::toString)
+        }
     }
 
     private fun signUpWithGoogle() {
-        signUpDisposable = viewModel.onSignUpWithGoogle().subscribe(::onSignUpSuccess, Timber::e)
-
+        signUpDisposable = viewModel.onSignUpWithGoogle().subscribe(::onSignUpSuccess) {
+            Timber.error(it, it::toString)
+        }
     }
 
     private fun signUpWithFacebook() {
-        signUpDisposable = viewModel.onSignUpWithFacebook().subscribe(::onSignUpSuccess, Timber::e)
-
+        signUpDisposable = viewModel.onSignUpWithFacebook().subscribe(::onSignUpSuccess) {
+            Timber.error(it, it::toString)
+        }
     }
 
     private fun signUpWithTwitter() {
-        signUpDisposable = viewModel.onSignUpWithTwitter().subscribe(::onSignUpSuccess, Timber::e)
+        signUpDisposable = viewModel.onSignUpWithTwitter().subscribe(::onSignUpSuccess) {
+            Timber.error(it, it::toString)
+        }
     }
 
-    private fun onSignUpSuccess(resultEither: Either<Throwable, Either<AppIncompleteUser, AppSignedInUser>>) {
+    private fun onSignUpSuccess(resultEither: Either<Throwable, Either<IncompleteUser, SignedInUser>>) {
         resultEither.fold(ifLeft = {
-            Timber.e(it)
+            Timber.error(it, it::toString)
             Toast.makeText(context, it.localizedMessage, Toast.LENGTH_LONG).show()
         }, ifRight = { either ->
             either.fold(ifLeft = {
@@ -223,7 +233,7 @@ internal class SignUpController(args: Bundle) : LifecycleController(args), View.
         setPictureEnabled(false)
         imagePicker.get().start(checkNotNull(activity)) {
             setPictureEnabled(true)
-            Timber.e(it)
+            Timber.error(it, it::toString)
         }
     }
 

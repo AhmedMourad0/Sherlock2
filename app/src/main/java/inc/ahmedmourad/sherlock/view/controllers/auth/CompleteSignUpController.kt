@@ -25,16 +25,19 @@ import de.hdodenhof.circleimageview.CircleImageView
 import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.SignedInUserProfileControllerQualifier
+import inc.ahmedmourad.sherlock.domain.model.auth.IncompleteUser
+import inc.ahmedmourad.sherlock.domain.model.auth.SignedInUser
 import inc.ahmedmourad.sherlock.domain.model.common.disposable
-import inc.ahmedmourad.sherlock.model.auth.AppIncompleteUser
-import inc.ahmedmourad.sherlock.model.auth.AppSignedInUser
+import inc.ahmedmourad.sherlock.model.common.ParcelableWrapper
 import inc.ahmedmourad.sherlock.model.common.TaggedController
+import inc.ahmedmourad.sherlock.model.common.parcelize
 import inc.ahmedmourad.sherlock.utils.defaults.DefaultTextWatcher
 import inc.ahmedmourad.sherlock.utils.pickers.images.ImagePicker
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
 import inc.ahmedmourad.sherlock.viewmodel.controllers.auth.CompleteSignUpViewModel
 import inc.ahmedmourad.sherlock.viewmodel.controllers.auth.factories.CompleteSignUpViewModelFactoryFactory
 import timber.log.Timber
+import timber.log.error
 import javax.inject.Inject
 
 internal class CompleteSignUpController(args: Bundle) : LifecycleController(args), View.OnClickListener {
@@ -87,7 +90,10 @@ internal class CompleteSignUpController(args: Bundle) : LifecycleController(args
         context = view.context
 
         viewModel = viewModelProvider(
-                viewModelFactoryFactory(requireNotNull(args.getParcelable(ARG_INCOMPLETE_USER)))
+                viewModelFactoryFactory(
+                        requireNotNull(
+                                args.getParcelable<ParcelableWrapper<IncompleteUser>>(ARG_INCOMPLETE_USER)).value
+                )
         )[CompleteSignUpViewModel::class.java]
 
         initializeEditTexts()
@@ -103,13 +109,19 @@ internal class CompleteSignUpController(args: Bundle) : LifecycleController(args
 
     private fun initializeEditTexts() {
 
-        usernameEditText.setText(viewModel.username.value)
+        usernameEditText.setText(viewModel.displayName.value)
         emailEditText.setText(viewModel.email.value)
-        phoneNumberEditText.setText(viewModel.phoneNumber.value)
+        phoneNumberEditText.setText(
+                context.getString(
+                        R.string.phone_number_with_country_code,
+                        viewModel.phoneNumberCountryCode.value,
+                        viewModel.phoneNumber.value
+                )
+        )
 
         usernameEditText.addTextChangedListener(object : DefaultTextWatcher {
             override fun afterTextChanged(s: Editable) {
-                viewModel.username.value = s.toString()
+                viewModel.displayName.value = s.toString()
             }
         })
 
@@ -121,6 +133,7 @@ internal class CompleteSignUpController(args: Bundle) : LifecycleController(args
 
         phoneNumberEditText.addTextChangedListener(object : DefaultTextWatcher {
             override fun afterTextChanged(s: Editable) {
+                viewModel.phoneNumberCountryCode.value = ""
                 viewModel.phoneNumber.value = s.toString()
             }
         })
@@ -145,12 +158,14 @@ internal class CompleteSignUpController(args: Bundle) : LifecycleController(args
     }
 
     private fun completeSignUp() {
-        completeSignUpDisposable = viewModel.onCompleteSignUp().subscribe(::onCompleteSignUpSuccess, Timber::e)
+        completeSignUpDisposable = viewModel.onCompleteSignUp()?.subscribe(::onCompleteSignUpSuccess) {
+            Timber.error(it, it::toString)
+        }
     }
 
-    private fun onCompleteSignUpSuccess(resultEither: Either<Throwable, AppSignedInUser>) {
+    private fun onCompleteSignUpSuccess(resultEither: Either<Throwable, SignedInUser>) {
         resultEither.fold(ifLeft = {
-            Timber.e(it)
+            Timber.error(it, it::toString)
             Toast.makeText(context, it.localizedMessage, Toast.LENGTH_LONG).show()
         }, ifRight = {
             router.setRoot(
@@ -164,7 +179,7 @@ internal class CompleteSignUpController(args: Bundle) : LifecycleController(args
         setPictureEnabled(false)
         imagePicker.get().start(checkNotNull(activity)) {
             setPictureEnabled(true)
-            Timber.e(it)
+            Timber.error(it, it::toString)
         }
     }
 
@@ -222,9 +237,9 @@ internal class CompleteSignUpController(args: Bundle) : LifecycleController(args
 
         private const val ARG_INCOMPLETE_USER = "inc.ahmedmourad.sherlock.view.controllers.arg.INCOMPLETE_USER"
 
-        fun newInstance(incompleteUser: AppIncompleteUser): TaggedController {
+        fun newInstance(incompleteUser: IncompleteUser): TaggedController {
             return TaggedController(CompleteSignUpController(Bundle(1).apply {
-                putParcelable(ARG_INCOMPLETE_USER, incompleteUser)
+                putParcelable(ARG_INCOMPLETE_USER, incompleteUser.parcelize())
             }), CONTROLLER_TAG)
         }
     }

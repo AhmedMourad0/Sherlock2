@@ -22,14 +22,15 @@ import inc.ahmedmourad.sherlock.dagger.modules.factories.CompleteSignUpControlle
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.SignInControllerQualifier
 import inc.ahmedmourad.sherlock.dagger.modules.qualifiers.SignedInUserProfileViewModelQualifier
 import inc.ahmedmourad.sherlock.domain.exceptions.NoSignedInUserException
+import inc.ahmedmourad.sherlock.domain.model.auth.SignedInUser
 import inc.ahmedmourad.sherlock.domain.model.common.disposable
 import inc.ahmedmourad.sherlock.domain.platform.DateManager
-import inc.ahmedmourad.sherlock.model.auth.AppSignedInUser
 import inc.ahmedmourad.sherlock.model.common.TaggedController
 import inc.ahmedmourad.sherlock.utils.viewModelProvider
 import inc.ahmedmourad.sherlock.viewmodel.controllers.auth.SignedInUserProfileViewModel
 import splitties.init.appCtx
 import timber.log.Timber
+import timber.log.error
 import javax.inject.Inject
 
 internal class SignedInUserProfileController(args: Bundle) : LifecycleController(args) {
@@ -90,7 +91,7 @@ internal class SignedInUserProfileController(args: Bundle) : LifecycleController
         super.onAttach(view)
         findSignedInUserDisposable = viewModel.signedInUserSingle.subscribe({ resultEither ->
             resultEither.fold(ifLeft = {
-                Timber.e(it)
+                Timber.error(it, it::toString)
                 if (it is NoSignedInUserException) {
                     router.setRoot(
                             RouterTransaction.with(signInController.get().controller)
@@ -106,7 +107,7 @@ internal class SignedInUserProfileController(args: Bundle) : LifecycleController
                 }, ifRight = this@SignedInUserProfileController::populateUi)
             })
         }, {
-            Timber.e(it)
+            Timber.error(it, it::toString)
             Toast.makeText(context, it.localizedMessage, Toast.LENGTH_LONG).show()
         })
     }
@@ -116,19 +117,23 @@ internal class SignedInUserProfileController(args: Bundle) : LifecycleController
         super.onDetach(view)
     }
 
-    private fun populateUi(user: AppSignedInUser) {
+    private fun populateUi(user: SignedInUser) {
 
         Glide.with(appCtx)
-                .load(user.pictureUrl)
+                .load(user.pictureUrl?.value)
                 .placeholder(R.drawable.placeholder)
                 .error(R.drawable.placeholder)
                 .into(pictureImageView)
 
-        nameTextView.text = user.name
+        nameTextView.text = user.displayName.value
 
-        emailTextView.text = user.email
+        emailTextView.text = user.email.value
 
-        phoneNumberTextView.text = user.phoneNumber
+        phoneNumberTextView.text = context.getString(
+                R.string.phone_number_with_country_code,
+                user.phoneNumber.countryCode,
+                user.phoneNumber.number
+        )
 
         registrationDateTextView.text = dateManager.get().getRelativeDateTimeString(user.registrationDate)
     }

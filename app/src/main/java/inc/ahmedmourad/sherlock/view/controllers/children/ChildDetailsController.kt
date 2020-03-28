@@ -25,6 +25,7 @@ import inc.ahmedmourad.sherlock.dagger.SherlockComponent
 import inc.ahmedmourad.sherlock.dagger.modules.factories.MainActivityIntentFactory
 import inc.ahmedmourad.sherlock.domain.model.children.RetrievedChild
 import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
+import inc.ahmedmourad.sherlock.domain.model.children.submodel.Weight
 import inc.ahmedmourad.sherlock.domain.model.common.disposable
 import inc.ahmedmourad.sherlock.model.common.DeeplyLinkedController
 import inc.ahmedmourad.sherlock.model.common.ParcelableWrapper
@@ -37,6 +38,7 @@ import inc.ahmedmourad.sherlock.viewmodel.controllers.children.ChildDetailsViewM
 import inc.ahmedmourad.sherlock.viewmodel.controllers.children.factories.ChildDetailsViewModelFactoryFactory
 import splitties.init.appCtx
 import timber.log.Timber
+import timber.log.error
 import javax.inject.Inject
 
 internal class ChildDetailsController(args: Bundle) : LifecycleController(args) {
@@ -116,7 +118,7 @@ internal class ChildDetailsController(args: Bundle) : LifecycleController(args) 
             when (resultEither) {
 
                 is Either.Left -> {
-                    Timber.e(resultEither.a)
+                    Timber.error(resultEither.a, resultEither.a::toString)
                     Toast.makeText(context, resultEither.a.localizedMessage, Toast.LENGTH_LONG).show()
                     router.popCurrentController()
                 }
@@ -126,7 +128,7 @@ internal class ChildDetailsController(args: Bundle) : LifecycleController(args) 
                 }
             }
         }, {
-            Timber.e(it)
+            Timber.error(it, it::toString)
             Toast.makeText(context, it.localizedMessage, Toast.LENGTH_LONG).show()
         })
     }
@@ -136,7 +138,7 @@ internal class ChildDetailsController(args: Bundle) : LifecycleController(args) 
         super.onDetach(view)
     }
 
-    private fun populateUi(result: Tuple2<RetrievedChild, Int?>?) {
+    private fun populateUi(result: Tuple2<RetrievedChild, Weight?>?) {
 
         if (result == null) {
             Toast.makeText(context, R.string.child_data_missing, Toast.LENGTH_LONG).show()
