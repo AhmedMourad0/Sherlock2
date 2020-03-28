@@ -1,9 +1,9 @@
 package inc.ahmedmourad.sherlock.dagger.modules.factories
 
 import android.content.Intent
+import inc.ahmedmourad.sherlock.domain.model.auth.IncompleteUser
 import inc.ahmedmourad.sherlock.domain.model.children.ChildQuery
 import inc.ahmedmourad.sherlock.domain.model.children.SimpleRetrievedChild
-import inc.ahmedmourad.sherlock.model.auth.AppIncompleteUser
 import inc.ahmedmourad.sherlock.model.children.AppPublishedChild
 import inc.ahmedmourad.sherlock.model.common.TaggedController
 import inc.ahmedmourad.sherlock.view.controllers.auth.CompleteSignUpController
@@ -40,9 +40,9 @@ internal fun childrenSearchResultsControllerFactory(query: ChildQuery): TaggedCo
 }
 
 internal typealias CompleteSignUpControllerFactory =
-        (@JvmSuppressWildcards AppIncompleteUser) -> @JvmSuppressWildcards TaggedController
+        (@JvmSuppressWildcards IncompleteUser) -> @JvmSuppressWildcards TaggedController
 
-internal fun completeSignUpControllerFactory(incompleteUser: AppIncompleteUser): TaggedController {
+internal fun completeSignUpControllerFactory(incompleteUser: IncompleteUser): TaggedController {
     return CompleteSignUpController.newInstance(incompleteUser)
 }
 
