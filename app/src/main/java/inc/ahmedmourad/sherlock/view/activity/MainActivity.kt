@@ -17,7 +17,6 @@ import androidx.core.view.updatePadding
 import androidx.core.widget.NestedScrollView
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import arrow.core.Either
 import arrow.core.Tuple2
 import arrow.core.toT
@@ -50,6 +49,7 @@ import inc.ahmedmourad.sherlock.utils.hideSoftKeyboard
 import inc.ahmedmourad.sherlock.viewmodel.activity.MainActivityViewModel
 import splitties.init.appCtx
 import timber.log.Timber
+import timber.log.error
 import javax.inject.Inject
 
 //TODO: use DataBinding instead of ButterKnife
@@ -127,7 +127,7 @@ internal class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(toolbar)
 
-        viewModel = ViewModelProviders.of(this, viewModelFactory)[MainActivityViewModel::class.java]
+        viewModel = ViewModelProvider(this, viewModelFactory)[MainActivityViewModel::class.java]
 
         foregroundRouter = Conductor.attachRouter(this, contentControllersContainer, savedInstanceState)
 
@@ -186,7 +186,9 @@ internal class MainActivity : AppCompatActivity() {
 
         internetConnectivityDisposable = viewModel.internetConnectivityFlowable
                 .doOnSubscribe { showConnectivitySnackBar(Connectivity.CONNECTING) }
-                .subscribe(this::showConnectivitySnackBar, Timber::e)
+                .subscribe(this::showConnectivitySnackBar) {
+                    Timber.error(it, it::toString)
+                }
 
         isUserSignedInDisposable = viewModel.isUserSignedInSingle
                 .flatMap { isSignedIn ->
@@ -196,7 +198,9 @@ internal class MainActivity : AppCompatActivity() {
                         setInitialBackdropController(it)
                     }
                     userAuthenticationState = it
-                }, Timber::e)
+                }, {
+                    Timber.error(it, it::toString)
+                })
     }
 
     private fun showConnectivitySnackBar(connectivity: Connectivity) {
@@ -305,7 +309,7 @@ internal class MainActivity : AppCompatActivity() {
                         }
                         else -> {
                             //This should never happen
-                            Timber.e(it)
+                            Timber.error(it, it::toString)
                             ContextCompat.getDrawable(this, R.drawable.ic_hair) // error icon
                         }
                     }
@@ -361,7 +365,7 @@ internal class MainActivity : AppCompatActivity() {
     private fun signOut() {
         signOutDisposable = viewModel.signOutSingle.subscribe({ resultEither ->
             resultEither.fold(ifLeft = {
-                Timber.e(it)
+                Timber.error(it, it::toString)
             }, ifRight = {
                 invalidateOptionsMenu()
                 backdropRouter.setRoot(
@@ -369,7 +373,9 @@ internal class MainActivity : AppCompatActivity() {
                                 .tag(signInController.get().tag)
                 )
             })
-        }, Timber::e)
+        }, {
+            Timber.error(it, it::toString)
+        })
     }
 
     override fun onStop() {
