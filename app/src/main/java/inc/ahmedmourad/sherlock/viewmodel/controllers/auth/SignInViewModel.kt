@@ -42,7 +42,9 @@ internal class SignInViewModel(
             .observeOn(AndroidSchedulers.mainThread())
 
     fun onSignIn(): Single<Either<Throwable, Either<IncompleteUser, SignedInUser>>>? {
-        return toUserCredentials()?.let(signInInteractor)?.observeOn(AndroidSchedulers.mainThread())
+        return toUserCredentials()?.let {
+            signInInteractor(it).observeOn(AndroidSchedulers.mainThread())
+        }
     }
 
     private fun toUserCredentials(): UserCredentials? {
