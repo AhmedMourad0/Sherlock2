@@ -45,7 +45,9 @@ class Password private constructor(val value: String) {
 
                 value.length < MIN_LENGTH -> Exception.PasswordTooShortException(value.length, MIN_LENGTH).left()
 
-                chars.none(Char::isLetter) -> Exception.NoLettersException.left()
+                chars.none(Char::isUpperCase) -> Exception.NoCapitalLettersException.left()
+
+                chars.none(Char::isLowerCase) -> Exception.NoSmallLettersException.left()
 
                 chars.none(Char::isDigit) -> Exception.NoDigitsException.left()
 
@@ -62,7 +64,8 @@ class Password private constructor(val value: String) {
     sealed class Exception {
         object BlankPasswordException : Exception()
         data class PasswordTooShortException(val length: Int, val minLength: Int) : Exception()
-        object NoLettersException : Exception()
+        object NoCapitalLettersException : Exception()
+        object NoSmallLettersException : Exception()
         object NoDigitsException : Exception()
         object NoSymbolsException : Exception()
         data class FewDistinctCharactersException(val count: Int, val min: Int) : Exception()
