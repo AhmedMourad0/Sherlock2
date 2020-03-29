@@ -35,10 +35,15 @@ class PicturePath private constructor(val value: String) {
     }
 
     companion object {
+
         fun of(value: String): Either<Exception, PicturePath> {
+            return validate(value)?.left() ?: PicturePath(value).right()
+        }
+
+        fun validate(value: String): Exception? {
 
             if (value.isBlank()) {
-                return Exception.BlankPathException.left()
+                return Exception.BlankPathException
             }
 
             try {
@@ -46,21 +51,21 @@ class PicturePath private constructor(val value: String) {
                 val file = File(value)
 
                 return if (!file.exists()) {
-                    Exception.NonExistentFileException.left()
+                    Exception.NonExistentFileException
                 } else if (!file.isFile) {
-                    Exception.NonFilePathException.left()
+                    Exception.NonFilePathException
                 } else if (!file.canRead()) {
-                    Exception.UnreadableFileException.left()
+                    Exception.UnreadableFileException
                 } else if (file.extension.toLowerCase(Locale.US) == "gif") {
-                    Exception.GifPathException.left()
+                    Exception.GifPathException
                 } else if (file.extension.toLowerCase(Locale.US) !in arrayOf("jpg", "jpeg", "png")) {
-                    Exception.NonPicturePathException.left()
+                    Exception.NonPicturePathException
                 } else {
-                    PicturePath(value).right()
+                    null
                 }
 
             } catch (e: SecurityException) {
-                return Exception.SecurityException.left()
+                return Exception.SecurityException
             }
         }
     }

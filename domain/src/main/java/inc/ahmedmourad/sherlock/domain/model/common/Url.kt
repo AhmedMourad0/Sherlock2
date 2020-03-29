@@ -36,19 +36,24 @@ class Url private constructor(val value: String) {
     }
 
     companion object {
+
         fun of(value: String): Either<Exception, Url> {
+            return validate(value)?.left() ?: Url(value).right()
+        }
+
+        fun validate(value: String): Exception? {
 
             if (value.isBlank()) {
-                return Exception.BlankUrlException.left()
+                return Exception.BlankUrlException
             }
 
             return try {
                 URL(value).toURI()
-                Url(value).right()
+                null
             } catch (e: MalformedURLException) {
-                Exception.MalformedUrlException.left()
+                Exception.MalformedUrlException
             } catch (e: URISyntaxException) {
-                Exception.MalformedUrlException.left()
+                Exception.MalformedUrlException
             }
         }
     }

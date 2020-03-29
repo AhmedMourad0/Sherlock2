@@ -38,19 +38,24 @@ class Name private constructor(val value: String) {
         const val MAX_LENGTH = 10
 
         fun of(value: String): Either<Exception, Name> {
+            return validate(value)?.left() ?: Name(value.trim()).right()
+
+        }
+
+        fun validate(value: String): Exception? {
             val trimmedValue = value.trim()
             return if (value.isBlank()) {
-                Exception.BlankNameException.left()
+                Exception.BlankNameException
             } else if (trimmedValue.contains(" ")) {
-                Exception.NameContainsWhiteSpacesException.left()
+                Exception.NameContainsWhiteSpacesException
             } else if (trimmedValue.length < MIN_LENGTH) {
-                Exception.NameTooShortException(trimmedValue.length, MIN_LENGTH).left()
+                Exception.NameTooShortException(trimmedValue.length, MIN_LENGTH)
             } else if (trimmedValue.length > MAX_LENGTH) {
-                Exception.NameTooLongException(trimmedValue.length, MAX_LENGTH).left()
+                Exception.NameTooLongException(trimmedValue.length, MAX_LENGTH)
             } else if (!trimmedValue.toCharArray().all(Char::isLetter)) {
-                Exception.NameContainsNumbersOrSymbolsException.left()
+                Exception.NameContainsNumbersOrSymbolsException
             } else {
-                Name(trimmedValue).right()
+                null
             }
         }
     }
