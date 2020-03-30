@@ -4,7 +4,6 @@ import arrow.core.Either
 import arrow.core.getOrHandle
 import arrow.core.left
 import arrow.core.right
-import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.domain.exceptions.ModelConversionException
 import inc.ahmedmourad.sherlock.domain.model.children.PublishedChild
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.ApproximateAppearance
@@ -16,7 +15,6 @@ import inc.ahmedmourad.sherlock.utils.getImageBytes
 import timber.log.Timber
 import timber.log.error
 
-//TODO: follow PublishedChild's rules
 internal class AppPublishedChild private constructor(
         val name: Either<Name, FullName>?,
         val notes: String?,
@@ -31,7 +29,7 @@ internal class AppPublishedChild private constructor(
                 notes,
                 location,
                 appearance,
-                getImageBytes(picturePath, R.drawable.placeholder)
+                getImageBytes(picturePath)
         ).getOrHandle {
             Timber.error(ModelConversionException(it.toString()), it::toString)
             null
@@ -101,16 +99,14 @@ internal class AppPublishedChild private constructor(
                location: Location?,
                appearance: ApproximateAppearance,
                picturePath: PicturePath?
-        ): Either<Exception, AppPublishedChild> {
-            return if (name != null || notes != null || location != null || picturePath != null) {
-                AppPublishedChild(name, notes, location, appearance, picturePath).right()
-            } else {
-                Exception.NotEnoughDetailsException.left()
-            }
+        ): Either<PublishedChild.Exception, AppPublishedChild> {
+            return PublishedChild.validate(
+                    name,
+                    notes,
+                    location,
+                    appearance,
+                    getImageBytes(picturePath)
+            )?.left() ?: AppPublishedChild(name, notes, location, appearance, picturePath).right()
         }
-    }
-
-    sealed class Exception {
-        object NotEnoughDetailsException : Exception()
     }
 }

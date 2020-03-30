@@ -3,6 +3,7 @@ package inc.ahmedmourad.sherlock.viewmodel.controllers.validators.auth
 import arrow.core.Either
 import arrow.core.left
 import inc.ahmedmourad.sherlock.R
+import inc.ahmedmourad.sherlock.domain.model.auth.CompletedUser
 import inc.ahmedmourad.sherlock.domain.model.auth.SignUpUser
 import inc.ahmedmourad.sherlock.domain.model.auth.submodel.*
 import inc.ahmedmourad.sherlock.domain.model.common.PicturePath
@@ -12,7 +13,6 @@ import inc.ahmedmourad.sherlock.model.auth.AppSignUpUser
 import inc.ahmedmourad.sherlock.model.localizedMessage
 import splitties.init.appCtx
 
-//TODO: provide better messages for empty or blank
 internal fun validateEmail(value: String?): Either<String, Email> {
 
     if (value == null) {
@@ -66,7 +66,7 @@ internal fun validateAppCompletedUser(
             displayName,
             phoneNumber,
             picturePath
-    ).mapLeft(AppCompletedUser.Exception::localizedMessage)
+    ).mapLeft(CompletedUser.Exception::localizedMessage)
 }
 
 internal fun validateUserCredentials(

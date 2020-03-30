@@ -2,8 +2,8 @@ package inc.ahmedmourad.sherlock.model.auth
 
 import arrow.core.Either
 import arrow.core.getOrHandle
+import arrow.core.left
 import arrow.core.right
-import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.domain.exceptions.ModelConversionException
 import inc.ahmedmourad.sherlock.domain.model.auth.CompletedUser
 import inc.ahmedmourad.sherlock.domain.model.auth.submodel.DisplayName
@@ -29,7 +29,7 @@ internal class AppCompletedUser private constructor(
                 email,
                 displayName,
                 phoneNumber,
-                getImageBytes(picturePath, R.drawable.placeholder)
+                getImageBytes(picturePath)
         ).getOrHandle {
             Timber.error(ModelConversionException(it.toString()), it::toString)
             null
@@ -99,10 +99,9 @@ internal class AppCompletedUser private constructor(
                displayName: DisplayName,
                phoneNumber: PhoneNumber,
                picturePath: PicturePath?
-        ): Either<Exception, AppCompletedUser> {
-            return AppCompletedUser(id, email, displayName, phoneNumber, picturePath).right()
+        ): Either<CompletedUser.Exception, AppCompletedUser> {
+            return CompletedUser.validate(id, email, displayName, phoneNumber, getImageBytes(picturePath))?.left()
+                    ?: AppCompletedUser(id, email, displayName, phoneNumber, picturePath).right()
         }
     }
-
-    sealed class Exception
 }

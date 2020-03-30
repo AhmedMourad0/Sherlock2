@@ -1,13 +1,13 @@
 package inc.ahmedmourad.sherlock.model
 
 import inc.ahmedmourad.sherlock.R
+import inc.ahmedmourad.sherlock.domain.model.auth.CompletedUser
 import inc.ahmedmourad.sherlock.domain.model.auth.SignUpUser
 import inc.ahmedmourad.sherlock.domain.model.auth.submodel.*
 import inc.ahmedmourad.sherlock.domain.model.children.ChildQuery
+import inc.ahmedmourad.sherlock.domain.model.children.PublishedChild
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.*
 import inc.ahmedmourad.sherlock.domain.model.common.Name
-import inc.ahmedmourad.sherlock.model.auth.AppCompletedUser
-import inc.ahmedmourad.sherlock.model.children.AppPublishedChild
 import splitties.init.appCtx
 
 internal fun Name.Exception.localizedMessage(): String {
@@ -86,9 +86,9 @@ internal fun ExactAppearance.Exception.localizedMessage(): String {
     return appCtx.getString(R.string.incomplete_child_appearance)
 }
 
-internal fun AppPublishedChild.Exception.localizedMessage(): String {
+internal fun PublishedChild.Exception.localizedMessage(): String {
     return when (this) {
-        AppPublishedChild.Exception.NotEnoughDetailsException ->
+        PublishedChild.Exception.NotEnoughDetailsException ->
             appCtx.getString(R.string.child_not_enough_details)
     }
 }
@@ -181,6 +181,6 @@ internal fun SignUpUser.Exception.localizedMessage(): String {
 }
 
 @Suppress("unused")
-internal fun AppCompletedUser.Exception.localizedMessage(): String {
+internal fun CompletedUser.Exception.localizedMessage(): String {
     return appCtx.getString(R.string.invalid_user)
 }

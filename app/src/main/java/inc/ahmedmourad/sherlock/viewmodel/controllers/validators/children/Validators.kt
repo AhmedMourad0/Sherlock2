@@ -8,6 +8,7 @@ import inc.ahmedmourad.sherlock.domain.constants.Gender
 import inc.ahmedmourad.sherlock.domain.constants.Hair
 import inc.ahmedmourad.sherlock.domain.constants.Skin
 import inc.ahmedmourad.sherlock.domain.model.children.ChildQuery
+import inc.ahmedmourad.sherlock.domain.model.children.PublishedChild
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.*
 import inc.ahmedmourad.sherlock.domain.model.common.Name
 import inc.ahmedmourad.sherlock.domain.model.common.PicturePath
@@ -195,7 +196,7 @@ internal fun validateAppPublishedChild(
             location,
             appearance,
             picturePath
-    ).mapLeft(AppPublishedChild.Exception::localizedMessage)
+    ).mapLeft(PublishedChild.Exception::localizedMessage)
 }
 
 internal fun validateChildQuery(
