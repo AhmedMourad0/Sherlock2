@@ -236,7 +236,7 @@ internal fun extractSignedInUser(snapshot: DocumentSnapshot): Either<Throwable, 
                 ?.let(Url.Companion::of)
                 ?.mapLeft { ModelCreationException(it.toString()) } ?: null.right()
 
-        val (user) = SignedInUser.of(
+        SignedInUser.of(
                 id,
                 registrationDate,
                 email,
@@ -244,8 +244,6 @@ internal fun extractSignedInUser(snapshot: DocumentSnapshot): Either<Throwable, 
                 username,
                 phoneNumber,
                 pictureUrl
-        ).mapLeft { ModelCreationException(it.toString()) }
-
-        return@fx user
+        ).mapLeft { ModelCreationException(it.toString()) }.bind()
     }
 }

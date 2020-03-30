@@ -113,7 +113,7 @@ internal data class RoomChildEntity(
 
             val (appearance) = extractApproximateAppearance()
 
-            val (child) = RetrievedChild.of(
+            RetrievedChild.of(
                     ChildId(id),
                     publicationDate,
                     name,
@@ -124,9 +124,7 @@ internal data class RoomChildEntity(
             ).bimap(
                     leftOperation = { ModelConversionException(it.toString()) },
                     rightOperation = { it toT weight }
-            )
-
-            return@fx child
+            ).bind()
         }
     }
 
@@ -176,9 +174,11 @@ internal data class RoomChildEntity(
 
             val (last) = Name.of(lastName).mapLeft { ModelConversionException(it.toString()) }
 
-            val (fullName) = FullName.of(first, last).mapLeft { ModelConversionException(it.toString()) }
-
-            return@fx fullName.right()
+            FullName.of(first, last)
+                    .bimap(
+                            leftOperation = { ModelConversionException(it.toString()) },
+                            rightOperation = FullName::right
+                    ).bind()
         }
     }
 
@@ -216,9 +216,7 @@ internal data class RoomChildEntity(
             val (min) = Age.of(minAge).mapLeft { ModelConversionException(it.toString()) }
             val (max) = Age.of(maxAge).mapLeft { ModelConversionException(it.toString()) }
 
-            val (ageRange) = AgeRange.of(min, max).mapLeft { ModelConversionException(it.toString()) }
-
-            return@fx ageRange
+            AgeRange.of(min, max).mapLeft { ModelConversionException(it.toString()) }.bind()
         }
     }
 
@@ -231,9 +229,7 @@ internal data class RoomChildEntity(
             val (min) = Height.of(minHeight).mapLeft { ModelConversionException(it.toString()) }
             val (max) = Height.of(maxHeight).mapLeft { ModelConversionException(it.toString()) }
 
-            val (heightRange) = HeightRange.of(min, max).mapLeft { ModelConversionException(it.toString()) }
-
-            return@fx heightRange
+            HeightRange.of(min, max).mapLeft { ModelConversionException(it.toString()) }.bind()
         }
     }
 
@@ -244,18 +240,14 @@ internal data class RoomChildEntity(
             val name = locationName ?: return@fx null
             val address = locationAddress ?: return@fx null
 
-            val (coordinates) = extractCoordinates()
+            val coordinates = extractCoordinates().bind() ?: return@fx null
 
-            coordinates ?: return@fx null
-
-            val (location) = Location.of(
+            Location.of(
                     id,
                     name,
                     address,
                     coordinates
-            ).mapLeft { ModelConversionException(it.toString()) }
-
-            return@fx location
+            ).mapLeft { ModelConversionException(it.toString()) }.bind()
         }
     }
 

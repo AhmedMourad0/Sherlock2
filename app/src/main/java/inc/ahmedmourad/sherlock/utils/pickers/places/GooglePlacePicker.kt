@@ -35,13 +35,11 @@ internal class GooglePlacePicker : PlacePicker {
 
                 val (coordinates) = validateCoordinates(place.latLng.latitude, place.latLng.longitude)
 
-                val (location) = validateLocation(place.id,
+                validateLocation(place.id,
                         place.name.toString(),
                         place.address.toString(),
                         coordinates
-                )
-
-                return@fx location
+                ).bind()
             })
         }
     }

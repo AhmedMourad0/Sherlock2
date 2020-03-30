@@ -307,7 +307,7 @@ internal fun extractRetrievedChild(snapshot: DocumentSnapshot): Either<Throwable
 
         val (appearance) = extractApproximateAppearance(snapshot)
 
-        val (child) = RetrievedChild.of(
+        RetrievedChild.of(
                 ChildId(id),
                 publicationDate,
                 name,
@@ -315,9 +315,7 @@ internal fun extractRetrievedChild(snapshot: DocumentSnapshot): Either<Throwable
                 location,
                 appearance,
                 pictureUrl
-        ).mapLeft { ModelCreationException(it.toString()) }
-
-        return@fx child
+        ).mapLeft { ModelCreationException(it.toString()) }.bind()
     }
 }
 
@@ -333,9 +331,11 @@ private fun extractName(snapshot: DocumentSnapshot): Either<Throwable, Either<Na
 
         val (lastName) = Name.of(last).mapLeft { ModelCreationException(it.toString()) }
 
-        val (fullName) = FullName.of(firstName, lastName).mapLeft { ModelCreationException(it.toString()) }
-
-        return@fx fullName.right()
+        FullName.of(firstName, lastName)
+                .bimap(
+                        leftOperation = { ModelCreationException(it.toString()) },
+                        rightOperation = FullName::right
+                ).bind()
     }
 }
 
@@ -355,15 +355,13 @@ private fun extractApproximateAppearance(snapshot: DocumentSnapshot): Either<Thr
 
         val (heightRange) = extractHeightRange(snapshot).mapLeft { ModelCreationException(it.toString()) }
 
-        val (appearance) = ApproximateAppearance.of(
+        ApproximateAppearance.of(
                 gender,
                 skin,
                 hair,
                 ageRange,
                 heightRange
-        ).mapLeft { ModelCreationException(it.toString()) }
-
-        return@fx appearance
+        ).mapLeft { ModelCreationException(it.toString()) }.bind()
     }
 }
 
@@ -378,9 +376,7 @@ private fun extractAgeRange(snapshot: DocumentSnapshot): Either<Throwable, AgeRa
 
         val (maxAge) = Age.of(max).mapLeft { ModelCreationException(it.toString()) }
 
-        val (ageRange) = AgeRange.of(minAge, maxAge).mapLeft { ModelCreationException(it.toString()) }
-
-        return@fx ageRange
+        AgeRange.of(minAge, maxAge).mapLeft { ModelCreationException(it.toString()) }.bind()
     }
 }
 
@@ -395,9 +391,7 @@ private fun extractHeightRange(snapshot: DocumentSnapshot): Either<Throwable, He
 
         val (maxHeight) = Height.of(max).mapLeft { ModelCreationException(it.toString()) }
 
-        val (heightRange) = HeightRange.of(minHeight, maxHeight).mapLeft { ModelCreationException(it.toString()) }
-
-        return@fx heightRange
+        HeightRange.of(minHeight, maxHeight).mapLeft { ModelCreationException(it.toString()) }.bind()
     }
 }
 
@@ -411,18 +405,14 @@ private fun extractLocation(snapshot: DocumentSnapshot): Either<Throwable, Locat
         val locationAddress = snapshot.getString(Contract.Database.Children.LOCATION_ADDRESS)
                 ?: return@fx null
 
-        val (coordinates) = extractCoordinates(snapshot)
+        val coordinates = extractCoordinates(snapshot).bind() ?: return@fx null
 
-        coordinates ?: return@fx null
-
-        val (location) = Location.of(
+        Location.of(
                 locationId,
                 locationName,
                 locationAddress,
                 coordinates
-        ).mapLeft { ModelCreationException(it.toString()) }
-
-        return@fx location
+        ).mapLeft { ModelCreationException(it.toString()) }.bind()
     }
 }
 

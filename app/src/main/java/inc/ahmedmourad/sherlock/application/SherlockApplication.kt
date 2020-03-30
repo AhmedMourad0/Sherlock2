@@ -20,17 +20,11 @@ internal class SherlockApplication : MultiDexApplication() {
 *
 * SavedStateViewModel and DataBinding
 *
-* Find a way to store phone number at FirebaseAuth
-*
 * Dagger encapsulation with qualifiers
 *
 * * Package per feature
 *
 * replace exceptions with ADTs
-*
-* replace all Timber usages with the new 5.0.0 syntax
-*
-* simplify fx code with bind()
 *
 * replace RxJava and Coroutines Flow with Monads and Functors for more abstraction
 *

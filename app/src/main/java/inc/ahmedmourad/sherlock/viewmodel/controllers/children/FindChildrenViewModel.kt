@@ -73,13 +73,11 @@ internal class FindChildrenViewModel(
 
             val (location) = validateLocation(location.value).mapLeft(locationError::setValue)
 
-            val (query) = validateChildQuery(
+            validateChildQuery(
                     fullName,
                     location,
                     appearance
-            ).mapLeft(queryError::setValue)
-
-            return@fx query
+            ).mapLeft(queryError::setValue).bind()
 
         }.orNull()
     }

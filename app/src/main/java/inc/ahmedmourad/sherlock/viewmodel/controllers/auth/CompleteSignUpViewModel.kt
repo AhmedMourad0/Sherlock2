@@ -51,15 +51,13 @@ internal class CompleteSignUpViewModel(
                     phoneNumber.value
             ).mapLeft(phoneNumberError::setValue)
 
-            val (user) = validateAppCompletedUser(
+            validateAppCompletedUser(
                     incompleteUser.id,
                     email,
                     displayName,
                     phoneNumber,
                     picturePath.value
-            ).mapLeft(userError::setValue)
-
-            return@fx user
+            ).mapLeft(userError::setValue).bind()
 
         }.orNull()
     }

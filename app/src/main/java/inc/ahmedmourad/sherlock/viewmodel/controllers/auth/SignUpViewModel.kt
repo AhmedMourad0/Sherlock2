@@ -76,14 +76,12 @@ internal class SignUpViewModel(
                     phoneNumber.value
             ).mapLeft(phoneNumberError::setValue)
 
-            val (user) = validateAppSignUpUser(
+            validateAppSignUpUser(
                     credentials,
                     displayName,
                     phoneNumber,
                     picturePath.value
-            ).mapLeft(userError::setValue)
-
-            return@fx user
+            ).mapLeft(userError::setValue).bind()
 
         }.orNull()
     }

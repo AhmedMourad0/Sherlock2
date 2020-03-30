@@ -144,15 +144,13 @@ internal class AddChildViewModel(
                     hair.value
             ).mapLeft(appearanceError::setValue)
 
-            val (child) = validateAppPublishedChild(
+            validateAppPublishedChild(
                     name,
                     notes.value,
                     location.value,
                     appearance,
                     picturePath.value
-            ).mapLeft(childError::setValue)
-
-            return@fx child
+            ).mapLeft(childError::setValue).bind()
 
         }.orNull()
     }

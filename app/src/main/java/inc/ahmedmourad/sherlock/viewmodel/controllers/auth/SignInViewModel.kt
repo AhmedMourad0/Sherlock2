@@ -54,12 +54,10 @@ internal class SignInViewModel(
 
             val (password) = validatePassword(password.value).mapLeft(passwordError::setValue)
 
-            val (credentials) = validateUserCredentials(
+            validateUserCredentials(
                     email,
                     password
-            ).mapLeft(credentailsError::setValue)
-
-            return@fx credentials
+            ).mapLeft(credentailsError::setValue).bind()
 
         }.orNull()
     }
