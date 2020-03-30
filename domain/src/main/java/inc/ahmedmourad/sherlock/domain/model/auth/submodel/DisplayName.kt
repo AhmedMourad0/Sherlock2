@@ -40,15 +40,19 @@ class DisplayName private constructor(val value: String) {
         const val MAX_LENGTH = Name.MAX_LENGTH * MAX_NAMES_COUNT + (MAX_NAMES_COUNT - 1)
 
         fun of(value: String): Either<Exception, DisplayName> {
+            return validate(value)?.left() ?: DisplayName(value.trim()).right()
+        }
+
+        fun validate(value: String): Exception? {
             val trimmedName = value.trim()
             return if (value.isBlank()) {
-                Exception.BlankDisplayNameException.left()
+                Exception.BlankDisplayNameException
             } else if (trimmedName.length < MIN_LENGTH) {
-                Exception.DisplayNameTooShortException(trimmedName.length, MIN_LENGTH).left()
+                Exception.DisplayNameTooShortException(trimmedName.length, MIN_LENGTH)
             } else if (trimmedName.length > MAX_LENGTH) {
-                Exception.DisplayNameTooLongException(trimmedName.length, MAX_LENGTH).left()
+                Exception.DisplayNameTooLongException(trimmedName.length, MAX_LENGTH)
             } else if (!trimmedName.replace(" ", "").toCharArray().all(Char::isLetter)) {
-                Exception.DisplayNameContainsNumbersOrSymbolsException.left()
+                Exception.DisplayNameContainsNumbersOrSymbolsException
             } else {
 
                 val illegalName = value.split(" ")
@@ -56,9 +60,9 @@ class DisplayName private constructor(val value: String) {
                         .firstOrNull()
 
                 if (illegalName != null) {
-                    Exception.SingleNameException(illegalName.first, illegalName.second.a).left()
+                    Exception.SingleNameException(illegalName.first, illegalName.second.a)
                 } else {
-                    DisplayName(trimmedName).right()
+                    null
                 }
             }
         }

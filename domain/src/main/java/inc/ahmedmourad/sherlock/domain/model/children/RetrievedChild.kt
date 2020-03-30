@@ -106,6 +106,7 @@ class RetrievedChild private constructor(
     }
 
     companion object {
+
         fun of(id: ChildId,
                publicationDate: Long,
                name: Either<Name, FullName>?,
@@ -114,18 +115,23 @@ class RetrievedChild private constructor(
                appearance: ApproximateAppearance,
                pictureUrl: Url?
         ): Either<Exception, RetrievedChild> {
+            return validate(id, publicationDate, name, notes, location, appearance, pictureUrl)?.left()
+                    ?: RetrievedChild(id, publicationDate, name, notes, location, appearance, pictureUrl).right()
+        }
+
+        @Suppress("UNUSED_PARAMETER")
+        fun validate(id: ChildId,
+                     publicationDate: Long,
+                     name: Either<Name, FullName>?,
+                     notes: String?,
+                     location: Location?,
+                     appearance: ApproximateAppearance,
+                     pictureUrl: Url?
+        ): Exception? {
             return if (name != null || notes != null || location != null || pictureUrl != null) {
-                RetrievedChild(
-                        id,
-                        publicationDate,
-                        name,
-                        notes,
-                        location,
-                        appearance,
-                        pictureUrl
-                ).right()
+                null
             } else {
-                Exception.NotEnoughDetailsException.left()
+                Exception.NotEnoughDetailsException
             }
         }
     }

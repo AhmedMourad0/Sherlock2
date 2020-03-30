@@ -1,6 +1,7 @@
 package inc.ahmedmourad.sherlock.domain.model.auth
 
 import arrow.core.Either
+import arrow.core.left
 import arrow.core.right
 import inc.ahmedmourad.sherlock.domain.model.auth.submodel.DisplayName
 import inc.ahmedmourad.sherlock.domain.model.auth.submodel.Email
@@ -74,19 +75,25 @@ class IncompleteUser private constructor(
     }
 
     companion object {
+
         fun of(id: UserId,
                email: Email?,
                displayName: DisplayName?,
                phoneNumber: PhoneNumber?,
                pictureUrl: Url?
         ): Either<Exception, IncompleteUser> {
-            return IncompleteUser(
-                    id,
-                    email,
-                    displayName,
-                    phoneNumber,
-                    pictureUrl
-            ).right()
+            return validate(id, email, displayName, phoneNumber, pictureUrl)?.left()
+                    ?: IncompleteUser(id, email, displayName, phoneNumber, pictureUrl).right()
+        }
+
+        @Suppress("UNUSED_PARAMETER")
+        fun validate(id: UserId,
+                     email: Email?,
+                     displayName: DisplayName?,
+                     phoneNumber: PhoneNumber?,
+                     pictureUrl: Url?
+        ): Exception? {
+            return null
         }
     }
 

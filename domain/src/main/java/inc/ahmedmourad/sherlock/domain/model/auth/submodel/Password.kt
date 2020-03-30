@@ -38,25 +38,29 @@ class Password private constructor(val value: String) {
         private const val MIN_DISTINCT_CHARACTERS = 4
 
         fun of(value: String): Either<Exception, Password> {
+            return validate(value)?.left() ?: Password(value).right()
+        }
+
+        fun validate(value: String): Exception? {
             val chars = value.toCharArray()
             return when {
 
-                value.isBlank() -> Exception.BlankPasswordException.left()
+                value.isBlank() -> Exception.BlankPasswordException
 
-                value.length < MIN_LENGTH -> Exception.PasswordTooShortException(value.length, MIN_LENGTH).left()
+                value.length < MIN_LENGTH -> Exception.PasswordTooShortException(value.length, MIN_LENGTH)
 
-                chars.none(Char::isUpperCase) -> Exception.NoCapitalLettersException.left()
+                chars.none(Char::isUpperCase) -> Exception.NoCapitalLettersException
 
-                chars.none(Char::isLowerCase) -> Exception.NoSmallLettersException.left()
+                chars.none(Char::isLowerCase) -> Exception.NoSmallLettersException
 
-                chars.none(Char::isDigit) -> Exception.NoDigitsException.left()
+                chars.none(Char::isDigit) -> Exception.NoDigitsException
 
-                chars.all(Char::isLetterOrDigit) -> Exception.NoSymbolsException.left()
+                chars.all(Char::isLetterOrDigit) -> Exception.NoSymbolsException
 
                 chars.distinct().size < MIN_DISTINCT_CHARACTERS ->
-                    Exception.FewDistinctCharactersException(chars.distinct().size, MIN_DISTINCT_CHARACTERS).left()
+                    Exception.FewDistinctCharactersException(chars.distinct().size, MIN_DISTINCT_CHARACTERS)
 
-                else -> Password(value).right()
+                else -> null
             }
         }
     }

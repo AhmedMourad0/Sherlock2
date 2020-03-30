@@ -67,6 +67,7 @@ class ApproximateAppearance private constructor(
     }
 
     companion object {
+
         fun of(
                 gender: Gender?,
                 skin: Skin?,
@@ -74,10 +75,21 @@ class ApproximateAppearance private constructor(
                 age: AgeRange?,
                 height: HeightRange?
         ): Either<Exception, ApproximateAppearance> {
+            return validate(gender, skin, hair, age, height)?.left()
+                    ?: ApproximateAppearance(gender, skin, hair, age, height).right()
+        }
+
+        fun validate(
+                gender: Gender?,
+                skin: Skin?,
+                hair: Hair?,
+                age: AgeRange?,
+                height: HeightRange?
+        ): Exception? {
             return if (gender != null || skin != null || hair != null || age != null || height != null) {
-                ApproximateAppearance(gender, skin, hair, age, height).right()
+                null
             } else {
-                Exception.NotEnoughDetailsException.left()
+                Exception.NotEnoughDetailsException
             }
         }
     }

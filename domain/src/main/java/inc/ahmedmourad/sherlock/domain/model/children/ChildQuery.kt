@@ -1,6 +1,7 @@
 package inc.ahmedmourad.sherlock.domain.model.children
 
 import arrow.core.Either
+import arrow.core.left
 import arrow.core.right
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.ExactAppearance
 import inc.ahmedmourad.sherlock.domain.model.children.submodel.FullName
@@ -54,10 +55,21 @@ class ChildQuery private constructor(
     }
 
     companion object {
+
         fun of(fullName: FullName,
                location: Location,
-               appearance: ExactAppearance): Either<Exception, ChildQuery> {
-            return ChildQuery(fullName, location, appearance).right()
+               appearance: ExactAppearance
+        ): Either<Exception, ChildQuery> {
+            return validate(fullName, location, appearance)?.left()
+                    ?: ChildQuery(fullName, location, appearance).right()
+        }
+
+        @Suppress("UNUSED_PARAMETER")
+        fun validate(fullName: FullName,
+                     location: Location,
+                     appearance: ExactAppearance
+        ): Exception? {
+            return null
         }
     }
 

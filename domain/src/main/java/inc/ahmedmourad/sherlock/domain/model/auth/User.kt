@@ -1,6 +1,7 @@
 package inc.ahmedmourad.sherlock.domain.model.auth
 
 import arrow.core.Either
+import arrow.core.left
 import arrow.core.right
 import inc.ahmedmourad.sherlock.domain.model.auth.submodel.DisplayName
 import inc.ahmedmourad.sherlock.domain.model.auth.submodel.Email
@@ -99,6 +100,7 @@ class User private constructor(
     }
 
     companion object {
+
         fun of(id: UserId,
                registrationDate: Long,
                lastLoginDate: Long,
@@ -108,7 +110,21 @@ class User private constructor(
                phoneNumber: PhoneNumber,
                pictureUrl: Url?
         ): Either<Exception, User> {
-            return User(id, registrationDate, lastLoginDate, email, displayName, username, phoneNumber, pictureUrl).right()
+            return validate(id, registrationDate, lastLoginDate, email, displayName, username, phoneNumber, pictureUrl)?.left()
+                    ?: User(id, registrationDate, lastLoginDate, email, displayName, username, phoneNumber, pictureUrl).right()
+        }
+
+        @Suppress("UNUSED_PARAMETER")
+        fun validate(id: UserId,
+                     registrationDate: Long,
+                     lastLoginDate: Long,
+                     email: Email,
+                     displayName: DisplayName,
+                     username: Username,
+                     phoneNumber: PhoneNumber,
+                     pictureUrl: Url?
+        ): Exception? {
+            return null
         }
     }
 

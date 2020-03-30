@@ -46,10 +46,15 @@ class UserCredentials private constructor(
     }
 
     companion object {
+
         fun of(email: Email, password: Password): Either<Exception, UserCredentials> {
+            return validate(email, password)?.left() ?: UserCredentials(email, password).right()
+        }
+
+        fun validate(email: Email, password: Password): Exception? {
             return when (password.value) {
-                email.value -> Exception.EmailIsUsedAsPasswordException.left()
-                else -> UserCredentials(email, password).right()
+                email.value -> Exception.EmailIsUsedAsPasswordException
+                else -> null
             }
         }
     }

@@ -106,16 +106,28 @@ class PublishedChild private constructor(
     }
 
     companion object {
+
         fun of(name: Either<Name, FullName>?,
                notes: String?,
                location: Location?,
                appearance: ApproximateAppearance,
                picture: ByteArray?
         ): Either<Exception, PublishedChild> {
+            return validate(name, notes, location, appearance, picture)?.left()
+                    ?: PublishedChild(name, notes, location, appearance, picture).right()
+        }
+
+        @Suppress("UNUSED_PARAMETER")
+        fun validate(name: Either<Name, FullName>?,
+                     notes: String?,
+                     location: Location?,
+                     appearance: ApproximateAppearance,
+                     picture: ByteArray?
+        ): Exception? {
             return if (name != null || notes != null || location != null || picture != null) {
-                PublishedChild(name, notes, location, appearance, picture).right()
+                null
             } else {
-                Exception.NotEnoughDetailsException.left()
+                Exception.NotEnoughDetailsException
             }
         }
     }

@@ -49,14 +49,14 @@ class Username private constructor(val value: String) {
                 val suffix = System.currentTimeMillis() % 10.0.pow(SUFFIX_LENGTH).toLong()
                 of(displayName.value.replace(" ", "_") + suffix)
             } else {
-                of(createRandomName())
+                of(createRandomUsername())
             }.getOrHandle {
                 Timber.error(ModelCreationException(it.toString()), it::toString)
                 null
             }!!
         }
 
-        private fun createRandomName(): String {
+        private fun createRandomUsername(): String {
 
             val underscoresMaxLength = 2
             val lettersMaxLength = MAX_LENGTH_WITHOUT_SUFFIX / 2 - underscoresMaxLength
@@ -76,31 +76,35 @@ class Username private constructor(val value: String) {
         }
 
         fun of(value: String): Either<Exception, Username> {
+            return validate(value)?.left() ?: Username(value.trim()).right()
+        }
+
+        fun validate(value: String): Exception? {
             val trimmedValue = value.trim()
             return when {
 
-                trimmedValue.isBlank() -> Exception.BlankUsernameException.left()
+                trimmedValue.isBlank() -> Exception.BlankUsernameException
 
-                trimmedValue.contains(" ") -> Exception.UsernameContainsWhiteSpacesException.left()
+                trimmedValue.contains(" ") -> Exception.UsernameContainsWhiteSpacesException
 
-                trimmedValue.length < MIN_LENGTH -> Exception.UsernameTooShortException(trimmedValue.length, MIN_LENGTH).left()
+                trimmedValue.length < MIN_LENGTH -> Exception.UsernameTooShortException(trimmedValue.length, MIN_LENGTH)
 
-                trimmedValue.length > MAX_LENGTH -> Exception.UsernameTooLongException(trimmedValue.length, MAX_LENGTH).left()
+                trimmedValue.length > MAX_LENGTH -> Exception.UsernameTooLongException(trimmedValue.length, MAX_LENGTH)
 
                 trimmedValue.replace("_", "").all(Character::isLetterOrDigit).not() ->
-                    Exception.UsernameContainsNonUnderscoreSymbolsException.left()
+                    Exception.UsernameContainsNonUnderscoreSymbolsException
 
                 trimmedValue.replace("_", "").isBlank() ->
-                    Exception.UsernameOnlyContainsUnderscoresException.left()
+                    Exception.UsernameOnlyContainsUnderscoresException
 
-                trimmedValue.all(Character::isDigit) -> Exception.UsernameOnlyContainsDigitsException.left()
+                trimmedValue.all(Character::isDigit) -> Exception.UsernameOnlyContainsDigitsException
 
-                trimmedValue.none(Character::isLetter) -> Exception.NoLettersException.left()
+                trimmedValue.none(Character::isLetter) -> Exception.NoLettersException
 
                 trimmedValue.any { it.isLetter() && it.toLowerCase() !in 'a'..'z' } ->
-                    Exception.UsernameContainsNonEnglishLettersException.left()
+                    Exception.UsernameContainsNonEnglishLettersException
 
-                else -> Username(trimmedValue).right()
+                else -> null
             }
         }
     }

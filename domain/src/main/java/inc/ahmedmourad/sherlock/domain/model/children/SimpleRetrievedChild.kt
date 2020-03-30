@@ -92,6 +92,7 @@ class SimpleRetrievedChild private constructor(
     }
 
     companion object {
+
         fun of(id: ChildId,
                publicationDate: Long,
                name: Either<Name, FullName>?,
@@ -100,20 +101,26 @@ class SimpleRetrievedChild private constructor(
                locationAddress: String?,
                pictureUrl: Url?
         ): Either<Exception, SimpleRetrievedChild> {
+            return validate(id, publicationDate, name, notes, locationName, locationAddress, pictureUrl)?.left()
+                    ?: SimpleRetrievedChild(id, publicationDate, name, notes, locationName, locationAddress, pictureUrl).right()
+        }
+
+        @Suppress("UNUSED_PARAMETER")
+        fun validate(id: ChildId,
+                     publicationDate: Long,
+                     name: Either<Name, FullName>?,
+                     notes: String?,
+                     locationName: String?,
+                     locationAddress: String?,
+                     pictureUrl: Url?
+        ): Exception? {
             return if (name != null || notes != null || locationName != null || locationAddress != null || pictureUrl != null) {
-                SimpleRetrievedChild(
-                        id,
-                        publicationDate,
-                        name,
-                        notes,
-                        locationName,
-                        locationAddress,
-                        pictureUrl
-                ).right()
+                null
             } else {
-                Exception.NotEnoughDetailsException.left()
+                Exception.NotEnoughDetailsException
             }
         }
+
     }
 
     sealed class Exception {

@@ -38,11 +38,15 @@ class Email private constructor(val value: String) {
                 Regex("""[a-zA-Z0-9+._%\-]{1,256}@[a-zA-Z0-9][a-zA-Z0-9\-]{0,64}(\.[a-zA-Z0-9][a-zA-Z0-9\-]{0,25})+""")
 
         fun of(value: String): Either<Exception, Email> {
+            return validate(value)?.left() ?: Email(value.trim()).right()
+        }
+
+        fun validate(value: String): Exception? {
             return when {
-                value.isBlank() -> Exception.BlankEmailException.left()
-                value.trim().contains(" ") -> Exception.EmailContainsWhiteSpacesException.left()
-                EMAIL_REGEX.matches(value) -> Exception.MalformedEmailException.left()
-                else -> Email(value.trim()).right()
+                value.isBlank() -> Exception.BlankEmailException
+                value.trim().contains(" ") -> Exception.EmailContainsWhiteSpacesException
+                EMAIL_REGEX.matches(value) -> Exception.MalformedEmailException
+                else -> null
             }
         }
     }

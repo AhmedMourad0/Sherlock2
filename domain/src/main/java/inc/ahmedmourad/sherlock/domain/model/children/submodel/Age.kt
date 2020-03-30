@@ -38,10 +38,14 @@ class Age private constructor(val value: Int) {
         private const val MAX_VALUE = 200
 
         fun of(value: Int): Either<Exception, Age> {
+            return validate(value)?.left() ?: Age(value).right()
+        }
+
+        fun validate(value: Int): Exception? {
             return if (value in MIN_VALUE..MAX_VALUE) {
-                Age(value).right()
+                null
             } else {
-                Exception.AgeOutOfRangeException(value, MIN_VALUE, MAX_VALUE).left()
+                Exception.AgeOutOfRangeException(value, MIN_VALUE, MAX_VALUE)
             }
         }
     }

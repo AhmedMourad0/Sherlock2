@@ -40,11 +40,16 @@ class HeightRange private constructor(val min: Height, val max: Height) {
     }
 
     companion object {
+
         fun of(min: Height, max: Height): Either<Exception, HeightRange> {
+            return validate(min, max)?.left() ?: HeightRange(min, max).right()
+        }
+
+        fun validate(min: Height, max: Height): Exception? {
             return if (min.value < max.value) {
-                HeightRange(min, max).right()
+                null
             } else {
-                Exception.MinExceedsMaxException(min, max).left()
+                Exception.MinExceedsMaxException(min, max)
             }
         }
     }

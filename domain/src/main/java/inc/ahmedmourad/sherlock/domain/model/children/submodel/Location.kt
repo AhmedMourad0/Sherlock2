@@ -1,6 +1,7 @@
 package inc.ahmedmourad.sherlock.domain.model.children.submodel
 
 import arrow.core.Either
+import arrow.core.left
 import arrow.core.right
 
 class Location private constructor(
@@ -56,8 +57,15 @@ class Location private constructor(
     }
 
     companion object {
+
         fun of(id: String, name: String, address: String, coordinates: Coordinates): Either<Exception, Location> {
-            return Location(id, name, address, coordinates).right()
+            return validate(id, name, address, coordinates)?.left()
+                    ?: Location(id, name, address, coordinates).right()
+        }
+
+        @Suppress("UNUSED_PARAMETER")
+        fun validate(id: String, name: String, address: String, coordinates: Coordinates): Exception? {
+            return null
         }
     }
 

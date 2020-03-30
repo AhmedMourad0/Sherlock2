@@ -73,22 +73,33 @@ class SignUpUser private constructor(
     }
 
     companion object {
+
         fun of(credentials: UserCredentials,
                displayName: DisplayName,
                phoneNumber: PhoneNumber,
                picture: ByteArray?
         ): Either<Exception, SignUpUser> {
+            return validate(credentials, displayName, phoneNumber, picture)?.left()
+                    ?: SignUpUser(credentials, displayName, phoneNumber, picture).right()
+        }
+
+        @Suppress("UNUSED_PARAMETER")
+        fun validate(credentials: UserCredentials,
+                     displayName: DisplayName,
+                     phoneNumber: PhoneNumber,
+                     picture: ByteArray?
+        ): Exception? {
             return when {
 
                 displayName.value == credentials.password.value ->
-                    Exception.DisplayNameIsUsedAsPasswordException.left()
+                    Exception.DisplayNameIsUsedAsPasswordException
 
                 credentials.password.value in arrayOf(
                         phoneNumber.number,
                         phoneNumber.countryCode + phoneNumber.number
-                ) -> Exception.PhoneNumberIsUsedAsPasswordException.left()
+                ) -> Exception.PhoneNumberIsUsedAsPasswordException
 
-                else -> SignUpUser(credentials, displayName, phoneNumber, picture).right()
+                else -> null
             }
         }
     }

@@ -40,19 +40,24 @@ class Coordinates private constructor(val latitude: Double, val longitude: Doubl
     }
 
     companion object {
+
         fun of(latitude: Double, longitude: Double): Either<Exception, Coordinates> {
+            return validate(latitude, longitude)?.left() ?: Coordinates(latitude, longitude).right()
+        }
+
+        fun validate(latitude: Double, longitude: Double): Exception? {
 
             val isLatitudeValid = latitude between (-90.0 to 90.0)
             val isLongitudeValid = longitude between (-180.0 to 180.0)
 
             return if (!isLatitudeValid && !isLongitudeValid) {
-                Exception.InvalidCoordinatesException.left()
+                Exception.InvalidCoordinatesException
             } else if (!isLatitudeValid) {
-                Exception.InvalidLatitudeException.left()
+                Exception.InvalidLatitudeException
             } else if (!isLongitudeValid) {
-                Exception.InvalidLongitudeException.left()
+                Exception.InvalidLongitudeException
             } else {
-                Coordinates(latitude, longitude).right()
+                null
             }
         }
     }

@@ -38,10 +38,14 @@ class Height private constructor(val value: Int) {
         private const val MAX_VALUE = 300
 
         fun of(value: Int): Either<Exception, Height> {
+            return validate(value)?.left() ?: Height(value).right()
+        }
+
+        fun validate(value: Int): Exception? {
             return if (value in MIN_VALUE..MAX_VALUE) {
-                Height(value).right()
+                null
             } else {
-                Exception.HeightOutOfRangeException(value, MIN_VALUE, MAX_VALUE).left()
+                Exception.HeightOutOfRangeException(value, MIN_VALUE, MAX_VALUE)
             }
         }
     }
