@@ -5,11 +5,12 @@ import android.graphics.drawable.BitmapDrawable
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
+import inc.ahmedmourad.sherlock.R
 import inc.ahmedmourad.sherlock.domain.model.common.PicturePath
 import splitties.init.appCtx
 import java.io.ByteArrayOutputStream
 
-internal fun getImageBytes(imagePath: PicturePath?, @DrawableRes onError: Int): ByteArray {
+internal fun getImageBytes(imagePath: PicturePath?, @DrawableRes onError: Int = R.drawable.placeholder): ByteArray {
     return if (imagePath == null) {
         getImageBytes(onError)
     } else {
